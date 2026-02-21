@@ -7,6 +7,7 @@ const FAVORITES = [
     note: "🧀 Luki ohne Käse-Topping",
     prepTime: "15",
     servings: "2",
+    cuisine: "comfort",
     link: null,
     ingredients: [
       {amount: "200", unit: "g", name: "Feldsalat (Vogerlsalat)"},
@@ -32,8 +33,7 @@ const FAVORITES = [
     subtitle: "Sizilianische Auberginen-Pasta mit Ricotta Salata",
     tags: ["mediterran", "italienisch", "Lola-Solo"],
     note: "🧀 Ricotta Salata nur für Lola — Luki ohne Käse servieren",
-    prepTime: "30",
-    servings: "2",
+    prepTime: "30", servings: "2", cuisine: "mediterran",
     link: "https://www.madamecuisine.de/pasta-alla-norma/"
   },
   {
@@ -41,9 +41,7 @@ const FAVORITES = [
     title: "Ratatouille",
     subtitle: "Provenzalisches Ofengemüse — bunt, gesund, aromatisch",
     tags: ["mediterran", "französisch", "Lola+Luki", "ofengericht"],
-    prepTime: "25",
-    servings: "2",
-    link: null,
+    prepTime: "25", servings: "2", cuisine: "mediterran", link: null,
     ingredients: [
       {amount: "1", unit: "", name: "Aubergine, gewürfelt"},
       {amount: "2", unit: "", name: "Zucchini, gewürfelt"},
@@ -71,8 +69,7 @@ const FAVORITES = [
     title: "Rote Linsen Curry",
     subtitle: "Cremiges Dal mit Kokosmilch und Reis",
     tags: ["indisch", "vegan", "Lola+Luki", "eiweißreich"],
-    prepTime: "25",
-    servings: "2",
+    prepTime: "25", servings: "2", cuisine: "asiatisch",
     link: "https://www.kitchenstories.com/de/rezepte/roter-linseneintopf-9be3",
     ingredients: [
       {amount: "200", unit: "g", name: "rote Linsen"},
@@ -97,23 +94,13 @@ const FAVORITES = [
     ],
     tips: "Extra-Eiweiß: Kichererbsen dazugeben. Für Lola: mit gerösteten Kürbiskernen toppen (Eisen!)."
   },
-  {
-    id: "pad-thai",
-    title: "Pad Thai mit Tofu",
-    subtitle: "Thailändischer Klassiker mit Reisnudeln und Erdnüssen",
-    tags: ["asiatisch", "thai", "vegan-möglich", "Lola+Luki"],
-    prepTime: "25",
-    servings: "2",
-    link: "https://www.kitchenstories.com/de/rezepte/pad-thai-salat-mit-tofu"
-  },
+  {id: "pad-thai", title: "Pad Thai mit Tofu", subtitle: "Thailändischer Klassiker mit Reisnudeln und Erdnüssen", tags: ["asiatisch", "thai", "vegan-möglich", "Lola+Luki"], prepTime: "25", servings: "2", cuisine: "asiatisch", link: "https://www.kitchenstories.com/de/rezepte/pad-thai-salat-mit-tofu"},
   {
     id: "asiatische-gemusepfanne",
     title: "Asiatische Gemüsepfanne",
     subtitle: "Schnelles Wok-Gemüse mit Sojasauce und Sesam",
     tags: ["asiatisch", "schnell", "vegan", "Lola+Luki"],
-    prepTime: "20",
-    servings: "2",
-    link: null,
+    prepTime: "20", servings: "2", cuisine: "asiatisch", link: null,
     ingredients: [
       {amount: "1", unit: "", name: "Brokkoli, in Röschen"},
       {amount: "2", unit: "", name: "Karotten, in Streifen"},
@@ -139,12 +126,10 @@ const FAVORITES = [
   {
     id: "pasta-al-limone",
     title: "Pasta al Limone",
-    subtitle: "Zitronige Pasta — optional mit Scampi (auch für Lola ausnahmsweise!)",
+    subtitle: "Zitronige Pasta — optional mit Scampi",
     tags: ["mediterran", "italienisch", "schnell", "Lola+Luki"],
     note: "🦐 Scampi-Ausnahme auch für Lola!",
-    prepTime: "20",
-    servings: "2",
-    link: null,
+    prepTime: "20", servings: "2", cuisine: "mediterran", link: null,
     ingredients: [
       {amount: "250", unit: "g", name: "Spaghetti oder Linguine"},
       {amount: "2", unit: "", name: "Bio-Zitronen (Saft + Abrieb)"},
@@ -164,190 +149,31 @@ const FAVORITES = [
     ],
     tips: "Für Extra-Cremigkeit: einen Schuss Hafercreme dazu."
   },
-  {
-    id: "menemen-shakshuka",
-    title: "Menemen / Shakshuka",
-    subtitle: "Orientalische Eierpfanne in würziger Tomatensauce",
-    tags: ["orientalisch", "türkisch", "schnell", "Lola+Luki"],
-    note: "🧀 Feta nur für Lola dazugeben",
-    prepTime: "20",
-    servings: "2",
-    link: "https://www.fitforfun.de/rezepte/shakshuka-mit-feta"
-  },
-  {
-    id: "chili-sin-carne",
-    title: "Chili sin Carne mit Süßkartoffel",
-    subtitle: "Würziges Bohnen-Chili — vegan und voller Eiweiß",
-    tags: ["vegan", "eiweißreich", "mexikanisch", "Lola+Luki"],
-    prepTime: "30",
-    servings: "2",
-    link: "https://www.kitchenstories.com/de/rezepte/susskartoffel-bohnen-chili"
-  },
-  {
-    id: "soba-nudel-salat",
-    title: "Soba-Nudel Salat mit Tofu & Miso",
-    subtitle: "Japanisch inspirierter Nudelsalat — kalt oder warm",
-    tags: ["asiatisch", "japanisch", "vegan", "Lola+Luki"],
-    prepTime: "25",
-    servings: "2",
-    link: "https://www.kitchenstories.com/de/rezepte/sobanudeln-mit-tofu-in-miso-marinade-und-gemuse"
-  },
-  {
-    id: "susskartoffel-linsen-suppe",
-    title: "Süßkartoffel-Linsen Suppe mit Curry",
-    subtitle: "Cremige Wohlfühlsuppe — wärmend und sättigend",
-    tags: ["indisch", "suppe", "vegan", "Lola+Luki", "eiweißreich"],
-    prepTime: "25",
-    servings: "2",
-    link: "https://www.kitchenstories.com/de/rezepte/susskartoffel-linsensuppe-mit-curry"
-  },
-  {
-    id: "wraps-burritos",
-    title: "Würzige Wraps / Burritos mit Avocado",
-    subtitle: "Gefüllte Tortillas — schnell, sättigend, anpassbar",
-    tags: ["mexikanisch", "schnell", "Lola+Luki"],
-    prepTime: "20",
-    servings: "2",
-    link: "https://www.kitchenstories.com/de/rezepte/wurzige-burritos-mit-avocado"
-  },
-  {
-    id: "rote-beete-carpaccio",
-    title: "Rote Beete Carpaccio mit Kräutern",
-    subtitle: "Elegant, frisch und voller Nährstoffe",
-    tags: ["mediterran", "schnell", "vorspeise", "Lola-Solo"],
-    note: "🧀 Mit Feta für Lola. Für Luki: ohne Käse, mit Kürbiskernen",
-    prepTime: "15",
-    servings: "2",
-    link: "https://www.slowlyveggie.de/rezepte/rote-bete-salat-mit-feta-einfach-so-lecker"
-  },
-  {
-    id: "taboule",
-    title: "Taboulé",
-    subtitle: "Libanesischer Petersilien-Bulgur-Salat — frisch & zitronig",
-    tags: ["orientalisch", "schnell", "vegan", "Lola+Luki"],
-    prepTime: "15",
-    servings: "2",
-    link: "https://www.kitchenstories.com/de/rezepte/tabbouleh-de"
-  },
-  {
-    id: "nudeln-avocado-pesto",
-    title: "Nudeln mit Avocado-Pesto",
-    subtitle: "Cremiges Pesto ohne Käse — schnell und gesund",
-    tags: ["italienisch", "schnell", "vegan", "Lola+Luki"],
-    prepTime: "15",
-    servings: "2",
-    link: "https://www.kitchenstories.com/de/rezepte/nudeln-mit-avocado-pesto-2a4a"
-  },
-  {
-    id: "aubergine-minze-granatapfel",
-    title: "Gebackene Aubergine mit Minze & Granatapfel",
-    subtitle: "Ottolenghi-inspiriert — orientalisch und aromatisch",
-    tags: ["orientalisch", "ottolenghi", "ofengericht", "Lola-Solo"],
-    note: "🧀 Originalrezept mit Zitronenjoghurt — für Luki: Tahinisauce statt Joghurt",
-    prepTime: "30",
-    servings: "2",
-    link: "https://www.bildderfrau.de/diaet-ernaehrung/article210764889/Gebackene-Aubergine-mit-Zitronenjoghurt-und-Minze.html"
-  },
-  {
-    id: "ofenkuerbis-kichererbsen",
-    title: "Ofenkürbis mit Kichererbsen und Avocado",
-    subtitle: "Herbstliches Ofengericht — eiweißreich und sättigend",
-    tags: ["orientalisch", "ofengericht", "vegan", "Lola+Luki", "eiweißreich"],
-    prepTime: "30",
-    servings: "2",
-    link: "https://www.fitforfun.de/rezepte/ofenkuerbis-mit-kichererbsen-und-avocado"
-  },
-  {
-    id: "kichererbsen-linsen-salat",
-    title: "Kichererbsen-Linsen-Salat mit Halloumi",
-    subtitle: "Warmer Salat voller Eiweiß und Ballaststoffe",
-    tags: ["mediterran", "eiweißreich", "Lola-Solo"],
-    note: "🧀 Halloumi nur für Lola — Luki: mit gerösteten Kürbiskernen statt Käse",
-    prepTime: "25",
-    servings: "2",
-    link: "https://www.fitforfun.de/rezepte/wuerziger-kichererbsen-linsen-salat-mit-halloumi"
-  },
-  {
-    id: "couscous-susskartoffel-salat",
-    title: "Couscous-Süßkartoffel-Salat",
-    subtitle: "Bunter Salat — süß, herzhaft, sättigend",
-    tags: ["orientalisch", "schnell", "vegan", "Lola+Luki"],
-    prepTime: "25",
-    servings: "2",
-    link: "https://www.fitforfun.de/rezepte/couscous-suesskartoffel-salat"
-  },
-  {
-    id: "kuerbissuppe",
-    title: "Kürbissuppe",
-    subtitle: "Cremig, wärmend, simpel — der Herbstklassiker",
-    tags: ["suppe", "vegan", "schnell", "Lola+Luki"],
-    prepTime: "25",
-    servings: "2",
-    link: "https://www.fitforfun.de/rezepte/easy-peasy-kuerbissuppe"
-  },
-  {
-    id: "ofengemuese-feta",
-    title: "Ofengemüse mit Feta",
-    subtitle: "Buntes Gemüse aus dem Ofen — einfach und aromatisch",
-    tags: ["mediterran", "ofengericht", "Lola-Solo"],
-    note: "🧀 Feta nur für Lola — Luki: mit Tahini-Dressing statt Käse",
-    prepTime: "30",
-    servings: "2",
-    link: "https://www.slowlyveggie.de/rezepte/ofengemuese-mit-feta-einfach-schnell"
-  },
-  {
-    id: "palak-paneer-vegan",
-    title: "Veganes Palak Paneer",
-    subtitle: "Indischer Spinat-Klassiker — vegan und cremig",
-    tags: ["indisch", "vegan", "eiweißreich", "Lola+Luki"],
-    prepTime: "30",
-    servings: "2",
-    link: "https://www.slowlyveggie.de/rezepte/veganes-palak-paneer-so-lecker-wie-das-original"
-  },
-  {
-    id: "thai-curry-veg",
-    title: "Vegetarisches Thai-Curry",
-    subtitle: "Cremiges Curry mit Kokosmilch und buntem Gemüse",
-    tags: ["asiatisch", "thai", "vegan", "Lola+Luki"],
-    prepTime: "25",
-    servings: "2",
-    link: "https://www.slowlyveggie.de/rezepte/vegetarisches-thai-curry-rezept-mit-gemuese-kokosmilch"
-  },
-  {
-    id: "poke-bowl-vegan",
-    title: "Vegane Poke Bowl",
-    subtitle: "Bunte Bowl mit Edamame, Avocado und Sesam-Dressing",
-    tags: ["asiatisch", "bowl", "vegan", "Lola+Luki"],
-    prepTime: "20",
-    servings: "2",
-    link: "https://www.slowlyveggie.de/rezepte/vegane-poke-bowl-gesund-so-einfach"
-  },
-  {
-    id: "gefuellte-auberginen",
-    title: "Gefüllte Auberginen",
-    subtitle: "Orientalisch gewürzt — herzhaft und sättigend",
-    tags: ["orientalisch", "ofengericht", "Lola+Luki"],
-    prepTime: "30",
-    servings: "2",
-    link: "https://www.slowlyveggie.de/rezepte/gefuellte-auberginen-vegetarisch-einfach-so-wuerzig"
-  },
-  {
-    id: "nasi-goreng",
-    title: "Vegetarisches Nasi Goreng",
-    subtitle: "Indonesischer gebratener Reis mit Gemüse und Ei",
-    tags: ["asiatisch", "indonesisch", "schnell", "Lola+Luki"],
-    prepTime: "20",
-    servings: "2",
-    link: "https://www.slowlyveggie.de/rezepte/vegetarisches-nasi-goreng-einfach-schnell"
-  },
+  {id: "menemen-shakshuka", title: "Menemen / Shakshuka", subtitle: "Orientalische Eierpfanne in würziger Tomatensauce", tags: ["orientalisch", "türkisch", "schnell", "Lola+Luki"], note: "🧀 Feta nur für Lola dazugeben", prepTime: "20", servings: "2", cuisine: "orientalisch", link: "https://www.fitforfun.de/rezepte/shakshuka-mit-feta"},
+  {id: "chili-sin-carne", title: "Chili sin Carne mit Süßkartoffel", subtitle: "Würziges Bohnen-Chili — vegan und voller Eiweiß", tags: ["vegan", "eiweißreich", "mexikanisch", "Lola+Luki"], prepTime: "30", servings: "2", cuisine: "comfort", link: "https://www.kitchenstories.com/de/rezepte/susskartoffel-bohnen-chili"},
+  {id: "soba-nudel-salat", title: "Soba-Nudel Salat mit Tofu & Miso", subtitle: "Japanisch inspirierter Nudelsalat — kalt oder warm", tags: ["asiatisch", "japanisch", "vegan", "Lola+Luki"], prepTime: "25", servings: "2", cuisine: "asiatisch", link: "https://www.kitchenstories.com/de/rezepte/sobanudeln-mit-tofu-in-miso-marinade-und-gemuse"},
+  {id: "susskartoffel-linsen-suppe", title: "Süßkartoffel-Linsen Suppe mit Curry", subtitle: "Cremige Wohlfühlsuppe — wärmend und sättigend", tags: ["indisch", "suppe", "vegan", "Lola+Luki", "eiweißreich"], prepTime: "25", servings: "2", cuisine: "asiatisch", link: "https://www.kitchenstories.com/de/rezepte/susskartoffel-linsensuppe-mit-curry"},
+  {id: "wraps-burritos", title: "Würzige Wraps / Burritos mit Avocado", subtitle: "Gefüllte Tortillas — schnell, sättigend, anpassbar", tags: ["mexikanisch", "schnell", "Lola+Luki"], prepTime: "20", servings: "2", cuisine: "comfort", link: "https://www.kitchenstories.com/de/rezepte/wurzige-burritos-mit-avocado"},
+  {id: "rote-beete-carpaccio", title: "Rote Beete Carpaccio mit Kräutern", subtitle: "Elegant, frisch und voller Nährstoffe", tags: ["mediterran", "schnell", "vorspeise", "Lola-Solo"], note: "🧀 Mit Feta für Lola. Für Luki: ohne Käse, mit Kürbiskernen", prepTime: "15", servings: "2", cuisine: "mediterran", link: "https://www.slowlyveggie.de/rezepte/rote-bete-salat-mit-feta-einfach-so-lecker"},
+  {id: "taboule", title: "Taboulé", subtitle: "Libanesischer Petersilien-Bulgur-Salat — frisch & zitronig", tags: ["orientalisch", "schnell", "vegan", "Lola+Luki"], prepTime: "15", servings: "2", cuisine: "orientalisch", link: "https://www.kitchenstories.com/de/rezepte/tabbouleh-de"},
+  {id: "nudeln-avocado-pesto", title: "Nudeln mit Avocado-Pesto", subtitle: "Cremiges Pesto ohne Käse — schnell und gesund", tags: ["italienisch", "schnell", "vegan", "Lola+Luki"], prepTime: "15", servings: "2", cuisine: "mediterran", link: "https://www.kitchenstories.com/de/rezepte/nudeln-mit-avocado-pesto-2a4a"},
+  {id: "aubergine-minze-granatapfel", title: "Gebackene Aubergine mit Minze & Granatapfel", subtitle: "Ottolenghi-inspiriert — orientalisch und aromatisch", tags: ["orientalisch", "ottolenghi", "ofengericht", "Lola-Solo"], note: "🧀 Originalrezept mit Zitronenjoghurt — für Luki: Tahinisauce statt Joghurt", prepTime: "30", servings: "2", cuisine: "orientalisch", link: "https://www.bildderfrau.de/diaet-ernaehrung/article210764889/Gebackene-Aubergine-mit-Zitronenjoghurt-und-Minze.html"},
+  {id: "ofenkuerbis-kichererbsen", title: "Ofenkürbis mit Kichererbsen und Avocado", subtitle: "Herbstliches Ofengericht — eiweißreich und sättigend", tags: ["orientalisch", "ofengericht", "vegan", "Lola+Luki", "eiweißreich"], prepTime: "30", servings: "2", cuisine: "orientalisch", link: "https://www.fitforfun.de/rezepte/ofenkuerbis-mit-kichererbsen-und-avocado"},
+  {id: "kichererbsen-linsen-salat", title: "Kichererbsen-Linsen-Salat mit Halloumi", subtitle: "Warmer Salat voller Eiweiß und Ballaststoffe", tags: ["mediterran", "eiweißreich", "Lola-Solo"], note: "🧀 Halloumi nur für Lola — Luki: mit gerösteten Kürbiskernen statt Käse", prepTime: "25", servings: "2", cuisine: "mediterran", link: "https://www.fitforfun.de/rezepte/wuerziger-kichererbsen-linsen-salat-mit-halloumi"},
+  {id: "couscous-susskartoffel-salat", title: "Couscous-Süßkartoffel-Salat", subtitle: "Bunter Salat — süß, herzhaft, sättigend", tags: ["orientalisch", "schnell", "vegan", "Lola+Luki"], prepTime: "25", servings: "2", cuisine: "orientalisch", link: "https://www.fitforfun.de/rezepte/couscous-suesskartoffel-salat"},
+  {id: "kuerbissuppe", title: "Kürbissuppe", subtitle: "Cremig, wärmend, simpel — der Herbstklassiker", tags: ["suppe", "vegan", "schnell", "Lola+Luki"], prepTime: "25", servings: "2", cuisine: "comfort", link: "https://www.fitforfun.de/rezepte/easy-peasy-kuerbissuppe"},
+  {id: "ofengemuese-feta", title: "Ofengemüse mit Feta", subtitle: "Buntes Gemüse aus dem Ofen — einfach und aromatisch", tags: ["mediterran", "ofengericht", "Lola-Solo"], note: "🧀 Feta nur für Lola — Luki: mit Tahini-Dressing statt Käse", prepTime: "30", servings: "2", cuisine: "mediterran", link: "https://www.slowlyveggie.de/rezepte/ofengemuese-mit-feta-einfach-schnell"},
+  {id: "palak-paneer-vegan", title: "Veganes Palak Paneer", subtitle: "Indischer Spinat-Klassiker — vegan und cremig", tags: ["indisch", "vegan", "eiweißreich", "Lola+Luki"], prepTime: "30", servings: "2", cuisine: "asiatisch", link: "https://www.slowlyveggie.de/rezepte/veganes-palak-paneer-so-lecker-wie-das-original"},
+  {id: "thai-curry-veg", title: "Vegetarisches Thai-Curry", subtitle: "Cremiges Curry mit Kokosmilch und buntem Gemüse", tags: ["asiatisch", "thai", "vegan", "Lola+Luki"], prepTime: "25", servings: "2", cuisine: "asiatisch", link: "https://www.slowlyveggie.de/rezepte/vegetarisches-thai-curry-rezept-mit-gemuese-kokosmilch"},
+  {id: "poke-bowl-vegan", title: "Vegane Poke Bowl", subtitle: "Bunte Bowl mit Edamame, Avocado und Sesam-Dressing", tags: ["asiatisch", "bowl", "vegan", "Lola+Luki"], prepTime: "20", servings: "2", cuisine: "asiatisch", link: "https://www.slowlyveggie.de/rezepte/vegane-poke-bowl-gesund-so-einfach"},
+  {id: "gefuellte-auberginen", title: "Gefüllte Auberginen", subtitle: "Orientalisch gewürzt — herzhaft und sättigend", tags: ["orientalisch", "ofengericht", "Lola+Luki"], prepTime: "30", servings: "2", cuisine: "orientalisch", link: "https://www.slowlyveggie.de/rezepte/gefuellte-auberginen-vegetarisch-einfach-so-wuerzig"},
+  {id: "nasi-goreng", title: "Vegetarisches Nasi Goreng", subtitle: "Indonesischer gebratener Reis mit Gemüse und Ei", tags: ["asiatisch", "indonesisch", "schnell", "Lola+Luki"], prepTime: "20", servings: "2", cuisine: "asiatisch", link: "https://www.slowlyveggie.de/rezepte/vegetarisches-nasi-goreng-einfach-schnell"},
   {
     id: "karotten-lauch-suppe",
     title: "Karotten-Lauch Suppe",
     subtitle: "Sanfte Suppe — cremig und wärmend",
     tags: ["suppe", "vegan", "schnell", "Lola+Luki"],
-    prepTime: "25",
-    servings: "2",
-    link: null,
+    prepTime: "25", servings: "2", cuisine: "comfort", link: null,
     ingredients: [
       {amount: "4", unit: "", name: "große Karotten, gewürfelt"},
       {amount: "2", unit: "", name: "Stangen Lauch, in Ringen"},
@@ -372,9 +198,7 @@ const FAVORITES = [
     title: "Fenchelsalat mit Orangen & Pinienkernen",
     subtitle: "Frisch, knackig, mediterran — perfekt als Vorspeise",
     tags: ["mediterran", "schnell", "vorspeise", "Lola+Luki"],
-    prepTime: "15",
-    servings: "2",
-    link: null,
+    prepTime: "15", servings: "2", cuisine: "mediterran", link: null,
     ingredients: [
       {amount: "2", unit: "", name: "Fenchel, fein gehobelt"},
       {amount: "2", unit: "", name: "Orangen, filetiert"},
@@ -384,7 +208,7 @@ const FAVORITES = [
       {amount: "", unit: "", name: "Fenchelgrün, Salz, Pfeffer"}
     ],
     steps: [
-      "Fenchel waschen, halbieren und in feine Scheiben hobeln. Fenchelgrün aufheben.",
+      "Fenchel waschen, halbieren und in feine Scheiben hobeln.",
       "Orangen schälen und filetieren, Saft auffangen.",
       "Pinienkerne in einer Pfanne ohne Öl rösten.",
       "Dressing aus Olivenöl, Zitronensaft, Orangensaft, Salz & Pfeffer.",
@@ -397,9 +221,7 @@ const FAVORITES = [
     title: "Fenchelsuppe",
     subtitle: "Sanft und aromatisch — mit einer Prise Anis",
     tags: ["suppe", "mediterran", "Lola+Luki"],
-    prepTime: "25",
-    servings: "2",
-    link: null,
+    prepTime: "25", servings: "2", cuisine: "mediterran", link: null,
     ingredients: [
       {amount: "2", unit: "", name: "große Fenchel, gewürfelt"},
       {amount: "1", unit: "", name: "Kartoffel, gewürfelt"},
@@ -417,23 +239,13 @@ const FAVORITES = [
     ],
     tips: "Ein Schuss Pernod oder Pastis gibt eine feine Anisnote."
   },
-  {
-    id: "bun-chay",
-    title: "Bún Chay — Vietnamesischer Reisnudel-Salat",
-    subtitle: "Frisch, kräuterig, leicht — voller Aromen",
-    tags: ["asiatisch", "vietnamesisch", "vegan", "Lola+Luki"],
-    prepTime: "25",
-    servings: "2",
-    link: "https://cheapandcheerfulcooking.com/bun-chay-vietnamesischer-reisnudel-salat/"
-  },
+  {id: "bun-chay", title: "Bún Chay — Vietnamesischer Reisnudel-Salat", subtitle: "Frisch, kräuterig, leicht — voller Aromen", tags: ["asiatisch", "vietnamesisch", "vegan", "Lola+Luki"], prepTime: "25", servings: "2", cuisine: "asiatisch", link: "https://cheapandcheerfulcooking.com/bun-chay-vietnamesischer-reisnudel-salat/"},
   {
     id: "gerosteter-blumenkohl",
     title: "Gerösteter Blumenkohl",
     subtitle: "Knusprig aus dem Ofen — mit Gewürzen und Tahini",
     tags: ["orientalisch", "ottolenghi", "ofengericht", "vegan", "Lola+Luki"],
-    prepTime: "30",
-    servings: "2",
-    link: null,
+    prepTime: "30", servings: "2", cuisine: "orientalisch", link: null,
     ingredients: [
       {amount: "1", unit: "", name: "großer Blumenkohl, in Röschen"},
       {amount: "3", unit: "EL", name: "Olivenöl"},
@@ -458,9 +270,7 @@ const FAVORITES = [
     title: "Mie Goreng",
     subtitle: "Indonesische gebratene Nudeln — würzig und schnell",
     tags: ["asiatisch", "indonesisch", "schnell", "Lola+Luki"],
-    prepTime: "20",
-    servings: "2",
-    link: null,
+    prepTime: "20", servings: "2", cuisine: "asiatisch", link: null,
     ingredients: [
       {amount: "200", unit: "g", name: "Mie-Nudeln (oder Ramen)"},
       {amount: "200", unit: "g", name: "Gemüse (Pak Choi, Karotten, Paprika)"},
@@ -482,19 +292,9 @@ const FAVORITES = [
     ],
     tips: "Für Luki: auch mit Garnelen super. Kecap Manis gibt's im Asia-Laden."
   },
-  {
-    id: "horiatiki-hummus",
-    title: "Griechischer Salat mit Hummus",
-    subtitle: "Klassischer Horiatiki — frisch und sommerlich",
-    tags: ["mediterran", "griechisch", "schnell", "Lola-Solo"],
-    note: "🧀 Feta nur für Lola — Luki: mit extra Hummus statt Käse",
-    prepTime: "15",
-    servings: "2",
-    link: "https://thelemonapron.com/horiatiki-salad-hummus/"
-  }
+  {id: "horiatiki-hummus", title: "Griechischer Salat mit Hummus", subtitle: "Klassischer Horiatiki — frisch und sommerlich", tags: ["mediterran", "griechisch", "schnell", "Lola-Solo"], note: "🧀 Feta nur für Lola — Luki: mit extra Hummus statt Käse", prepTime: "15", servings: "2", cuisine: "mediterran", link: "https://thelemonapron.com/horiatiki-salad-hummus/"}
 ];
 
-// Inspiration sources for "discover more" feature
 const INSPIRATION_SOURCES = [
   { name: "Ottolenghi Rezepte", url: "https://ottolenghi.co.uk/recipes" },
   { name: "The Lemon Apron", url: "https://thelemonapron.com/recipes/" },
