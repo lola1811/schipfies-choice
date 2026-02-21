@@ -211,8 +211,10 @@
       <div class="section-label">Was soll's sein?</div>
       <div class="meal-grid">
         <button class="meal-card active" data-meal="hauptgericht" onclick="selectMealType(this)"><span class="emoji">🍽</span><div class="label">Hauptgericht</div></button>
+        <button class="meal-card" data-meal="vorspeise" onclick="selectMealType(this)"><span class="emoji">🥗</span><div class="label">Vorspeise / Salat</div></button>
+        <button class="meal-card" data-meal="suppe" onclick="selectMealType(this)"><span class="emoji">🍲</span><div class="label">Suppe</div></button>
         <button class="meal-card" data-meal="snack" onclick="selectMealType(this)"><span class="emoji">🥜</span><div class="label">Snack</div></button>
-        <button class="meal-card" data-meal="smoothie" onclick="selectMealType(this)"><span class="emoji">🥤</span><div class="label">Grüner Smoothie</div></button>
+        <button class="meal-card" data-meal="smoothie" onclick="selectMealType(this)"><span class="emoji">🥤</span><div class="label">Smoothie</div></button>
         <button class="meal-card" data-meal="dessert_gesund" onclick="selectMealType(this)"><span class="emoji">🍓</span><div class="label">Dessert (gesund)</div></button>
         <button class="meal-card" data-meal="dessert_ungesund" onclick="selectMealType(this)"><span class="emoji">🍰</span><div class="label">Dessert (Genuss)</div></button>
       </div>
@@ -329,6 +331,7 @@
         btn.classList.remove('saving');
         btn.classList.add('saved','pop');
         btn.textContent='❤️';
+        btn.style.pointerEvents='none';
         showToast('✅ In Notion gespeichert!');
       } catch(e) {
         btn.classList.remove('saving');
