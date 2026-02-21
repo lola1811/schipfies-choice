@@ -51,7 +51,7 @@
     .cuisine-card .label{font-size:0.72rem;font-weight:500}
     .cuisine-card.active .label{color:var(--terra)}
 
-    .meal-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.5rem}
+    .meal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem}
     .meal-card{padding:0.7rem 0.5rem;border:1.5px solid var(--sand);border-radius:var(--radius-sm);background:white;text-align:center;cursor:pointer;transition:all 0.2s}
     .meal-card:hover{border-color:var(--stone)}
     .meal-card.active{border-color:var(--terra);background:linear-gradient(135deg,rgba(196,94,58,0.06),rgba(196,94,58,0.02))}
@@ -214,6 +214,7 @@
         <button class="meal-card" data-meal="snack" onclick="selectMealType(this)"><span class="emoji">🥜</span><div class="label">Snack</div></button>
         <button class="meal-card" data-meal="smoothie" onclick="selectMealType(this)"><span class="emoji">🥤</span><div class="label">Grüner Smoothie</div></button>
         <button class="meal-card" data-meal="dessert_gesund" onclick="selectMealType(this)"><span class="emoji">🍓</span><div class="label">Dessert (gesund)</div></button>
+        <button class="meal-card" data-meal="dessert_ungesund" onclick="selectMealType(this)"><span class="emoji">🍰</span><div class="label">Dessert (Genuss)</div></button>
       </div>
     </section>
 
@@ -235,7 +236,6 @@
       state.mode = m;
       document.querySelectorAll('.mode-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&m==='ai')||(i===1&&m==='favorites')));
       document.getElementById('cuisineSection').classList.toggle('hidden', m==='favorites');
-      document.getElementById('mealTypeSection').classList.toggle('hidden', m==='favorites');
       const btn = document.getElementById('generateBtn');
       if(m==='ai'){btn.textContent='Was kochen wir heute?';btn.classList.remove('fav-btn')} else {btn.textContent='❤️ Zeig mir einen Favoriten!';btn.classList.add('fav-btn')}
       document.getElementById('result').innerHTML='';
@@ -262,12 +262,16 @@
 
     function getCompatibleFavorites() {
       const lucasOnly = state.profiles.has('lucas') && !state.profiles.has('lola');
-      return FAVORITES.filter(f => { if(lucasOnly) return !(f.tags||[]).includes('Lola-Solo'); return true; });
+      return FAVORITES.filter(f => {
+        if(lucasOnly && (f.tags||[]).includes('Lola-Solo')) return false;
+        if(f.mealType && f.mealType !== state.mealType) return false;
+        return true;
+      });
     }
 
     function showRandomFavorite() {
       const c = getCompatibleFavorites();
-      if(!c.length){document.getElementById('result').innerHTML='<div class="error-card"><div class="emoji">🤷</div><p>Keine passenden Favoriten gefunden.</p></div>';return}
+      if(!c.length){document.getElementById('result').innerHTML='<div class="error-card"><div class="emoji">🤷</div><p>Noch keine Favoriten in dieser Kategorie.</p><button class="new-recipe-btn" onclick="setMode(\'ai\');handleGenerate()">✨ KI-Rezept generieren</button></div>';return}
       renderFavorite(c[Math.floor(Math.random()*c.length)]);
     }
 
