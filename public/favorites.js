@@ -1,401 +1,153 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#c45e3a">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Schipfie's Choice</title>
-  <link rel="manifest" href="/manifest.json">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥄</text></svg>">
-  <link rel="apple-touch-icon" href="/icon-192.png">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <style>
-    :root{--warm:#faf7f2;--cream:#f3ede4;--terra:#c45e3a;--terra-light:#e8856a;--olive:#6b7c52;--olive-light:#8a9e6c;--charcoal:#2d2a26;--stone:#8c857b;--sand:#d4c9b8;--amber:#d4953a;--radius:16px;--radius-sm:10px;--shadow:0 2px 12px rgba(45,42,38,0.08);--shadow-lg:0 8px 32px rgba(45,42,38,0.12)}
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'DM Sans',sans-serif;background:var(--warm);color:var(--charcoal);min-height:100dvh;-webkit-font-smoothing:antialiased}
-    .header{text-align:center;padding:2.5rem 1.5rem 1.5rem;position:relative}
-    .header::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:60px;height:3px;background:var(--terra);border-radius:2px}
-    .logo{font-size:2.4rem;margin-bottom:0.2rem;display:block}
-    .header h1{font-family:'DM Serif Display',serif;font-size:1.7rem;font-weight:400;letter-spacing:-0.01em}
-    .header p{color:var(--stone);font-size:0.85rem;margin-top:0.4rem}
-    .container{max-width:480px;margin:0 auto;padding:1.5rem}
-    .section{margin-bottom:1.5rem}
-    .section-label{font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--stone);margin-bottom:0.7rem}
+const FAVORITES = [
+  // ── HAUPTGERICHTE ──
+  {
+    id: "vogerlsalat", title: "Vogerlsalat mit Kürbiskernöl & Knoblauch",
+    subtitle: "Österreichischer Klassiker — optional mit Ei & Kartoffeln",
+    tags: ["schnell", "österreichisch", "Lola+Luki"], note: "🧀 Luki ohne Käse-Topping",
+    prepTime: "15", servings: "2", cuisine: "comfort", mealType: "vorspeise", link: null,
+    ingredients: [
+      {amount:"200",unit:"g",name:"Feldsalat (Vogerlsalat)"},{amount:"3",unit:"EL",name:"Steirisches Kürbiskernöl"},
+      {amount:"2",unit:"EL",name:"Weißweinessig"},{amount:"1",unit:"",name:"Knoblauchzehe, fein gehackt"},
+      {amount:"1",unit:"Prise",name:"Salz & Pfeffer"},{amount:"2",unit:"",name:"Eier (optional, hartgekocht)"},
+      {amount:"300",unit:"g",name:"Kartoffeln (optional, gekocht & gewürfelt)"}
+    ],
+    steps: ["Feldsalat waschen und trocken schleudern.","Dressing: Kürbiskernöl, Weißweinessig, Knoblauch, Salz & Pfeffer verrühren.","Optional: Kartoffeln kochen, würfeln, noch warm zum Salat geben.","Optional: Eier hartkochen, vierteln, dazu legen.","Dressing über den Salat geben, sofort servieren."],
+    tips: "Am besten mit warmem Kartoffelsalat servieren — das Kürbiskernöl entfaltet sich dann besonders gut."
+  },
+  {id:"pasta-alla-norma",title:"Pasta alla Norma",subtitle:"Sizilianische Auberginen-Pasta mit Ricotta Salata",tags:["mediterran","italienisch","Lola-Solo"],note:"🧀 Ricotta Salata nur für Lola — Luki ohne Käse servieren",prepTime:"30",servings:"2",cuisine:"mediterran",mealType:"hauptgericht",link:"https://www.madamecuisine.de/pasta-alla-norma/"},
+  {
+    id:"ratatouille",title:"Ratatouille",subtitle:"Provenzalisches Ofengemüse — bunt, gesund, aromatisch",
+    tags:["mediterran","französisch","Lola+Luki","ofengericht"],prepTime:"25",servings:"2",cuisine:"mediterran",mealType:"hauptgericht",link:null,
+    ingredients:[{amount:"1",unit:"",name:"Aubergine, gewürfelt"},{amount:"2",unit:"",name:"Zucchini, gewürfelt"},{amount:"1",unit:"",name:"rote Paprika, gewürfelt"},{amount:"1",unit:"",name:"gelbe Paprika, gewürfelt"},{amount:"400",unit:"g",name:"stückige Tomaten (Dose)"},{amount:"1",unit:"",name:"Zwiebel, gewürfelt"},{amount:"3",unit:"",name:"Knoblauchzehen, gehackt"},{amount:"3",unit:"EL",name:"Olivenöl"},{amount:"1",unit:"TL",name:"Herbes de Provence"},{amount:"",unit:"",name:"Frischer Basilikum, Salz, Pfeffer"}],
+    steps:["Ofen auf 200°C vorheizen.","Zwiebel und Knoblauch in Olivenöl anschwitzen.","Aubergine, Zucchini, Paprika dazugeben, 5 Min anbraten.","Stückige Tomaten und Kräuter unterrühren.","In eine Auflaufform geben, 20 Min im Ofen backen.","Mit frischem Basilikum servieren."],
+    tips:"Dazu passt Baguette, Reis oder Quinoa. Noch besser am nächsten Tag!"
+  },
+  {
+    id:"rote-linsen-curry",title:"Rote Linsen Curry",subtitle:"Cremiges Dal mit Kokosmilch und Reis",
+    tags:["indisch","vegan","Lola+Luki","eiweißreich"],prepTime:"25",servings:"2",cuisine:"asiatisch",mealType:"hauptgericht",
+    link:"https://www.kitchenstories.com/de/rezepte/roter-linseneintopf-9be3",
+    ingredients:[{amount:"200",unit:"g",name:"rote Linsen"},{amount:"400",unit:"ml",name:"Kokosmilch"},{amount:"200",unit:"ml",name:"Gemüsebrühe"},{amount:"1",unit:"",name:"Zwiebel, gewürfelt"},{amount:"2",unit:"",name:"Knoblauchzehen, gehackt"},{amount:"1",unit:"Stück",name:"Ingwer (daumengroß), gerieben"},{amount:"2",unit:"TL",name:"Currypulver"},{amount:"1",unit:"TL",name:"Kurkuma"},{amount:"1",unit:"",name:"Dose stückige Tomaten"},{amount:"2",unit:"EL",name:"Kokosöl"},{amount:"",unit:"",name:"Reis als Beilage"}],
+    steps:["Rote Linsen waschen und abtropfen lassen. Reis aufsetzen.","Zwiebel, Knoblauch und Ingwer in Kokosöl anschwitzen.","Currypulver und Kurkuma kurz mitrösten.","Linsen, Tomaten, Kokosmilch und Brühe dazugeben.","15–20 Min köcheln lassen bis die Linsen weich sind.","Mit Salz, Pfeffer und Limettensaft abschmecken."],
+    tips:"Extra-Eiweiß: Kichererbsen dazugeben. Für Lola: mit gerösteten Kürbiskernen toppen (Eisen!)."
+  },
+  {id:"pad-thai",title:"Pad Thai mit Tofu",subtitle:"Thailändischer Klassiker mit Reisnudeln und Erdnüssen",tags:["asiatisch","thai","vegan-möglich","Lola+Luki"],prepTime:"25",servings:"2",cuisine:"asiatisch",mealType:"hauptgericht",link:"https://www.kitchenstories.com/de/rezepte/pad-thai-salat-mit-tofu"},
+  {
+    id:"asiatische-gemusepfanne",title:"Asiatische Gemüsepfanne",subtitle:"Schnelles Wok-Gemüse mit Sojasauce und Sesam",
+    tags:["asiatisch","schnell","vegan","Lola+Luki"],prepTime:"20",servings:"2",cuisine:"asiatisch",mealType:"hauptgericht",link:null,
+    ingredients:[{amount:"1",unit:"",name:"Brokkoli, in Röschen"},{amount:"2",unit:"",name:"Karotten, in Streifen"},{amount:"1",unit:"",name:"Paprika, in Streifen"},{amount:"200",unit:"g",name:"Zuckerschoten oder Edamame"},{amount:"200",unit:"g",name:"Tofu, gewürfelt"},{amount:"3",unit:"EL",name:"Sojasauce"},{amount:"1",unit:"EL",name:"Sesamöl"},{amount:"1",unit:"Stück",name:"Ingwer, gerieben"},{amount:"2",unit:"",name:"Knoblauchzehen"},{amount:"",unit:"",name:"Sesam & Frühlingszwiebeln zum Toppen"},{amount:"",unit:"",name:"Reis oder Nudeln als Beilage"}],
+    steps:["Tofu in Würfel schneiden und in Sesamöl knusprig anbraten, rausnehmen.","Knoblauch und Ingwer kurz anbraten.","Hartes Gemüse zuerst (Karotten, Brokkoli), dann weiches Gemüse dazu.","Mit Sojasauce ablöschen, Tofu zurück dazu.","Mit Sesam und Frühlingszwiebeln toppen, mit Reis servieren."],
+    tips:"Für Luki: statt Tofu auch Garnelen oder Lachs möglich."
+  },
+  {
+    id:"pasta-al-limone",title:"Pasta al Limone",subtitle:"Zitronige Pasta — optional mit Scampi",
+    tags:["mediterran","italienisch","schnell","Lola+Luki"],note:"🦐 Scampi-Ausnahme auch für Lola!",
+    prepTime:"20",servings:"2",cuisine:"mediterran",mealType:"hauptgericht",link:null,
+    ingredients:[{amount:"250",unit:"g",name:"Spaghetti oder Linguine"},{amount:"2",unit:"",name:"Bio-Zitronen (Saft + Abrieb)"},{amount:"3",unit:"EL",name:"Olivenöl"},{amount:"2",unit:"",name:"Knoblauchzehen"},{amount:"200",unit:"g",name:"Scampi (optional)"},{amount:"1",unit:"Prise",name:"Chiliflocken"},{amount:"",unit:"",name:"Frischer Basilikum, Salz, Pfeffer"}],
+    steps:["Pasta in Salzwasser al dente kochen, Pastawasser auffangen.","Knoblauch in Olivenöl sanft anschwitzen.","Optional: Scampi kurz anbraten, rausnehmen.","Zitronensaft, Abrieb und 2–3 EL Pastawasser in die Pfanne.","Pasta dazu, schwenken bis eine cremige Sauce entsteht.","Scampi zurück dazu, mit Basilikum und Chiliflocken servieren."],
+    tips:"Für Extra-Cremigkeit: einen Schuss Hafercreme dazu."
+  },
+  {id:"menemen-shakshuka",title:"Menemen / Shakshuka",subtitle:"Orientalische Eierpfanne in würziger Tomatensauce",tags:["orientalisch","türkisch","schnell","Lola+Luki"],note:"🧀 Feta nur für Lola dazugeben",prepTime:"20",servings:"2",cuisine:"orientalisch",mealType:"hauptgericht",link:"https://www.fitforfun.de/rezepte/shakshuka-mit-feta"},
+  {id:"chili-sin-carne",title:"Chili sin Carne mit Süßkartoffel",subtitle:"Würziges Bohnen-Chili — vegan und voller Eiweiß",tags:["vegan","eiweißreich","mexikanisch","Lola+Luki"],prepTime:"30",servings:"2",cuisine:"comfort",mealType:"hauptgericht",link:"https://www.kitchenstories.com/de/rezepte/susskartoffel-bohnen-chili"},
+  {id:"soba-nudel-salat",title:"Soba-Nudel Salat mit Tofu & Miso",subtitle:"Japanisch inspirierter Nudelsalat — kalt oder warm",tags:["asiatisch","japanisch","vegan","Lola+Luki"],prepTime:"25",servings:"2",cuisine:"asiatisch",mealType:"hauptgericht",link:"https://www.kitchenstories.com/de/rezepte/sobanudeln-mit-tofu-in-miso-marinade-und-gemuse"},
+  {id:"susskartoffel-linsen-suppe",title:"Süßkartoffel-Linsen Suppe mit Curry",subtitle:"Cremige Wohlfühlsuppe — wärmend und sättigend",tags:["indisch","suppe","vegan","Lola+Luki","eiweißreich"],prepTime:"25",servings:"2",cuisine:"asiatisch",mealType:"suppe",link:"https://www.kitchenstories.com/de/rezepte/susskartoffel-linsensuppe-mit-curry"},
+  {id:"wraps-burritos",title:"Würzige Wraps / Burritos mit Avocado",subtitle:"Gefüllte Tortillas — schnell, sättigend, anpassbar",tags:["mexikanisch","schnell","Lola+Luki"],prepTime:"20",servings:"2",cuisine:"comfort",mealType:"hauptgericht",link:"https://www.kitchenstories.com/de/rezepte/wurzige-burritos-mit-avocado"},
+  {id:"rote-beete-carpaccio",title:"Rote Beete Carpaccio mit Kräutern",subtitle:"Elegant, frisch und voller Nährstoffe",tags:["mediterran","schnell","vorspeise","Lola-Solo"],note:"🧀 Mit Feta für Lola. Für Luki: ohne Käse, mit Kürbiskernen",prepTime:"15",servings:"2",cuisine:"mediterran",mealType:"vorspeise",link:"https://www.slowlyveggie.de/rezepte/rote-bete-salat-mit-feta-einfach-so-lecker"},
+  {id:"taboule",title:"Taboulé",subtitle:"Libanesischer Petersilien-Bulgur-Salat — frisch & zitronig",tags:["orientalisch","schnell","vegan","Lola+Luki"],prepTime:"15",servings:"2",cuisine:"orientalisch",mealType:"vorspeise",link:"https://www.kitchenstories.com/de/rezepte/tabbouleh-de"},
+  {id:"nudeln-avocado-pesto",title:"Nudeln mit Avocado-Pesto",subtitle:"Cremiges Pesto ohne Käse — schnell und gesund",tags:["italienisch","schnell","vegan","Lola+Luki"],prepTime:"15",servings:"2",cuisine:"mediterran",mealType:"hauptgericht",link:"https://www.kitchenstories.com/de/rezepte/nudeln-mit-avocado-pesto-2a4a"},
+  {id:"aubergine-minze-granatapfel",title:"Gebackene Aubergine mit Minze & Granatapfel",subtitle:"Ottolenghi-inspiriert — orientalisch und aromatisch",tags:["orientalisch","ottolenghi","ofengericht","Lola-Solo"],note:"🧀 Originalrezept mit Zitronenjoghurt — für Luki: Tahinisauce statt Joghurt",prepTime:"30",servings:"2",cuisine:"orientalisch",mealType:"hauptgericht",link:"https://www.bildderfrau.de/diaet-ernaehrung/article210764889/Gebackene-Aubergine-mit-Zitronenjoghurt-und-Minze.html"},
+  {id:"ofenkuerbis-kichererbsen",title:"Ofenkürbis mit Kichererbsen und Avocado",subtitle:"Herbstliches Ofengericht — eiweißreich und sättigend",tags:["orientalisch","ofengericht","vegan","Lola+Luki","eiweißreich"],prepTime:"30",servings:"2",cuisine:"orientalisch",mealType:"hauptgericht",link:"https://www.fitforfun.de/rezepte/ofenkuerbis-mit-kichererbsen-und-avocado"},
+  {id:"kichererbsen-linsen-salat",title:"Kichererbsen-Linsen-Salat mit Halloumi",subtitle:"Warmer Salat voller Eiweiß und Ballaststoffe",tags:["mediterran","eiweißreich","Lola-Solo"],note:"🧀 Halloumi nur für Lola — Luki: mit gerösteten Kürbiskernen statt Käse",prepTime:"25",servings:"2",cuisine:"mediterran",mealType:"hauptgericht",link:"https://www.fitforfun.de/rezepte/wuerziger-kichererbsen-linsen-salat-mit-halloumi"},
+  {id:"couscous-susskartoffel-salat",title:"Couscous-Süßkartoffel-Salat",subtitle:"Bunter Salat — süß, herzhaft, sättigend",tags:["orientalisch","schnell","vegan","Lola+Luki"],prepTime:"25",servings:"2",cuisine:"orientalisch",mealType:"hauptgericht",link:"https://www.fitforfun.de/rezepte/couscous-suesskartoffel-salat"},
+  {id:"kuerbissuppe",title:"Kürbissuppe",subtitle:"Cremig, wärmend, simpel — der Herbstklassiker",tags:["suppe","vegan","schnell","Lola+Luki"],prepTime:"25",servings:"2",cuisine:"comfort",mealType:"suppe",link:"https://www.fitforfun.de/rezepte/easy-peasy-kuerbissuppe"},
+  {id:"ofengemuese-feta",title:"Ofengemüse mit Feta",subtitle:"Buntes Gemüse aus dem Ofen — einfach und aromatisch",tags:["mediterran","ofengericht","Lola-Solo"],note:"🧀 Feta nur für Lola — Luki: mit Tahini-Dressing statt Käse",prepTime:"30",servings:"2",cuisine:"mediterran",mealType:"hauptgericht",link:"https://www.slowlyveggie.de/rezepte/ofengemuese-mit-feta-einfach-schnell"},
+  {id:"palak-paneer-vegan",title:"Veganes Palak Paneer",subtitle:"Indischer Spinat-Klassiker — vegan und cremig",tags:["indisch","vegan","eiweißreich","Lola+Luki"],prepTime:"30",servings:"2",cuisine:"asiatisch",mealType:"hauptgericht",link:"https://www.slowlyveggie.de/rezepte/veganes-palak-paneer-so-lecker-wie-das-original"},
+  {id:"thai-curry-veg",title:"Vegetarisches Thai-Curry",subtitle:"Cremiges Curry mit Kokosmilch und buntem Gemüse",tags:["asiatisch","thai","vegan","Lola+Luki"],prepTime:"25",servings:"2",cuisine:"asiatisch",mealType:"hauptgericht",link:"https://www.slowlyveggie.de/rezepte/vegetarisches-thai-curry-rezept-mit-gemuese-kokosmilch"},
+  {id:"poke-bowl-vegan",title:"Vegane Poke Bowl",subtitle:"Bunte Bowl mit Edamame, Avocado und Sesam-Dressing",tags:["asiatisch","bowl","vegan","Lola+Luki"],prepTime:"20",servings:"2",cuisine:"asiatisch",mealType:"hauptgericht",link:"https://www.slowlyveggie.de/rezepte/vegane-poke-bowl-gesund-so-einfach"},
+  {id:"gefuellte-auberginen",title:"Gefüllte Auberginen",subtitle:"Orientalisch gewürzt — herzhaft und sättigend",tags:["orientalisch","ofengericht","Lola+Luki"],prepTime:"30",servings:"2",cuisine:"orientalisch",mealType:"hauptgericht",link:"https://www.slowlyveggie.de/rezepte/gefuellte-auberginen-vegetarisch-einfach-so-wuerzig"},
+  {id:"nasi-goreng",title:"Vegetarisches Nasi Goreng",subtitle:"Indonesischer gebratener Reis mit Gemüse und Ei",tags:["asiatisch","indonesisch","schnell","Lola+Luki"],prepTime:"20",servings:"2",cuisine:"asiatisch",mealType:"hauptgericht",link:"https://www.slowlyveggie.de/rezepte/vegetarisches-nasi-goreng-einfach-schnell"},
+  {
+    id:"karotten-lauch-suppe",title:"Karotten-Lauch Suppe",subtitle:"Sanfte Suppe — cremig und wärmend",
+    tags:["suppe","vegan","schnell","Lola+Luki"],prepTime:"25",servings:"2",cuisine:"comfort",mealType:"suppe",link:null,
+    ingredients:[{amount:"4",unit:"",name:"große Karotten, gewürfelt"},{amount:"2",unit:"",name:"Stangen Lauch, in Ringen"},{amount:"1",unit:"",name:"Kartoffel, gewürfelt"},{amount:"750",unit:"ml",name:"Gemüsebrühe"},{amount:"1",unit:"",name:"Zwiebel"},{amount:"2",unit:"EL",name:"Olivenöl"},{amount:"1",unit:"Prise",name:"Muskatnuss"},{amount:"",unit:"",name:"Salz, Pfeffer, frische Kräuter"}],
+    steps:["Zwiebel und Lauch in Olivenöl anschwitzen.","Karotten und Kartoffel dazugeben, kurz mitbraten.","Mit Gemüsebrühe aufgießen, 20 Min köcheln lassen.","Pürieren, mit Muskatnuss, Salz und Pfeffer abschmecken.","Mit Kürbiskernen und einem Schuss Kürbiskernöl servieren."],
+    tips:"Für Extra-Eiweiß: rote Linsen mitkochen."
+  },
+  {
+    id:"fenchelsalat-orangen",title:"Fenchelsalat mit Orangen & Pinienkernen",subtitle:"Frisch, knackig, mediterran — perfekt als Vorspeise",
+    tags:["mediterran","schnell","vorspeise","Lola+Luki"],prepTime:"15",servings:"2",cuisine:"mediterran",mealType:"vorspeise",link:null,
+    ingredients:[{amount:"2",unit:"",name:"Fenchel, fein gehobelt"},{amount:"2",unit:"",name:"Orangen, filetiert"},{amount:"2",unit:"EL",name:"Pinienkerne, geröstet"},{amount:"3",unit:"EL",name:"Olivenöl"},{amount:"1",unit:"EL",name:"Zitronensaft"},{amount:"",unit:"",name:"Fenchelgrün, Salz, Pfeffer"}],
+    steps:["Fenchel waschen, halbieren und in feine Scheiben hobeln.","Orangen schälen und filetieren, Saft auffangen.","Pinienkerne in einer Pfanne ohne Öl rösten.","Dressing aus Olivenöl, Zitronensaft, Orangensaft, Salz & Pfeffer.","Alles anrichten, mit Pinienkernen und Fenchelgrün toppen."],
+    tips:"Auch super als Beilage zu Pasta al Limone."
+  },
+  {
+    id:"fenchelsuppe",title:"Fenchelsuppe",subtitle:"Sanft und aromatisch — mit einer Prise Anis",
+    tags:["suppe","mediterran","Lola+Luki"],prepTime:"25",servings:"2",cuisine:"mediterran",mealType:"suppe",link:null,
+    ingredients:[{amount:"2",unit:"",name:"große Fenchel, gewürfelt"},{amount:"1",unit:"",name:"Kartoffel, gewürfelt"},{amount:"1",unit:"",name:"Zwiebel"},{amount:"600",unit:"ml",name:"Gemüsebrühe"},{amount:"100",unit:"ml",name:"Hafercreme"},{amount:"2",unit:"EL",name:"Olivenöl"},{amount:"",unit:"",name:"Salz, Pfeffer, Fenchelgrün"}],
+    steps:["Zwiebel in Olivenöl anschwitzen, Fenchel und Kartoffel dazu.","Mit Gemüsebrühe aufgießen, 20 Min köcheln.","Pürieren, Hafercreme einrühren.","Mit Fenchelgrün und gerösteten Kernen servieren."],
+    tips:"Ein Schuss Pernod oder Pastis gibt eine feine Anisnote."
+  },
+  {id:"bun-chay",title:"Bún Chay — Vietnamesischer Reisnudel-Salat",subtitle:"Frisch, kräuterig, leicht — voller Aromen",tags:["asiatisch","vietnamesisch","vegan","Lola+Luki"],prepTime:"25",servings:"2",cuisine:"asiatisch",mealType:"hauptgericht",link:"https://cheapandcheerfulcooking.com/bun-chay-vietnamesischer-reisnudel-salat/"},
+  {
+    id:"gerosteter-blumenkohl",title:"Gerösteter Blumenkohl",subtitle:"Knusprig aus dem Ofen — mit Gewürzen und Tahini",
+    tags:["orientalisch","ottolenghi","ofengericht","vegan","Lola+Luki"],prepTime:"30",servings:"2",cuisine:"orientalisch",mealType:"hauptgericht",link:null,
+    ingredients:[{amount:"1",unit:"",name:"großer Blumenkohl, in Röschen"},{amount:"3",unit:"EL",name:"Olivenöl"},{amount:"1",unit:"TL",name:"Kurkuma"},{amount:"1",unit:"TL",name:"Kreuzkümmel"},{amount:"1",unit:"TL",name:"Paprikapulver"},{amount:"2",unit:"EL",name:"Tahini"},{amount:"1",unit:"",name:"Zitrone"},{amount:"",unit:"",name:"Granatapfelkerne, frische Kräuter, Pinienkerne"}],
+    steps:["Ofen auf 220°C vorheizen.","Blumenkohl mit Olivenöl und Gewürzen mischen.","Auf ein Backblech verteilen, 25 Min rösten bis goldbraun.","Tahini mit Zitronensaft und etwas Wasser zu einem Dressing verrühren.","Blumenkohl mit Tahini-Dressing, Granatapfelkernen und Kräutern servieren."],
+    tips:"Ottolenghi-Style: mit Chermoula und Pinienkernen toppen."
+  },
+  {
+    id:"mie-goreng",title:"Mie Goreng",subtitle:"Indonesische gebratene Nudeln — würzig und schnell",
+    tags:["asiatisch","indonesisch","schnell","Lola+Luki"],prepTime:"20",servings:"2",cuisine:"asiatisch",mealType:"hauptgericht",link:null,
+    ingredients:[{amount:"200",unit:"g",name:"Mie-Nudeln (oder Ramen)"},{amount:"200",unit:"g",name:"Gemüse (Pak Choi, Karotten, Paprika)"},{amount:"2",unit:"EL",name:"Kecap Manis (süße Sojasauce)"},{amount:"1",unit:"EL",name:"Sojasauce"},{amount:"1",unit:"EL",name:"Sesamöl"},{amount:"2",unit:"",name:"Knoblauchzehen"},{amount:"1",unit:"Stück",name:"Ingwer"},{amount:"2",unit:"",name:"Eier (optional)"},{amount:"",unit:"",name:"Frühlingszwiebeln, Limette"}],
+    steps:["Nudeln nach Packung kochen, abgießen.","Knoblauch und Ingwer in Sesamöl anbraten.","Gemüse dazu, 3-4 Min pfannenrühren.","Nudeln, Kecap Manis und Sojasauce dazu, alles gut vermengen.","Optional: Eier in der Mitte der Pfanne verquirlen.","Mit Frühlingszwiebeln und Limette servieren."],
+    tips:"Für Luki: auch mit Garnelen super. Kecap Manis gibt's im Asia-Laden."
+  },
+  {id:"horiatiki-hummus",title:"Griechischer Salat mit Hummus",subtitle:"Klassischer Horiatiki — frisch und sommerlich",tags:["mediterran","griechisch","schnell","Lola-Solo"],note:"🧀 Feta nur für Lola — Luki: mit extra Hummus statt Käse",prepTime:"15",servings:"2",cuisine:"mediterran",mealType:"vorspeise",link:"https://thelemonapron.com/horiatiki-salad-hummus/"},
 
-    .mode-toggle{display:flex;background:var(--cream);border-radius:var(--radius);padding:4px;margin-bottom:1.5rem}
-    .mode-btn{flex:1;padding:0.65rem 0.5rem;border:none;border-radius:calc(var(--radius) - 3px);background:transparent;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:500;color:var(--stone);cursor:pointer;transition:all 0.25s ease}
-    .mode-btn.active{background:white;color:var(--terra);box-shadow:var(--shadow)}
+  // ── SMOOTHIES ──
+  {
+    id:"evergreen-smoothie",title:"Evergreen Smoothie",subtitle:"Grüner Power-Smoothie mit Spinat, Avocado & Banane",
+    tags:["vegan","schnell","eiweißreich","Lola+Luki"],prepTime:"5",servings:"2",cuisine:"comfort",mealType:"smoothie",link:null,
+    ingredients:[{amount:"1",unit:"Handvoll",name:"Spinat (oder Feldsalat)"},{amount:"1",unit:"",name:"Apfel mit Schale"},{amount:"1",unit:"",name:"Banane, geschält"},{amount:"1/4",unit:"",name:"Avocado, geschält & entkernt"},{amount:"1",unit:"",name:"Orange (Saft davon)"},{amount:"1/8",unit:"",name:"Zitrone mit Schale"},{amount:"1",unit:"Daumenkuppe",name:"Ingwer mit Schale"},{amount:"200",unit:"ml",name:"Wasser"}],
+    steps:["Zutaten waschen, ggf. schälen und klein schneiden.","Zuerst die weichen Zutaten wie Banane und Avocado in den Mixer geben.","Restliche Zutaten hinzufügen.","Ca. 1 Minute mixen, bis alles cremig ist."],
+    tips:"Für Extra-Eiweiß: 1 EL Hanfprotein oder Chiasamen dazu. Für mehr Süße: ein paar Datteln."
+  },
+  {id:"gruener-smoothie-bianca",title:"Grüner Smoothie (Bianca Zapatka)",subtitle:"Vitaminbombe mit saisonalem Grünzeug",tags:["vegan","schnell","Lola+Luki"],prepTime:"5",servings:"2",cuisine:"comfort",mealType:"smoothie",link:"https://biancazapatka.com/de/gruener-smoothie/"},
+  {id:"gruener-smoothie-foodboom",title:"Grüner Smoothie (Foodboom)",subtitle:"Einfacher Einstieg — mild und fruchtig",tags:["vegan","schnell","Lola+Luki"],prepTime:"5",servings:"2",cuisine:"comfort",mealType:"smoothie",link:"https://www.foodboom.de/rezeptsammlungen/gruener-smoothie-rezept"},
+  {id:"gruener-smoothie-power",title:"3 Power-Smoothies für die Abwehr",subtitle:"Immunbooster — grün und voller Vitamine",tags:["vegan","schnell","Lola+Luki"],prepTime:"5",servings:"2",cuisine:"comfort",mealType:"smoothie",link:"https://www.naturallygood.de/power-fuer-die-abwehrkraefte-3-leckere-gruene-smoothie-rezepte/"},
 
-    .profiles{display:flex;gap:0.7rem}
-    .profile-btn{flex:1;padding:0.9rem 0.7rem;border:2px solid var(--sand);border-radius:var(--radius);background:white;cursor:pointer;transition:all 0.2s;text-align:center;position:relative;overflow:hidden}
-    .profile-btn::before{content:'';position:absolute;inset:0;background:var(--terra);opacity:0;transition:opacity 0.2s}
-    .profile-btn.active{border-color:var(--terra)}
-    .profile-btn.active::before{opacity:0.06}
-    .profile-btn .emoji{font-size:1.5rem;display:block;margin-bottom:0.3rem}
-    .profile-btn .name{font-weight:600;font-size:0.85rem;position:relative}
-    .profile-btn .badge{font-size:0.65rem;color:var(--stone);position:relative;margin-top:0.15rem}
-    .profile-btn.active .name{color:var(--terra)}
+  // ── SNACKS ──
+  {
+    id:"nuesse-snack",title:"Gemischte Nüsse",subtitle:"Der einfachste Protein-Snack — immer griffbereit",
+    tags:["vegan","schnell","eiweißreich","Lola+Luki"],prepTime:"0",servings:"2",cuisine:"comfort",mealType:"snack",link:null,
+    ingredients:[{amount:"50",unit:"g",name:"Walnüsse"},{amount:"50",unit:"g",name:"Cashews"},{amount:"30",unit:"g",name:"Mandeln"},{amount:"20",unit:"g",name:"Kürbiskerne"},{amount:"1",unit:"Prise",name:"Meersalz (optional)"}],
+    steps:["Nüsse und Kerne nach Belieben mischen.","Optional: kurz in der Pfanne ohne Öl rösten für mehr Aroma.","In einem Glas aufbewahren — hält sich wochenlang."],
+    tips:"Für Lola: Kürbiskerne extra dazu (Eisen!). Variante: mit getrockneten Cranberries oder Kokos-Chips."
+  },
+  {
+    id:"banane-apfel-biskuit",title:"Banane & Apfel-Geraspel mit Löffelbiskuit",subtitle:"Schneller süßer Snack — einfach und befriedigend",
+    tags:["schnell","Lola+Luki"],prepTime:"5",servings:"2",cuisine:"comfort",mealType:"snack",link:null,
+    ingredients:[{amount:"2",unit:"",name:"Bananen"},{amount:"1",unit:"",name:"Apfel, fein geraspelt"},{amount:"4-6",unit:"",name:"Löffelbiskuits"},{amount:"1",unit:"Prise",name:"Zimt"}],
+    steps:["Apfel waschen und fein raspeln.","Banane in Scheiben schneiden.","Mit Löffelbiskuits auf einem Teller anrichten.","Mit einer Prise Zimt bestreuen."],
+    tips:"Auch lecker mit einem Klecks Quark (für Luki) oder Nussmus."
+  },
+  {
+    id:"gruenkohl-chips",title:"Grünkohl-Chips",subtitle:"Knusprig aus dem Ofen — der gesunde Chips-Ersatz",
+    tags:["vegan","Lola+Luki"],prepTime:"20",servings:"2",cuisine:"comfort",mealType:"snack",link:null,
+    ingredients:[{amount:"200",unit:"g",name:"Grünkohl, gewaschen & trocken"},{amount:"1",unit:"EL",name:"Olivenöl"},{amount:"1",unit:"Prise",name:"Meersalz"},{amount:"",unit:"",name:"Optional: Paprikapulver, Knoblauchpulver, Hefeflocken"}],
+    steps:["Ofen auf 150°C vorheizen.","Grünkohl in mundgerechte Stücke zupfen, dicke Stiele entfernen.","Mit Olivenöl und Gewürzen gut vermengen.","Auf ein Backblech verteilen (nicht stapeln!).","15–20 Min backen bis knusprig, nach 10 Min wenden."],
+    tips:"Wichtig: wirklich gut trocknen vor dem Backen, sonst werden sie nicht knusprig. Hefeflocken geben einen käsigen Geschmack (Luki-freundlich!)."
+  },
 
-    .chips{display:flex;flex-wrap:wrap;gap:0.45rem}
-    .chip{padding:0.5rem 0.9rem;border:1.5px solid var(--sand);border-radius:50px;background:white;font-size:0.8rem;cursor:pointer;transition:all 0.2s;user-select:none;color:var(--charcoal)}
-    .chip:hover{border-color:var(--stone)}
-    .chip.active{background:var(--terra);border-color:var(--terra);color:white}
+  // ── DESSERTS (gesund) ──
+  {
+    id:"energy-balls",title:"Energy Balls",subtitle:"Gesunde Energiekugeln — ohne Zucker, voller Power",
+    tags:["vegan","schnell","zuckerfrei","eiweißreich","Lola+Luki"],prepTime:"15",servings:"12 Stück",cuisine:"comfort",mealType:"dessert_gesund",
+    link:"https://emmikochteinfach.de/energy-balls/"
+  }
+];
 
-    .cuisine-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem}
-    .cuisine-card{padding:0.8rem 0.4rem;border:1.5px solid var(--sand);border-radius:var(--radius-sm);background:white;text-align:center;cursor:pointer;transition:all 0.2s}
-    .cuisine-card:hover{border-color:var(--stone)}
-    .cuisine-card.active{border-color:var(--terra);background:linear-gradient(135deg,rgba(196,94,58,0.06),rgba(196,94,58,0.02))}
-    .cuisine-card .emoji{font-size:1.4rem;display:block;margin-bottom:0.25rem}
-    .cuisine-card .label{font-size:0.72rem;font-weight:500}
-    .cuisine-card.active .label{color:var(--terra)}
-
-    .meal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem}
-    .meal-card{padding:0.7rem 0.5rem;border:1.5px solid var(--sand);border-radius:var(--radius-sm);background:white;text-align:center;cursor:pointer;transition:all 0.2s}
-    .meal-card:hover{border-color:var(--stone)}
-    .meal-card.active{border-color:var(--terra);background:linear-gradient(135deg,rgba(196,94,58,0.06),rgba(196,94,58,0.02))}
-    .meal-card .emoji{font-size:1.2rem;display:block;margin-bottom:0.2rem}
-    .meal-card .label{font-size:0.72rem;font-weight:500}
-    .meal-card.active .label{color:var(--terra)}
-
-    .generate-btn{width:100%;padding:1rem;background:var(--terra);color:white;border:none;border-radius:var(--radius);font-family:'DM Serif Display',serif;font-size:1.15rem;cursor:pointer;transition:all 0.25s;margin-top:0.5rem}
-    .generate-btn:hover{background:var(--terra-light);transform:translateY(-1px);box-shadow:var(--shadow-lg)}
-    .generate-btn:active{transform:translateY(0)}
-    .generate-btn:disabled{background:var(--sand);cursor:not-allowed;transform:none;box-shadow:none}
-    .generate-btn.fav-btn{background:var(--olive)}
-    .generate-btn.fav-btn:hover{background:var(--olive-light)}
-
-    .loading{text-align:center;padding:3rem 1.5rem}
-    .loading-spoon{font-size:2.5rem;animation:stir 1.2s ease-in-out infinite;display:inline-block}
-    @keyframes stir{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(15deg)}}
-    .loading p{color:var(--stone);margin-top:1rem;font-size:0.9rem}
-    .loading-dots::after{content:'';animation:dots 1.5s steps(4) infinite}
-    @keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
-
-    .recipe-card{background:white;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;animation:slideUp 0.4s ease-out}
-    @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-    .recipe-header{background:linear-gradient(135deg,var(--terra) 0%,var(--terra-light) 100%);color:white;padding:1.5rem;position:relative}
-    .recipe-header.fav-header{background:linear-gradient(135deg,var(--olive) 0%,var(--olive-light) 100%)}
-    .recipe-header h2{font-family:'DM Serif Display',serif;font-size:1.5rem;font-weight:400;line-height:1.25;padding-right:2.5rem}
-    .recipe-header .subtitle{opacity:0.85;font-size:0.85rem;margin-top:0.4rem}
-    .recipe-meta{display:flex;gap:1rem;margin-top:1rem;font-size:0.78rem;opacity:0.9}
-    .recipe-meta span{display:flex;align-items:center;gap:0.3rem}
-
-    /* Heart Button */
-    .heart-btn{position:absolute;top:1.2rem;right:1.2rem;width:2.5rem;height:2.5rem;border-radius:50%;border:none;background:rgba(255,255,255,0.2);backdrop-filter:blur(4px);cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;transition:all 0.3s}
-    .heart-btn:hover{background:rgba(255,255,255,0.35);transform:scale(1.1)}
-    .heart-btn.saved{background:rgba(255,255,255,0.9)}
-    .heart-btn.saving{pointer-events:none;opacity:0.6}
-    @keyframes heartPop{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
-    .heart-btn.pop{animation:heartPop 0.4s ease}
-
-    .recipe-tags{padding:1rem 1.5rem 0;display:flex;flex-wrap:wrap;gap:0.35rem}
-    .recipe-tag{background:var(--cream);padding:0.25rem 0.6rem;border-radius:50px;font-size:0.7rem;color:var(--stone)}
-
-    .recipe-nutrition{display:flex;margin:1rem 1.5rem;background:var(--cream);border-radius:var(--radius-sm);overflow:hidden}
-    .nutrition-item{flex:1;text-align:center;padding:0.7rem 0.4rem}
-    .nutrition-item:not(:last-child){border-right:1px solid var(--sand)}
-    .nutrition-value{font-weight:600;font-size:0.95rem;color:var(--terra)}
-    .nutrition-label{font-size:0.65rem;color:var(--stone);margin-top:0.15rem}
-
-    .recipe-section{padding:1rem 1.5rem}
-    .recipe-section-title{font-family:'DM Serif Display',serif;font-size:1.05rem;margin-bottom:0.7rem}
-    .ingredient-list{list-style:none}
-    .ingredient-list li{padding:0.45rem 0;border-bottom:1px solid var(--cream);font-size:0.85rem;display:flex;gap:0.5rem}
-    .ingredient-list li:last-child{border:none}
-    .ingredient-amount{font-weight:600;color:var(--terra);min-width:70px}
-    .steps-list{list-style:none;counter-reset:steps}
-    .steps-list li{counter-increment:steps;padding:0.6rem 0 0.6rem 2.2rem;position:relative;font-size:0.85rem;line-height:1.5}
-    .steps-list li::before{content:counter(steps);position:absolute;left:0;top:0.55rem;width:1.5rem;height:1.5rem;background:var(--terra);color:white;border-radius:50%;font-size:0.7rem;font-weight:600;display:flex;align-items:center;justify-content:center}
-
-    .recipe-tip,.health-note,.compat-note{margin:0 1.5rem 1rem;padding:0.8rem 1rem;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:0.8rem}
-    .recipe-tip{background:linear-gradient(135deg,rgba(107,124,82,0.08),rgba(107,124,82,0.03));border-left:3px solid var(--olive)}
-    .recipe-tip strong{color:var(--olive)}
-    .health-note{background:linear-gradient(135deg,rgba(212,149,58,0.08),rgba(212,149,58,0.03));border-left:3px solid var(--amber)}
-    .health-note strong{color:var(--amber)}
-    .compat-note{background:rgba(196,94,58,0.06);border-left:3px solid var(--terra-light);font-size:0.78rem}
-
-    .save-toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);background:var(--charcoal);color:white;padding:0.8rem 1.5rem;border-radius:50px;font-size:0.85rem;font-weight:500;box-shadow:var(--shadow-lg);transition:transform 0.3s ease;z-index:100;white-space:nowrap}
-    .save-toast.show{transform:translateX(-50%) translateY(0)}
-
-    .link-btn{display:block;text-align:center;padding:0.7rem;margin:0 1.5rem 1rem;background:var(--cream);color:var(--terra);text-decoration:none;border-radius:var(--radius-sm);font-size:0.82rem;font-weight:600;transition:all 0.2s}
-    .link-btn:hover{background:var(--sand)}
-
-    .new-recipe-btn{width:100%;padding:0.9rem;background:white;color:var(--terra);border:2px solid var(--terra);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:1rem}
-    .new-recipe-btn:hover{background:var(--terra);color:white}
-    .new-recipe-btn.fav{color:var(--olive);border-color:var(--olive)}
-    .new-recipe-btn.fav:hover{background:var(--olive);color:white}
-    .back-btn{width:100%;padding:0.7rem;background:transparent;color:var(--stone);border:1.5px solid var(--sand);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:0.85rem;cursor:pointer;transition:all 0.2s;margin-top:0.5rem}
-    .back-btn:hover{border-color:var(--stone);color:var(--charcoal)}
-
-    .fav-list{display:flex;flex-direction:column;gap:0.6rem}
-    .fav-item{background:white;border-radius:var(--radius-sm);padding:0.9rem 1rem;box-shadow:var(--shadow);cursor:pointer;transition:all 0.2s;border-left:3px solid var(--olive)}
-    .fav-item:hover{transform:translateY(-1px);box-shadow:var(--shadow-lg)}
-    .fav-item-title{font-weight:600;font-size:0.9rem;margin-bottom:0.2rem}
-    .fav-item-subtitle{font-size:0.78rem;color:var(--stone);margin-bottom:0.4rem}
-    .fav-item-meta{display:flex;gap:0.5rem;flex-wrap:wrap}
-    .fav-item-tag{font-size:0.65rem;background:var(--cream);padding:0.15rem 0.5rem;border-radius:50px;color:var(--stone)}
-    .fav-item-note{font-size:0.72rem;color:var(--terra);margin-top:0.35rem;font-style:italic}
-    .fav-count{text-align:center;font-size:0.78rem;color:var(--stone);margin-top:0.5rem}
-
-    .inspiration-box{margin-top:1.5rem;padding:1rem;background:white;border-radius:var(--radius);box-shadow:var(--shadow)}
-    .inspiration-links{display:flex;flex-direction:column;gap:0.3rem}
-    .inspiration-link{color:var(--terra);text-decoration:none;font-size:0.82rem;padding:0.3rem 0}
-    .inspiration-link:hover{color:var(--terra-light)}
-
-    .error-card{background:white;border-radius:var(--radius);padding:2rem 1.5rem;text-align:center;box-shadow:var(--shadow)}
-    .error-card .emoji{font-size:2rem;margin-bottom:0.7rem}
-    .error-card p{color:var(--stone);font-size:0.85rem;margin-bottom:1rem}
-    .error-card .error-detail{font-size:0.75rem;color:var(--sand);background:var(--cream);padding:0.5rem;border-radius:var(--radius-sm);margin-bottom:1rem;word-break:break-all}
-
-    .footer{text-align:center;padding:2rem 1.5rem;color:var(--sand);font-size:0.7rem}
-    .hidden{display:none !important}
-    @media(min-width:520px){.container{padding:2rem}.header{padding:3rem 2rem 2rem}}
-  </style>
-</head>
-<body>
-
-  <header class="header">
-    <span class="logo">🥄</span>
-    <h1>Schipfie's Choice</h1>
-    <p>Gesund kochen — einfach gemacht</p>
-  </header>
-
-  <main class="container">
-    <div class="mode-toggle">
-      <button class="mode-btn active" onclick="setMode('ai')">✨ KI-Rezept</button>
-      <button class="mode-btn" onclick="setMode('favorites')">❤️ Unsere Favoriten</button>
-    </div>
-
-    <section class="section">
-      <div class="section-label">Wer isst mit?</div>
-      <div class="profiles">
-        <button class="profile-btn active" data-profile="lucas" onclick="toggleProfile('lucas')">
-          <span class="emoji">🧑‍🍳</span>
-          <div class="name">Luki's Choice</div>
-          <div class="badge">Fisch ok · Viel Eiweiß</div>
-        </button>
-        <button class="profile-btn active" data-profile="lola" onclick="toggleProfile('lola')">
-          <span class="emoji">👩‍🍳</span>
-          <div class="name">Lola's Choice</div>
-          <div class="badge">Vegetarisch · Eisenreich</div>
-        </button>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-label">Zusätzliche Filter</div>
-      <div class="chips">
-        <button class="chip" data-filter="glutenfrei" onclick="toggleFilter(this)">Glutenfrei</button>
-        <button class="chip" data-filter="laktosefrei" onclick="toggleFilter(this)">Laktosefrei</button>
-        <button class="chip" data-filter="vegan" onclick="toggleFilter(this)">Vegan</button>
-        <button class="chip" data-filter="salzarm" onclick="toggleFilter(this)">Salzarm</button>
-        <button class="chip" data-filter="zuckerfrei" onclick="toggleFilter(this)">Zuckerfrei</button>
-        <button class="chip" data-filter="kohlenhydratarm" onclick="toggleFilter(this)">Kohlenhydratarm</button>
-      </div>
-    </section>
-
-    <section class="section" id="cuisineSection">
-      <div class="section-label">Küchenstil</div>
-      <div class="cuisine-grid">
-        <button class="cuisine-card" data-cuisine="asiatisch" onclick="selectCuisine(this)"><span class="emoji">🍜</span><div class="label">Asiatisch</div></button>
-        <button class="cuisine-card" data-cuisine="mediterran" onclick="selectCuisine(this)"><span class="emoji">🫒</span><div class="label">Mediterran</div></button>
-        <button class="cuisine-card" data-cuisine="orientalisch" onclick="selectCuisine(this)"><span class="emoji">🧆</span><div class="label">Orientalisch</div></button>
-        <button class="cuisine-card" data-cuisine="comfort" onclick="selectCuisine(this)"><span class="emoji">🍲</span><div class="label">Comfort</div></button>
-        <button class="cuisine-card active" data-cuisine="surprise" onclick="selectCuisine(this)"><span class="emoji">🎲</span><div class="label">Überrasch mich</div></button>
-      </div>
-    </section>
-
-    <section class="section" id="mealTypeSection">
-      <div class="section-label">Was soll's sein?</div>
-      <div class="meal-grid">
-        <button class="meal-card active" data-meal="hauptgericht" onclick="selectMealType(this)"><span class="emoji">🍽</span><div class="label">Hauptgericht</div></button>
-        <button class="meal-card" data-meal="vorspeise" onclick="selectMealType(this)"><span class="emoji">🥗</span><div class="label">Vorspeise / Salat</div></button>
-        <button class="meal-card" data-meal="suppe" onclick="selectMealType(this)"><span class="emoji">🍲</span><div class="label">Suppe</div></button>
-        <button class="meal-card" data-meal="snack" onclick="selectMealType(this)"><span class="emoji">🥜</span><div class="label">Snack</div></button>
-        <button class="meal-card" data-meal="smoothie" onclick="selectMealType(this)"><span class="emoji">🥤</span><div class="label">Smoothie</div></button>
-        <button class="meal-card" data-meal="dessert_gesund" onclick="selectMealType(this)"><span class="emoji">🍓</span><div class="label">Dessert (gesund)</div></button>
-        <button class="meal-card" data-meal="dessert_ungesund" onclick="selectMealType(this)"><span class="emoji">🍰</span><div class="label">Dessert (Genuss)</div></button>
-      </div>
-    </section>
-
-    <section class="section">
-      <button class="generate-btn" id="generateBtn" onclick="handleGenerate()">Was kochen wir heute?</button>
-    </section>
-
-    <section id="result"></section>
-    <footer class="footer">Schipfie's Choice · Made with 🤍 in Berlin Mitte</footer>
-  </main>
-
-  <div class="save-toast" id="saveToast"></div>
-
-  <script src="/favorites.js"></script>
-  <script>
-    const state = { mode:'ai', profiles:new Set(["lucas","lola"]), filters:{}, cuisine:"surprise", mealType:"hauptgericht", currentRecipe:null };
-
-    function setMode(m) {
-      state.mode = m;
-      document.querySelectorAll('.mode-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&m==='ai')||(i===1&&m==='favorites')));
-      document.getElementById('cuisineSection').classList.toggle('hidden', m==='favorites');
-      const btn = document.getElementById('generateBtn');
-      if(m==='ai'){btn.textContent='Was kochen wir heute?';btn.classList.remove('fav-btn')} else {btn.textContent='❤️ Zeig mir einen Favoriten!';btn.classList.add('fav-btn')}
-      document.getElementById('result').innerHTML='';
-    }
-
-    function toggleProfile(n) {
-      if(state.profiles.has(n)){if(state.profiles.size>1)state.profiles.delete(n)} else state.profiles.add(n);
-      document.querySelectorAll('.profile-btn').forEach(b => b.classList.toggle('active', state.profiles.has(b.dataset.profile)));
-    }
-
-    function toggleFilter(el) { el.classList.toggle('active'); state.filters[el.dataset.filter]=el.classList.contains('active'); }
-
-    function selectCuisine(el) {
-      document.querySelectorAll('.cuisine-card').forEach(c => c.classList.remove('active'));
-      el.classList.add('active'); state.cuisine=el.dataset.cuisine;
-    }
-
-    function selectMealType(el) {
-      document.querySelectorAll('.meal-card').forEach(c => c.classList.remove('active'));
-      el.classList.add('active'); state.mealType=el.dataset.meal;
-    }
-
-    function handleGenerate() { state.mode==='ai' ? generateRecipe() : showRandomFavorite(); }
-
-    function getCompatibleFavorites() {
-      const lucasOnly = state.profiles.has('lucas') && !state.profiles.has('lola');
-      return FAVORITES.filter(f => {
-        if(lucasOnly && (f.tags||[]).includes('Lola-Solo')) return false;
-        if(f.mealType && f.mealType !== state.mealType) return false;
-        return true;
-      });
-    }
-
-    function showRandomFavorite() {
-      const c = getCompatibleFavorites();
-      if(!c.length){document.getElementById('result').innerHTML='<div class="error-card"><div class="emoji">🤷</div><p>Noch keine Favoriten in dieser Kategorie.</p><button class="new-recipe-btn" onclick="setMode(\'ai\');handleGenerate()">✨ KI-Rezept generieren</button></div>';return}
-      renderFavorite(c[Math.floor(Math.random()*c.length)]);
-    }
-
-    function showAllFavorites() {
-      const c = getCompatibleFavorites(); const result = document.getElementById('result');
-      let h='<div class="fav-list">';
-      c.forEach(f => {
-        const tags=(f.tags||[]).filter(t=>!['Lola+Luki','Lola-Solo'].includes(t)).map(t=>`<span class="fav-item-tag">${t}</span>`).join('');
-        h+=`<div class="fav-item" onclick="renderFavoriteById('${f.id}')"><div class="fav-item-title">${f.title}</div><div class="fav-item-subtitle">${f.subtitle||''}</div><div class="fav-item-meta">${tags}</div>${f.note?`<div class="fav-item-note">${f.note}</div>`:''}</div>`;
-      });
-      h+=`</div><div class="fav-count">${c.length} Rezepte</div>`;
-      h+=`<div class="inspiration-box"><div class="section-label">Inspiration entdecken</div><div class="inspiration-links">${INSPIRATION_SOURCES.map(s=>`<a class="inspiration-link" href="${s.url}" target="_blank">→ ${s.name}</a>`).join('')}</div></div>`;
-      result.innerHTML=h; result.scrollIntoView({behavior:'smooth',block:'start'});
-    }
-
-    function renderFavoriteById(id) { renderFavorite(FAVORITES.find(r=>r.id===id)); }
-
-    function renderFavorite(r) {
-      state.currentRecipe = {...r, source:'Favorit', profiles:Array.from(state.profiles)};
-      const result=document.getElementById('result');
-      const hasRecipe=r.ingredients&&r.ingredients.length>0;
-      const both=state.profiles.has('lucas')&&state.profiles.has('lola');
-      const tags=(r.tags||[]).filter(t=>!['Lola+Luki','Lola-Solo'].includes(t)).map(t=>`<span class="recipe-tag">${t}</span>`).join('');
-      let h=`<div class="recipe-card"><div class="recipe-header fav-header"><h2>${r.title}</h2><button class="heart-btn" onclick="saveToNotion(this)" title="In Notion speichern">🤍</button>${r.subtitle?`<div class="subtitle">${r.subtitle}</div>`:''}<div class="recipe-meta">${r.prepTime?`<span>⏱ ${r.prepTime} Min</span>`:''}${r.servings?`<span>🍽 ${r.servings} Portionen</span>`:''}<span>❤️ Favorit</span></div></div>`;
-      if(tags) h+=`<div class="recipe-tags">${tags}</div>`;
-      if(r.note&&both) h+=`<div class="compat-note">${r.note}</div>`;
-      if(hasRecipe){
-        h+=`<div class="recipe-section"><div class="recipe-section-title">Zutaten</div><ul class="ingredient-list">`;
-        r.ingredients.forEach(i=>{h+=`<li><span class="ingredient-amount">${i.amount} ${i.unit||''}</span><span>${i.name}</span></li>`;});
-        h+=`</ul></div><div class="recipe-section"><div class="recipe-section-title">Zubereitung</div><ol class="steps-list">`;
-        r.steps.forEach(s=>{h+=`<li>${s}</li>`;});
-        h+=`</ol></div>`;
-        if(r.tips) h+=`<div class="recipe-tip"><strong>💡 Tipp:</strong> ${r.tips}</div>`;
-      } else {
-        h+=`<div class="recipe-section" style="text-align:center;padding:1.5rem"><p style="color:var(--stone);font-size:0.85rem">Schnellansicht — Originalrezept für Details öffnen</p></div>`;
-      }
-      if(r.link) h+=`<a class="link-btn" href="${r.link}" target="_blank">📖 Originalrezept öffnen</a>`;
-      h+=`</div><button class="new-recipe-btn fav" onclick="showRandomFavorite()">🔄 Anderer Favorit</button><button class="back-btn" onclick="showAllFavorites()">📋 Alle Favoriten anzeigen</button>`;
-      result.innerHTML=h; result.scrollIntoView({behavior:'smooth',block:'start'});
-    }
-
-    // Save to Notion
-    async function saveToNotion(btn) {
-      if(btn.classList.contains('saved')||btn.classList.contains('saving')) return;
-      btn.classList.add('saving');
-      btn.textContent='⏳';
-      const recipe = state.currentRecipe;
-      if(!recipe){showToast('❌ Kein Rezept zum Speichern');btn.classList.remove('saving');btn.textContent='🤍';return}
-      try {
-        const res = await fetch('/api/save-to-notion',{
-          method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify(recipe)
-        });
-        if(!res.ok) throw new Error((await res.json().catch(()=>({}))).error||'Fehler');
-        btn.classList.remove('saving');
-        btn.classList.add('saved','pop');
-        btn.textContent='❤️';
-        btn.style.pointerEvents='none';
-        showToast('✅ In Notion gespeichert!');
-      } catch(e) {
-        btn.classList.remove('saving');
-        btn.textContent='🤍';
-        showToast('❌ Speichern fehlgeschlagen: '+e.message);
-      }
-    }
-
-    function showToast(msg) {
-      const t=document.getElementById('saveToast');
-      t.textContent=msg; t.classList.add('show');
-      setTimeout(()=>t.classList.remove('show'),3000);
-    }
-
-    async function generateRecipe() {
-      const btn=document.getElementById('generateBtn'); const result=document.getElementById('result');
-      btn.disabled=true; btn.textContent='Wird gekocht…';
-      result.innerHTML=`<div class="loading"><span class="loading-spoon">🥄</span><p>Claude kocht etwas Feines<span class="loading-dots"></span></p></div>`;
-      try {
-        const res=await fetch('/api/generate-recipe',{
-          method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({profiles:Array.from(state.profiles),filters:state.filters,cuisine:state.cuisine,mealType:state.mealType,maxMinutes:30})
-        });
-        if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.details||e.error||`HTTP ${res.status}`);}
-        const recipe=await res.json();
-        recipe.source='KI-generiert';
-        recipe.profiles=Array.from(state.profiles);
-        recipe.cuisine=state.cuisine;
-        state.currentRecipe=recipe;
-        renderAIRecipe(recipe);
-      } catch(error) {
-        result.innerHTML=`<div class="error-card"><div class="emoji">😢</div><p>Da ist leider etwas schiefgegangen.</p><div class="error-detail">${error.message}</div><button class="new-recipe-btn" onclick="generateRecipe()">Nochmal versuchen</button></div>`;
-      } finally {btn.disabled=false;btn.textContent='Was kochen wir heute?';}
-    }
-
-    function renderAIRecipe(r) {
-      const result=document.getElementById('result');
-      const tags=(r.tags||[]).map(t=>`<span class="recipe-tag">${t}</span>`).join('');
-      const ingr=(r.ingredients||[]).map(i=>`<li><span class="ingredient-amount">${i.amount} ${i.unit||''}</span><span>${i.name}</span></li>`).join('');
-      const steps=(r.steps||[]).map(s=>`<li>${s}</li>`).join('');
-      result.innerHTML=`
-        <div class="recipe-card">
-          <div class="recipe-header">
-            <h2>${r.title||'Rezept'}</h2>
-            <button class="heart-btn" onclick="saveToNotion(this)" title="In Notion speichern">🤍</button>
-            ${r.subtitle?`<div class="subtitle">${r.subtitle}</div>`:''}
-            <div class="recipe-meta"><span>⏱ ${r.prepTime||'30'} Min</span><span>🍽 ${r.servings||'2'} Portionen</span></div>
-          </div>
-          ${tags?`<div class="recipe-tags">${tags}</div>`:''}
-          ${r.nutrition?`<div class="recipe-nutrition">
-            <div class="nutrition-item"><div class="nutrition-value">${r.nutrition.calories||'–'}</div><div class="nutrition-label">kcal</div></div>
-            <div class="nutrition-item"><div class="nutrition-value">${r.nutrition.protein||'–'}</div><div class="nutrition-label">Eiweiß</div></div>
-            <div class="nutrition-item"><div class="nutrition-value">${r.nutrition.fiber||'–'}</div><div class="nutrition-label">Ballaststoffe</div></div>
-          </div>`:''}
-          <div class="recipe-section"><div class="recipe-section-title">Zutaten</div><ul class="ingredient-list">${ingr}</ul></div>
-          <div class="recipe-section"><div class="recipe-section-title">Zubereitung</div><ol class="steps-list">${steps}</ol></div>
-          ${r.tips?`<div class="recipe-tip"><strong>💡 Tipp:</strong> ${r.tips}</div>`:''}
-          ${r.healthNote?`<div class="health-note"><strong>🌿 Gesundheitshinweis:</strong> ${r.healthNote}</div>`:''}
-        </div>
-        <button class="new-recipe-btn" onclick="generateRecipe()">🔄 Neues Rezept</button>`;
-      result.scrollIntoView({behavior:'smooth',block:'start'});
-    }
-
-    if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
-  </script>
-</body>
-</html>
+const INSPIRATION_SOURCES = [
+  {name:"Ottolenghi Rezepte",url:"https://ottolenghi.co.uk/recipes"},
+  {name:"The Lemon Apron",url:"https://thelemonapron.com/recipes/"},
+  {name:"Zucker&Jagdwurst",url:"https://www.zuckerjagdwurst.com/de"}
+];
