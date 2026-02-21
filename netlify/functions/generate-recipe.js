@@ -4,7 +4,7 @@ export default async (req) => {
   }
 
   try {
-    const { profiles, filters, cuisine, maxMinutes } = await req.json();
+    const { profiles, filters, cuisine, mealType, maxMinutes } = await req.json();
 
     const profileDescriptions = {
       lucas: `Lucas (34, männlich, 1.93m, sehr aktiv, erhöhter Cholesterin, braucht viel Eiweiß, aktiv in Familienplanung):
@@ -28,7 +28,7 @@ ${profileDescriptions.lucas}
 ${profileDescriptions.lola}
 
 WICHTIG - Schnittmenge bedeutet:
-- Vegetarisch (wegen Lola) 
+- Vegetarisch (wegen Lola)
 - KEIN Käse, KEINE Oliven, KEINE Kapern (wegen Lucas)
 - KEINE Pilze (wegen Lola)
 - KEINE Joghurt-Saucen, Mayo (wegen Lucas)
@@ -45,10 +45,10 @@ WICHTIG - Schnittmenge bedeutet:
     const filterTexts = [];
     if (filters?.glutenfrei) filterTexts.push("GLUTENFREI (kein Weizen, Roggen, Gerste, Dinkel)");
     if (filters?.laktosefrei) filterTexts.push("LAKTOSEFREI (keine Milchprodukte)");
-    if (filters?.nussfrei) filterTexts.push("NUSSFREI (keine Nüsse jeglicher Art)");
-    if (filters?.sojafrei) filterTexts.push("SOJAFREI (kein Soja, Tofu, Tempeh, Sojasauce)");
-    if (filters?.histaminarm) filterTexts.push("HISTAMINARM (keine fermentierten Lebensmittel, Tomaten, Spinat, Avocado einschränken)");
+    if (filters?.vegan) filterTexts.push("VEGAN (keine tierischen Produkte, kein Ei, keine Milch, kein Honig)");
     if (filters?.salzarm) filterTexts.push("SALZARM (minimal Salz, keine salzigen Zutaten)");
+    if (filters?.zuckerfrei) filterTexts.push("ZUCKERFREI (kein zugesetzter Zucker, kein Honig, kein Ahornsirup)");
+    if (filters?.kohlenhydratarm) filterTexts.push("KOHLENHYDRATARM / LOW CARB (keine Nudeln, kein Reis, kein Brot, wenig Kartoffeln)");
 
     const cuisineMap = {
       asiatisch: "Asiatische Küche (Thai, Japanisch, Vietnamesisch, Koreanisch, Indisch)",
@@ -58,6 +58,14 @@ WICHTIG - Schnittmenge bedeutet:
       surprise: "Überrasche mich mit einer kreativen, unerwarteten Küche!"
     };
 
+    const mealTypeMap = {
+      hauptgericht: "Ein vollwertiges Hauptgericht",
+      dessert_gesund: "Ein gesundes Dessert (ohne raffinierten Zucker, natürlich gesüßt)",
+      dessert_ungesund: "Ein leckeres Dessert (darf auch mal Zucker enthalten — Genuss!)",
+      smoothie: "Ein grüner/gesunder Smoothie (mit Gemüse, Obst, Kernen, Superfoods)",
+      snack: "Ein gesunder Snack (sättigend, proteinreich, für zwischendurch)"
+    };
+
     const prompt = `Du bist ein kreativer, gesundheitsbewusster Koch-Assistent für ein Paar in Berlin Mitte.
 
 ${profileText}
@@ -65,6 +73,7 @@ ${profileText}
 ${filterTexts.length > 0 ? `ZUSÄTZLICHE EINSCHRÄNKUNGEN:\n${filterTexts.join("\n")}` : ""}
 
 KÜCHENSTIL: ${cuisineMap[cuisine] || "Überrasche mich!"}
+MEAL-TYPE: ${mealTypeMap[mealType] || mealTypeMap.hauptgericht}
 MAX. ZUBEREITUNGSZEIT: ${maxMinutes || 30} Minuten
 
 ANFORDERUNGEN AN DAS REZEPT:
@@ -72,9 +81,11 @@ ANFORDERUNGEN AN DAS REZEPT:
 - Zutaten müssen in Berlin Mitte leicht erhältlich sein (Supermarkt, Biomarkt, asiatischer Laden)
 - Ausgewogen und gesund
 - Viele Ballaststoffe, Kerne und Nüsse (wenn erlaubt)
-- Weniger Kohlenhydrate, weniger Salz
+- Weniger einfache Kohlenhydrate, weniger Salz
 - Eiweißreich
 - Frisch, nicht hochverarbeitet
+- Saisonales Gemüse bevorzugen (aktueller Monat: ${new Date().toLocaleString('de-DE', { month: 'long' })})
+- Sei KREATIV und ABWECHSLUNGSREICH — keine Standardgerichte
 
 Antworte AUSSCHLIESSLICH im folgenden JSON-Format (kein anderer Text):
 {
@@ -125,7 +136,6 @@ Antworte AUSSCHLIESSLICH im folgenden JSON-Format (kein anderer Text):
     const data = await response.json();
     const recipeText = data.content[0].text;
 
-    // Extract JSON from response
     let recipe;
     try {
       const jsonMatch = recipeText.match(/\{[\s\S]*\}/);
