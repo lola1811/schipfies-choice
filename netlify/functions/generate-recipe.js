@@ -60,8 +60,10 @@ WICHTIG - Schnittmenge bedeutet:
 
     const mealTypeMap = {
       hauptgericht: "Ein vollwertiges Hauptgericht",
-      dessert_gesund: "Ein gesundes Dessert (ohne raffinierten Zucker, natürlich gesüßt)",
-      dessert_ungesund: "Ein leckeres Dessert (darf auch mal Zucker enthalten — Genuss!)",
+      vorspeise: "Eine leichte Vorspeise oder ein frischer Salat (nicht zu sättigend, als Starter oder leichte Mahlzeit)",
+      suppe: "Eine leckere Suppe (cremig, klar oder Eintopf-artig — wärmend und aromatisch)",
+      dessert_gesund: "Ein gesundes Dessert (ohne raffinierten Zucker, natürlich gesüßt, z.B. Energy Balls, Datteln, Nüsse, Joghurt-Nachspeisen, Früchte)",
+      dessert_ungesund: "Ein leckeres Genuss-Dessert (darf Mehl, Zucker, Eier, Mascarpone, Butter enthalten — purer Genuss!)",
       smoothie: "Ein grüner/gesunder Smoothie (mit Gemüse, Obst, Kernen, Superfoods)",
       snack: "Ein gesunder Snack (sättigend, proteinreich, für zwischendurch)"
     };
