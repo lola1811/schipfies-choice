@@ -4,18 +4,18 @@ export default async (req) => {
   }
 
   try {
-    const { profiles, filters, cuisine, mealType, maxMinutes } = await req.json();
+    const { profiles, filters, cuisine, mealType, maxMinutes, ingredient } = await req.json();
 
     const profileDescriptions = {
       lucas: `Lucas (34, männlich, 1.93m, sehr aktiv, erhöhter Cholesterin, braucht viel Eiweiß, aktiv in Familienplanung):
 ISST NICHT: jegliche Art von Käse, Oliven, Kapern, Joghurt-Saucen, Mayonnaise, Innereien, Wurst, Schweinefleisch, Fast Food, deftige Hausmannskost, hochverarbeitete Lebensmittel, Pilze (wenn zusammen mit Lola)
 LIEBT: jegliche Art von Gemüse, Fisch (Lachs), Porridge, Quark, Spinat, Bolognese, Nudeln, Reis, Asiatisch, Ottolenghi-Style, ausgefallene Gerichte, Mediterran, Sushi, Curry, Suppe, Gnocchi
-BRAUCHT: Große Portionen, viel Eiweiß, cholesterinbewusst (wenig gesättigte Fette), folsäurereich`,
+BRAUCHT: Große Portionen, viel Eiweiß, cholesterinbewusst (wenig gesättigte Fette), folsäurereich, Omega-3-reich (Leinsamen, Walnüsse, Chiasamen, Lachs — am besten mit einer Fettquelle kombinieren für bessere Aufnahme)`,
 
       lola: `Lola (33, weiblich, 1.63m, aktiv, Schilddrüsenunterfunktion, Eisenmangel, niedriger Blutdruck, braucht Eiweiß, aktiv in Familienplanung):
 ISST NICHT: Pilze, frittierte Lebensmittel, Fleisch & Fisch, Fast Food, hochverarbeitete Lebensmittel
 LIEBT: frische Kräuter, Auberginen, Nüsse, rote Linsen, Gemüse, Oliven, Feta, Halloumi, Mozzarella, Kürbiskernöl, Knödel, Spinat, Strudel, Pesto, Reis, indische Gewürze, Curry, Ratatouille, Ofengerichte, Radicchio, Körnerbrot, Hummus
-BRAUCHT: Eisenreich (Hülsenfrüchte, Spinat, Kerne), jodhaltige Lebensmittel, Eiweiß, folsäurereich`
+BRAUCHT: Eisenreich (Hülsenfrüchte, Spinat, Kerne), jodhaltige Lebensmittel, Eiweiß, folsäurereich, Omega-3-reich (Leinsamen, Walnüsse, Chiasamen, Hanfsamen — am besten mit einer Fettquelle kombinieren für bessere Aufnahme)`
     };
 
     let profileText = "";
@@ -35,12 +35,16 @@ WICHTIG - Schnittmenge bedeutet:
 - Viel Eiweiß für beide
 - Eisenreich für Lola, cholesterinbewusst für Lucas
 - Folsäurereich für beide (Familienplanung)
+- Omega-3-reich für beide (Leinsamen, Walnüsse, Chiasamen, Hanfsamen — mit gesundem Fett kombinieren für bessere Aufnahme, z.B. Olivenöl, Avocado, Nüsse)
 - Große Portionen (Lucas hat viel Hunger)`;
     } else if (activeProfiles.includes("lucas")) {
       profileText = `Koche NUR für Lucas:\n${profileDescriptions.lucas}\nLucas darf auch Fisch essen wenn er allein isst.`;
     } else if (activeProfiles.includes("lola")) {
       profileText = `Koche NUR für Lola:\n${profileDescriptions.lola}\nLola liebt Käse (Feta, Halloumi, Mozzarella) und Oliven wenn sie allein isst.`;
     }
+
+    // Ingredient wish
+    const ingredientText = ingredient ? `\nHAUPTZUTAT: Das Rezept MUSS "${ingredient}" als zentrale Zutat enthalten. Baue das Gericht darum auf.` : "";
 
     const filterTexts = [];
     if (filters?.glutenfrei) filterTexts.push("GLUTENFREI (kein Weizen, Roggen, Gerste, Dinkel)");
@@ -76,7 +80,7 @@ ${filterTexts.length > 0 ? `ZUSÄTZLICHE EINSCHRÄNKUNGEN:\n${filterTexts.join("
 
 KÜCHENSTIL: ${cuisineMap[cuisine] || "Überrasche mich!"}
 MEAL-TYPE: ${mealTypeMap[mealType] || mealTypeMap.hauptgericht}
-MAX. ZUBEREITUNGSZEIT: ${maxMinutes || 30} Minuten
+MAX. ZUBEREITUNGSZEIT: ${maxMinutes || 30} Minuten${ingredientText}
 
 ANFORDERUNGEN AN DAS REZEPT:
 - Einfach und schnell zuzubereiten

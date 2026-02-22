@@ -222,6 +222,10 @@
     .fav-empty .emoji{font-size:2.5rem;margin-bottom:0.7rem}
     .fav-empty p{color:var(--stone);font-size:0.9rem;margin-bottom:0.3rem}
     .fav-empty .hint{font-size:0.8rem;color:var(--sand)}
+    .fav-ki-badge{display:inline-block;background:var(--terra);color:white;font-size:0.6rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:50px;vertical-align:middle;margin-left:0.3rem}
+    .ingredient-input{width:100%;padding:0.75rem 1rem;border:1.5px solid var(--sand);border-radius:var(--radius);background:white;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--charcoal);transition:border-color 0.2s}
+    .ingredient-input:focus{outline:none;border-color:var(--terra)}
+    .ingredient-input::placeholder{color:var(--sand)}
 
     .footer{text-align:center;padding:2rem 1.5rem;color:var(--sand);font-size:0.7rem}
     .hidden{display:none !important}
@@ -282,6 +286,10 @@
         <button class="meal-card" data-meal="dessert_ungesund" onclick="selectMealType(this)"><span class="emoji">🍰</span><div class="label">Dessert (Genuss)</div></button>
       </div>
     </section>
+    <section class="section" id="ingredientSection">
+      <div class="section-label">Zutat verkochen? <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></div>
+      <input type="text" id="ingredientInput" class="ingredient-input" placeholder="z.B. Aubergine, Linsen, Lachs…" oninput="state.ingredient=this.value.trim()">
+    </section>
     <section class="section"><button class="generate-btn" id="generateBtn" onclick="handleGenerate()">Was kochen wir heute?</button></section>
     <section id="result"></section>
     <footer class="footer">Schipfie's Choice · Made with 🤍 in Berlin Mitte</footer>
@@ -319,7 +327,7 @@
 
   <script src="/favorites.js"></script>
   <script>
-    const state={mode:'ai',profiles:new Set(["lucas","lola"]),filters:{},cuisine:"surprise",mealType:"hauptgericht",currentRecipe:null,screen:'recipes'};
+    const state={mode:'ai',profiles:new Set(["lucas","lola"]),filters:{},cuisine:"surprise",mealType:"hauptgericht",currentRecipe:null,screen:'recipes',ingredient:''};
     const DAY_NAMES=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
 
     // ── Screen Navigation ──
@@ -347,16 +355,17 @@
     function saveFavs(favs){localStorage.setItem('schipfie-favs',JSON.stringify(favs));updateFavBadge()}
     function addSavedFav(recipe){
       const favs=getSavedFavs();
-      favs.push({...recipe,savedAt:new Date().toISOString()});
+      favs.push({...recipe,savedAt:new Date().toISOString(),source:recipe.source||'KI-generiert'});
       saveFavs(favs);
     }
     function removeSavedFav(idx){
       const favs=getSavedFavs();favs.splice(idx,1);saveFavs(favs);renderSavedFavorites();
     }
     function updateFavBadge(){
-      const count=getSavedFavs().length;
+      const localFavs=getSavedFavs();
+      const total=FAVORITES.length+localFavs.length;
       const badge=document.getElementById('favBadge');
-      if(count>0){badge.style.display='inline-block';badge.textContent=count}else{badge.style.display='none'}
+      if(total>0){badge.style.display='inline-block';badge.textContent=total}else{badge.style.display='none'}
     }
 
     function toggleFavDetail(id){
@@ -365,10 +374,16 @@
     }
 
     function renderSavedFavorites(){
-      const favs=getSavedFavs();const el=document.getElementById('favContent');
-      document.getElementById('favScreenCount').textContent=favs.length?`${favs.length} Rezept${favs.length>1?'e':''}`:'';
+      const localFavs=getSavedFavs();
+      // Always show ALL built-in favorites + ALL locally hearted recipes
+      const builtIn=FAVORITES.map(f=>({...f,isBuiltIn:true}));
+      const local=localFavs.map(f=>({...f,isBuiltIn:false}));
+      const combined=[...builtIn,...local];
 
-      if(favs.length===0){
+      const el=document.getElementById('favContent');
+      document.getElementById('favScreenCount').textContent=combined.length?`${combined.length} Rezept${combined.length>1?'e':''} (${builtIn.length} Favoriten · ${local.length} geherzt)`:'';
+
+      if(combined.length===0){
         el.innerHTML=`<div class="fav-empty"><div class="emoji">❤️</div><p>Noch keine Favoriten gespeichert</p><p class="hint">Herze Rezepte mit 🤍 um sie hier zu sammeln</p><button class="generate-btn" style="margin-top:1rem;max-width:280px;margin-left:auto;margin-right:auto;display:block" onclick="switchScreen('recipes')">🥄 Rezepte entdecken</button></div>`;
         return;
       }
@@ -386,7 +401,7 @@
       ];
 
       const grouped={};
-      favs.forEach((f,i)=>{
+      combined.forEach((f,i)=>{
         const type=f.mealType||'other';
         if(!grouped[type])grouped[type]=[];
         grouped[type].push({...f,origIdx:i});
@@ -401,7 +416,10 @@
           const detailId=`fav-detail-${r.origIdx}`;
           const hasDetail=(r.ingredients&&r.ingredients.length>0)||(r.steps&&r.steps.length>0)||r.link;
           const savedDate=r.savedAt?new Date(r.savedAt).toLocaleDateString('de-DE',{day:'numeric',month:'short',year:'numeric'}):'';
-          h+=`<div class="fav-saved-item"><div class="fav-saved-header" ${hasDetail?`onclick="toggleFavDetail('${detailId}')"`:''}><div class="fav-saved-info"><div class="fav-saved-title">${r.title}</div>${r.subtitle?`<div class="fav-saved-sub">${r.subtitle}</div>`:''}${r.prepTime?`<div class="fav-saved-sub">⏱ ${r.prepTime} Min</div>`:''}${savedDate?`<div class="fav-saved-date">Geherzt am ${savedDate}</div>`:''}</div><div class="fav-saved-actions">${hasDetail?`<button class="plan-recipe-toggle" data-toggle="${detailId}" onclick="event.stopPropagation();toggleFavDetail('${detailId}')">▼</button>`:''}<button class="plan-recipe-remove" onclick="event.stopPropagation();removeSavedFav(${r.origIdx})" title="Entfernen">✕</button></div></div>`;
+          const borderColor=r.isBuiltIn?'border-left:3px solid var(--olive)':'border-left:3px solid var(--terra)';
+          const sourceLabel=r.isBuiltIn?'':'<span class="fav-ki-badge">✨ KI</span>';
+          const localIdx=r.isBuiltIn?-1:(r.origIdx-FAVORITES.length);
+          h+=`<div class="fav-saved-item" style="${borderColor}"><div class="fav-saved-header" ${hasDetail?`onclick="toggleFavDetail('${detailId}')"`:''}><div class="fav-saved-info"><div class="fav-saved-title">${r.title} ${sourceLabel}</div>${r.subtitle?`<div class="fav-saved-sub">${r.subtitle}</div>`:''}${r.prepTime?`<div class="fav-saved-sub">⏱ ${r.prepTime} Min</div>`:''}${savedDate?`<div class="fav-saved-date">Geherzt am ${savedDate}</div>`:''}</div><div class="fav-saved-actions">${hasDetail?`<button class="plan-recipe-toggle" data-toggle="${detailId}" onclick="event.stopPropagation();toggleFavDetail('${detailId}')">▼</button>`:''}${!r.isBuiltIn?`<button class="plan-recipe-remove" onclick="event.stopPropagation();removeSavedFav(${localIdx})" title="Entfernen">✕</button>`:''}</div></div>`;
           if(hasDetail){
             h+=`<div class="fav-saved-detail" id="${detailId}">`;
             if(r.ingredients&&r.ingredients.length>0){
@@ -567,6 +585,7 @@
     function setMode(m){
       state.mode=m;document.querySelectorAll('.mode-btn').forEach((b,i)=>b.classList.toggle('active',(i===0&&m==='ai')||(i===1&&m==='favorites')));
       document.getElementById('cuisineSection').classList.toggle('hidden',m==='favorites');
+      document.getElementById('ingredientSection').classList.toggle('hidden',m==='favorites');
       const btn=document.getElementById('generateBtn');
       if(m==='ai'){btn.textContent='Was kochen wir heute?';btn.classList.remove('fav-btn')}else{btn.textContent='❤️ Zeig mir einen Favoriten!';btn.classList.add('fav-btn')}
       document.getElementById('result').innerHTML='';
@@ -621,7 +640,7 @@
       const btn=document.getElementById('generateBtn');const result=document.getElementById('result');
       btn.disabled=true;btn.textContent='Wird gekocht…';
       result.innerHTML=`<div class="loading"><span class="loading-spoon">🥄</span><p>Claude kocht etwas Feines<span class="loading-dots"></span></p></div>`;
-      try{const res=await fetch('/api/generate-recipe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({profiles:Array.from(state.profiles),filters:state.filters,cuisine:state.cuisine,mealType:state.mealType,maxMinutes:30})});if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.details||e.error||`HTTP ${res.status}`)}const recipe=await res.json();recipe.source='KI-generiert';recipe.profiles=Array.from(state.profiles);recipe.cuisine=state.cuisine;state.currentRecipe=recipe;renderAIRecipe(recipe)}
+      try{const res=await fetch('/api/generate-recipe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({profiles:Array.from(state.profiles),filters:state.filters,cuisine:state.cuisine,mealType:state.mealType,maxMinutes:30,ingredient:state.ingredient||null})});if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.details||e.error||`HTTP ${res.status}`)}const recipe=await res.json();recipe.source='KI-generiert';recipe.profiles=Array.from(state.profiles);recipe.cuisine=state.cuisine;recipe.mealType=state.mealType;state.currentRecipe=recipe;renderAIRecipe(recipe)}
       catch(error){result.innerHTML=`<div class="error-card"><div class="emoji">😢</div><p>Da ist leider etwas schiefgegangen.</p><div class="error-detail">${error.message}</div><button class="new-recipe-btn" onclick="generateRecipe()">Nochmal versuchen</button></div>`}
       finally{btn.disabled=false;btn.textContent='Was kochen wir heute?'}
     }
