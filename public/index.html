@@ -205,6 +205,24 @@
     .plan-day-empty{padding:0.6rem;text-align:center;color:var(--sand);font-size:0.78rem;background:white;border-radius:var(--radius-sm);border:1px dashed var(--sand)}
     .plan-summary{text-align:center;padding:1rem;margin-top:0.5rem;font-size:0.8rem;color:var(--stone)}
 
+    /* Favorites Screen */
+    .fav-screen-count{font-size:0.78rem;color:var(--stone)}
+    .fav-section{margin-bottom:1.5rem}
+    .fav-section-header{font-family:'DM Serif Display',serif;font-size:1rem;color:var(--charcoal);padding:0.5rem 0;border-bottom:1px solid var(--sand);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.4rem}
+    .fav-saved-item{background:white;border-radius:var(--radius-sm);box-shadow:var(--shadow);margin-bottom:0.4rem;overflow:hidden}
+    .fav-saved-header{padding:0.8rem 1rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+    .fav-saved-info{flex:1}
+    .fav-saved-title{font-weight:600;font-size:0.85rem}
+    .fav-saved-sub{font-size:0.72rem;color:var(--stone);margin-top:0.15rem}
+    .fav-saved-date{font-size:0.65rem;color:var(--sand);margin-top:0.1rem}
+    .fav-saved-actions{display:flex;gap:0.3rem;align-items:center;flex-shrink:0;margin-left:0.5rem}
+    .fav-saved-detail{display:none;padding:0 1rem 1rem;border-top:1px solid var(--cream)}
+    .fav-saved-detail.open{display:block}
+    .fav-empty{text-align:center;padding:3rem 1.5rem}
+    .fav-empty .emoji{font-size:2.5rem;margin-bottom:0.7rem}
+    .fav-empty p{color:var(--stone);font-size:0.9rem;margin-bottom:0.3rem}
+    .fav-empty .hint{font-size:0.8rem;color:var(--sand)}
+
     .footer{text-align:center;padding:2rem 1.5rem;color:var(--sand);font-size:0.7rem}
     .hidden{display:none !important}
     @media(min-width:520px){.container{padding:2rem}.header{padding:2.5rem 2rem 1.5rem}}
@@ -280,8 +298,19 @@
     <footer class="footer">Schipfie's Choice · Made with 🤍 in Berlin Mitte</footer>
   </div>
 
+  <!-- ═══ SCREEN 3: FAVORITES (geherzt) ═══ -->
+  <div class="container screen" id="screenFavorites">
+    <div class="plan-header">
+      <h2>❤️ Favorites</h2>
+      <div class="fav-screen-count" id="favScreenCount"></div>
+    </div>
+    <div id="favContent"></div>
+    <footer class="footer">Schipfie's Choice · Made with 🤍 in Berlin Mitte</footer>
+  </div>
+
   <nav class="bottom-nav">
     <button class="nav-tab active" onclick="switchScreen('recipes')"><span class="nav-icon">🥄</span><span class="nav-label">Rezepte</span></button>
+    <button class="nav-tab" onclick="switchScreen('favorites')"><span class="nav-icon">❤️</span><span class="nav-label">Favorites<span class="nav-badge" id="favBadge" style="display:none">0</span></span></button>
     <button class="nav-tab" onclick="switchScreen('plan')"><span class="nav-icon">📅</span><span class="nav-label">Weekly Plan<span class="nav-badge" id="planBadge" style="display:none">0</span></span></button>
   </nav>
 
@@ -298,9 +327,103 @@
       state.screen=s;
       document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active'));
       document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-      if(s==='recipes'){document.getElementById('screenRecipes').classList.add('active');document.querySelectorAll('.nav-tab')[0].classList.add('active')}
-      else{document.getElementById('screenPlan').classList.add('active');document.querySelectorAll('.nav-tab')[1].classList.add('active');renderPlan()}
+      if(s==='recipes'){
+        document.getElementById('screenRecipes').classList.add('active');
+        document.querySelectorAll('.nav-tab')[0].classList.add('active');
+      } else if(s==='favorites'){
+        document.getElementById('screenFavorites').classList.add('active');
+        document.querySelectorAll('.nav-tab')[1].classList.add('active');
+        renderSavedFavorites();
+      } else {
+        document.getElementById('screenPlan').classList.add('active');
+        document.querySelectorAll('.nav-tab')[2].classList.add('active');
+        renderPlan();
+      }
       window.scrollTo(0,0);
+    }
+
+    // ── Saved Favorites Storage ──
+    function getSavedFavs(){try{return JSON.parse(localStorage.getItem('schipfie-favs'))||[]}catch(e){return[]}}
+    function saveFavs(favs){localStorage.setItem('schipfie-favs',JSON.stringify(favs));updateFavBadge()}
+    function addSavedFav(recipe){
+      const favs=getSavedFavs();
+      favs.push({...recipe,savedAt:new Date().toISOString()});
+      saveFavs(favs);
+    }
+    function removeSavedFav(idx){
+      const favs=getSavedFavs();favs.splice(idx,1);saveFavs(favs);renderSavedFavorites();
+    }
+    function updateFavBadge(){
+      const count=getSavedFavs().length;
+      const badge=document.getElementById('favBadge');
+      if(count>0){badge.style.display='inline-block';badge.textContent=count}else{badge.style.display='none'}
+    }
+
+    function toggleFavDetail(id){
+      const el=document.getElementById(id);const btn=document.querySelector(`[data-toggle="${id}"]`);
+      if(el){el.classList.toggle('open');if(btn)btn.classList.toggle('open')}
+    }
+
+    function renderSavedFavorites(){
+      const favs=getSavedFavs();const el=document.getElementById('favContent');
+      document.getElementById('favScreenCount').textContent=favs.length?`${favs.length} Rezept${favs.length>1?'e':''}`:'';
+
+      if(favs.length===0){
+        el.innerHTML=`<div class="fav-empty"><div class="emoji">❤️</div><p>Noch keine Favoriten gespeichert</p><p class="hint">Herze Rezepte mit 🤍 um sie hier zu sammeln</p><button class="generate-btn" style="margin-top:1rem;max-width:280px;margin-left:auto;margin-right:auto;display:block" onclick="switchScreen('recipes')">🥄 Rezepte entdecken</button></div>`;
+        return;
+      }
+
+      // Group by mealType
+      const mealOrder=[
+        {key:'vorspeise',label:'🥗 Vorspeise / Salat'},
+        {key:'suppe',label:'🍲 Suppe'},
+        {key:'hauptgericht',label:'🍽 Hauptgericht'},
+        {key:'snack',label:'🥜 Snack'},
+        {key:'smoothie',label:'🥤 Smoothie'},
+        {key:'dessert_gesund',label:'🍓 Dessert (gesund)'},
+        {key:'dessert_ungesund',label:'🍰 Dessert (Genuss)'},
+        {key:'other',label:'🥄 Sonstige'}
+      ];
+
+      const grouped={};
+      favs.forEach((f,i)=>{
+        const type=f.mealType||'other';
+        if(!grouped[type])grouped[type]=[];
+        grouped[type].push({...f,origIdx:i});
+      });
+
+      let h='';
+      mealOrder.forEach(cat=>{
+        const items=grouped[cat.key];
+        if(!items||items.length===0)return;
+        h+=`<div class="fav-section"><div class="fav-section-header">${cat.label}</div>`;
+        items.forEach(r=>{
+          const detailId=`fav-detail-${r.origIdx}`;
+          const hasDetail=(r.ingredients&&r.ingredients.length>0)||(r.steps&&r.steps.length>0)||r.link;
+          const savedDate=r.savedAt?new Date(r.savedAt).toLocaleDateString('de-DE',{day:'numeric',month:'short',year:'numeric'}):'';
+          h+=`<div class="fav-saved-item"><div class="fav-saved-header" ${hasDetail?`onclick="toggleFavDetail('${detailId}')"`:''}><div class="fav-saved-info"><div class="fav-saved-title">${r.title}</div>${r.subtitle?`<div class="fav-saved-sub">${r.subtitle}</div>`:''}${r.prepTime?`<div class="fav-saved-sub">⏱ ${r.prepTime} Min</div>`:''}${savedDate?`<div class="fav-saved-date">Geherzt am ${savedDate}</div>`:''}</div><div class="fav-saved-actions">${hasDetail?`<button class="plan-recipe-toggle" data-toggle="${detailId}" onclick="event.stopPropagation();toggleFavDetail('${detailId}')">▼</button>`:''}<button class="plan-recipe-remove" onclick="event.stopPropagation();removeSavedFav(${r.origIdx})" title="Entfernen">✕</button></div></div>`;
+          if(hasDetail){
+            h+=`<div class="fav-saved-detail" id="${detailId}">`;
+            if(r.ingredients&&r.ingredients.length>0){
+              h+=`<div class="plan-detail-label">Zutaten</div><ul class="ingredient-list">`;
+              r.ingredients.forEach(ing=>{h+=`<li><span class="ingredient-amount">${ing.amount} ${ing.unit||''}</span><span>${ing.name}</span></li>`});
+              h+=`</ul>`;
+            }
+            if(r.steps&&r.steps.length>0){
+              h+=`<div class="plan-detail-label">Zubereitung</div><ol class="steps-list">`;
+              r.steps.forEach(s=>{h+=`<li>${s}</li>`});
+              h+=`</ol>`;
+            }
+            if(r.tips)h+=`<div class="recipe-tip"><strong>💡</strong> ${r.tips}</div>`;
+            if(r.healthNote)h+=`<div class="health-note"><strong>🌿</strong> ${r.healthNote}</div>`;
+            if(r.link)h+=`<a class="link-btn" href="${r.link}" target="_blank" onclick="event.stopPropagation()">📖 Originalrezept</a>`;
+            h+=`</div>`;
+          }
+          h+=`</div>`;
+        });
+        h+=`</div>`;
+      });
+      el.innerHTML=h;
     }
 
     // ── Week Calculation ──
@@ -487,8 +610,10 @@
     async function saveToNotion(btn){
       if(btn.classList.contains('saved')||btn.classList.contains('saving'))return;btn.classList.add('saving');btn.textContent='⏳';
       const recipe=state.currentRecipe;if(!recipe){showToast('❌ Kein Rezept zum Speichern');btn.classList.remove('saving');btn.textContent='🤍';return}
-      try{const res=await fetch('/api/save-to-notion',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(recipe)});if(!res.ok)throw new Error((await res.json().catch(()=>({}))).error||'Fehler');btn.classList.remove('saving');btn.classList.add('saved','pop');btn.textContent='❤️';btn.style.pointerEvents='none';showToast('✅ In Notion gespeichert!')}
-      catch(e){btn.classList.remove('saving');btn.textContent='🤍';showToast('❌ Speichern fehlgeschlagen: '+e.message)}
+      // Save locally first
+      addSavedFav(recipe);
+      try{const res=await fetch('/api/save-to-notion',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(recipe)});if(!res.ok)throw new Error((await res.json().catch(()=>({}))).error||'Fehler');btn.classList.remove('saving');btn.classList.add('saved','pop');btn.textContent='❤️';btn.style.pointerEvents='none';showToast('✅ Gespeichert!')}
+      catch(e){btn.classList.remove('saving');btn.classList.add('saved','pop');btn.textContent='❤️';btn.style.pointerEvents='none';showToast('❤️ Lokal gespeichert (Notion-Sync fehlgeschlagen)')}
     }
     function showToast(msg){const t=document.getElementById('saveToast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
 
@@ -522,6 +647,7 @@
 
     // Init
     updateBadge();
+    updateFavBadge();
     if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
   </script>
 </body>
