@@ -163,7 +163,15 @@
     /* Weekly Plan */
     .plan-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem}
     .plan-header h2{font-family:'DM Serif Display',serif;font-size:1.3rem;font-weight:400}
-    .plan-week-label{font-size:0.78rem;color:var(--stone);margin-bottom:1rem}
+    .week-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;background:white;border-radius:var(--radius);padding:0.5rem;box-shadow:var(--shadow)}
+    .week-nav-btn{width:2.2rem;height:2.2rem;border-radius:50%;border:1.5px solid var(--sand);background:white;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-family:'DM Sans',sans-serif}
+    .week-nav-btn:hover{border-color:var(--terra);color:var(--terra)}
+    .week-nav-label{font-size:0.85rem;font-weight:600;color:var(--charcoal);text-align:center}
+    .week-nav-label .week-type{font-size:0.7rem;font-weight:400;color:var(--stone);display:block;margin-top:0.1rem}
+    .week-nav-label.current-week{color:var(--terra)}
+    .week-nav-label.current-week .week-type{color:var(--terra);font-weight:600}
+    .week-nav-label.other-week{color:var(--stone)}
+    .week-nav-label.other-week .week-type{color:var(--sand)}
     .plan-action-btn{padding:0.4rem 0.8rem;border:1.5px solid var(--sand);border-radius:50px;background:white;font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--stone);transition:all 0.2s}
     .plan-action-btn:hover{border-color:var(--terra);color:var(--terra)}
 
@@ -202,13 +210,19 @@
     .plan-recipe-detail .link-btn{margin:0.5rem 0 0;padding:0.5rem;font-size:0.78rem}
     .plan-detail-label{font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--stone);margin-top:0.7rem;margin-bottom:0.3rem}
 
-    .plan-day-empty{padding:0.6rem;text-align:center;color:var(--sand);font-size:0.78rem;background:white;border-radius:var(--radius-sm);border:1px dashed var(--sand)}
+    .plan-day-empty{padding:0.6rem;text-align:center;color:var(--sand);font-size:0.78rem;background:white;border-radius:var(--radius-sm);border:1px dashed var(--sand);cursor:pointer;transition:all 0.2s}
+    .plan-day-empty:hover{border-color:var(--terra);color:var(--terra)}
+    .plan-other-week .plan-day-header{opacity:0.5}
+    .plan-other-week .plan-day-empty{opacity:0.5}
     .plan-summary{text-align:center;padding:1rem;margin-top:0.5rem;font-size:0.8rem;color:var(--stone)}
 
     /* Favorites Screen */
     .fav-screen-count{font-size:0.78rem;color:var(--stone)}
     .fav-section{margin-bottom:1.5rem}
-    .fav-section-header{font-family:'DM Serif Display',serif;font-size:1rem;color:var(--charcoal);padding:0.5rem 0;border-bottom:1px solid var(--sand);margin-bottom:0.5rem;display:flex;align-items:center;gap:0.4rem}
+    .fav-section-header{font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--stone);margin-bottom:0.5rem;padding-left:0.2rem}
+    .fav-cuisine-group{margin-bottom:1.5rem}
+    .fav-cuisine-header{font-family:'DM Serif Display',serif;font-size:1.1rem;font-weight:400;color:var(--charcoal);margin-bottom:0.8rem;padding-bottom:0.4rem;border-bottom:1.5px solid var(--sand);display:flex;align-items:center;gap:0.5rem}
+    .fav-cuisine-count{font-family:'DM Sans',sans-serif;font-size:0.65rem;background:var(--sand);color:var(--stone);padding:0.1rem 0.4rem;border-radius:50px}
     .fav-saved-item{background:white;border-radius:var(--radius-sm);box-shadow:var(--shadow);margin-bottom:0.4rem;overflow:hidden}
     .fav-saved-header{padding:0.8rem 1rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
     .fav-saved-info{flex:1}
@@ -223,6 +237,7 @@
     .fav-empty p{color:var(--stone);font-size:0.9rem;margin-bottom:0.3rem}
     .fav-empty .hint{font-size:0.8rem;color:var(--sand)}
     .fav-ki-badge{display:inline-block;background:var(--terra);color:white;font-size:0.6rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:50px;vertical-align:middle;margin-left:0.3rem}
+    .fav-cuisine-tag{margin-right:0.3rem}
     .ingredient-input{width:100%;padding:0.75rem 1rem;border:1.5px solid var(--sand);border-radius:var(--radius);background:white;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--charcoal);transition:border-color 0.2s}
     .ingredient-input:focus{outline:none;border-color:var(--terra)}
     .ingredient-input::placeholder{color:var(--sand)}
@@ -270,6 +285,7 @@
         <button class="cuisine-card" data-cuisine="asiatisch" onclick="selectCuisine(this)"><span class="emoji">🍜</span><div class="label">Asiatisch</div></button>
         <button class="cuisine-card" data-cuisine="mediterran" onclick="selectCuisine(this)"><span class="emoji">🫒</span><div class="label">Mediterran</div></button>
         <button class="cuisine-card" data-cuisine="orientalisch" onclick="selectCuisine(this)"><span class="emoji">🧆</span><div class="label">Orientalisch</div></button>
+        <button class="cuisine-card" data-cuisine="oesterreichisch" onclick="selectCuisine(this)"><span class="emoji">🇦🇹</span><div class="label">Österreichisch</div></button>
         <button class="cuisine-card" data-cuisine="comfort" onclick="selectCuisine(this)"><span class="emoji">🍲</span><div class="label">Comfort</div></button>
         <button class="cuisine-card active" data-cuisine="surprise" onclick="selectCuisine(this)"><span class="emoji">🎲</span><div class="label">Überrasch mich</div></button>
       </div>
@@ -299,9 +315,13 @@
   <div class="container screen" id="screenPlan">
     <div class="plan-header">
       <h2>📅 Weekly Plan</h2>
-      <button class="plan-action-btn" onclick="clearPlan()">🗑 Leeren</button>
+      <button class="plan-action-btn" onclick="clearCurrentWeekPlan()">🗑 Leeren</button>
     </div>
-    <div class="plan-week-label" id="planWeekLabel"></div>
+    <div class="week-nav">
+      <button class="week-nav-btn" onclick="shiftWeek(-1)">←</button>
+      <div class="week-nav-label" id="planWeekLabel"></div>
+      <button class="week-nav-btn" onclick="shiftWeek(1)">→</button>
+    </div>
     <div id="planContent"></div>
     <footer class="footer">Schipfie's Choice · Made with 🤍 in Berlin Mitte</footer>
   </div>
@@ -375,7 +395,6 @@
 
     function renderSavedFavorites(){
       const localFavs=getSavedFavs();
-      // Always show ALL built-in favorites + ALL locally hearted recipes
       const builtIn=FAVORITES.map(f=>({...f,isBuiltIn:true}));
       const local=localFavs.map(f=>({...f,isBuiltIn:false}));
       const combined=[...builtIn,...local];
@@ -388,7 +407,6 @@
         return;
       }
 
-      // Group by mealType
       const mealOrder=[
         {key:'vorspeise',label:'🥗 Vorspeise / Salat'},
         {key:'suppe',label:'🍲 Suppe'},
@@ -412,108 +430,107 @@
         const items=grouped[cat.key];
         if(!items||items.length===0)return;
         h+=`<div class="fav-section"><div class="fav-section-header">${cat.label}</div>`;
-        items.forEach(r=>{
-          const detailId=`fav-detail-${r.origIdx}`;
-          const hasDetail=(r.ingredients&&r.ingredients.length>0)||(r.steps&&r.steps.length>0)||r.link;
-          const savedDate=r.savedAt?new Date(r.savedAt).toLocaleDateString('de-DE',{day:'numeric',month:'short',year:'numeric'}):'';
-          const borderColor=r.isBuiltIn?'border-left:3px solid var(--olive)':'border-left:3px solid var(--terra)';
-          const sourceLabel=r.isBuiltIn?'':'<span class="fav-ki-badge">✨ KI</span>';
-          const localIdx=r.isBuiltIn?-1:(r.origIdx-FAVORITES.length);
-          h+=`<div class="fav-saved-item" style="${borderColor}"><div class="fav-saved-header" ${hasDetail?`onclick="toggleFavDetail('${detailId}')"`:''}><div class="fav-saved-info"><div class="fav-saved-title">${r.title} ${sourceLabel}</div>${r.subtitle?`<div class="fav-saved-sub">${r.subtitle}</div>`:''}${r.prepTime?`<div class="fav-saved-sub">⏱ ${r.prepTime} Min</div>`:''}${savedDate?`<div class="fav-saved-date">Geherzt am ${savedDate}</div>`:''}</div><div class="fav-saved-actions">${hasDetail?`<button class="plan-recipe-toggle" data-toggle="${detailId}" onclick="event.stopPropagation();toggleFavDetail('${detailId}')">▼</button>`:''}${!r.isBuiltIn?`<button class="plan-recipe-remove" onclick="event.stopPropagation();removeSavedFav(${localIdx})" title="Entfernen">✕</button>`:''}</div></div>`;
-          if(hasDetail){
-            h+=`<div class="fav-saved-detail" id="${detailId}">`;
-            if(r.ingredients&&r.ingredients.length>0){
-              h+=`<div class="plan-detail-label">Zutaten</div><ul class="ingredient-list">`;
-              r.ingredients.forEach(ing=>{h+=`<li><span class="ingredient-amount">${ing.amount} ${ing.unit||''}</span><span>${ing.name}</span></li>`});
-              h+=`</ul>`;
-            }
-            if(r.steps&&r.steps.length>0){
-              h+=`<div class="plan-detail-label">Zubereitung</div><ol class="steps-list">`;
-              r.steps.forEach(s=>{h+=`<li>${s}</li>`});
-              h+=`</ol>`;
-            }
-            if(r.tips)h+=`<div class="recipe-tip"><strong>💡</strong> ${r.tips}</div>`;
-            if(r.healthNote)h+=`<div class="health-note"><strong>🌿</strong> ${r.healthNote}</div>`;
-            if(r.link)h+=`<a class="link-btn" href="${r.link}" target="_blank" onclick="event.stopPropagation()">📖 Originalrezept</a>`;
-            h+=`</div>`;
-          }
-          h+=`</div>`;
-        });
+        items.forEach(r=>{h+=renderFavItem(r)});
         h+=`</div>`;
       });
       el.innerHTML=h;
     }
 
+    function renderFavItem(r){
+      const detailId=`fav-detail-${r.origIdx}`;
+      const hasDetail=(r.ingredients&&r.ingredients.length>0)||(r.steps&&r.steps.length>0)||r.link;
+      const savedDate=r.savedAt?new Date(r.savedAt).toLocaleDateString('de-DE',{day:'numeric',month:'short',year:'numeric'}):'';
+      const borderColor=r.isBuiltIn?'border-left:3px solid var(--olive)':'border-left:3px solid var(--terra)';
+      const sourceLabel=r.isBuiltIn?'':'<span class="fav-ki-badge">✨ KI</span>';
+      const cuisineEmojis={asiatisch:'🍜',mediterran:'🫒',orientalisch:'🧆',oesterreichisch:'🇦🇹',comfort:'🍲'};
+      const cuisineTag=r.cuisine&&cuisineEmojis[r.cuisine]?`<span class="fav-cuisine-tag">${cuisineEmojis[r.cuisine]}</span>`:'';
+      const localIdx=r.isBuiltIn?-1:(r.origIdx-FAVORITES.length);
+      let h=`<div class="fav-saved-item" style="${borderColor}"><div class="fav-saved-header" ${hasDetail?`onclick="toggleFavDetail('${detailId}')"`:''}><div class="fav-saved-info"><div class="fav-saved-title">${cuisineTag}${r.title} ${sourceLabel}</div>${r.subtitle?`<div class="fav-saved-sub">${r.subtitle}</div>`:''}${r.prepTime?`<div class="fav-saved-sub">⏱ ${r.prepTime} Min</div>`:''}${savedDate?`<div class="fav-saved-date">Geherzt am ${savedDate}</div>`:''}</div><div class="fav-saved-actions">${hasDetail?`<button class="plan-recipe-toggle" data-toggle="${detailId}" onclick="event.stopPropagation();toggleFavDetail('${detailId}')">▼</button>`:''}${!r.isBuiltIn?`<button class="plan-recipe-remove" onclick="event.stopPropagation();removeSavedFav(${localIdx})" title="Entfernen">✕</button>`:''}</div></div>`;
+      if(hasDetail){
+        h+=`<div class="fav-saved-detail" id="${detailId}">`;
+        if(r.ingredients&&r.ingredients.length>0){
+          h+=`<div class="plan-detail-label">Zutaten</div><ul class="ingredient-list">`;
+          r.ingredients.forEach(ing=>{h+=`<li><span class="ingredient-amount">${ing.amount} ${ing.unit||''}</span><span>${ing.name}</span></li>`});
+          h+=`</ul>`;
+        }
+        if(r.steps&&r.steps.length>0){
+          h+=`<div class="plan-detail-label">Zubereitung</div><ol class="steps-list">`;
+          r.steps.forEach(s=>{h+=`<li>${s}</li>`});
+          h+=`</ol>`;
+        }
+        if(r.tips)h+=`<div class="recipe-tip"><strong>💡</strong> ${r.tips}</div>`;
+        if(r.healthNote)h+=`<div class="health-note"><strong>🌿</strong> ${r.healthNote}</div>`;
+        if(r.link)h+=`<a class="link-btn" href="${r.link}" target="_blank" onclick="event.stopPropagation()">📖 Originalrezept</a>`;
+        h+=`</div>`;
+      }
+      h+=`</div>`;
+      return h;
+    }
+
     // ── Week Calculation ──
-    function getNextMonday(){
+    let weekOffset=0; // 0=current, -1=last, +1=next
+
+    function getMondayOfWeek(offset){
       const now=new Date();const day=now.getDay();
-      const diff=(day===0?1:8-day);
-      const mon=new Date(now);mon.setDate(now.getDate()+diff);mon.setHours(0,0,0,0);
+      const diffToMonday=(day===0?-6:1-day);
+      const mon=new Date(now);mon.setDate(now.getDate()+diffToMonday+(offset*7));mon.setHours(0,0,0,0);
       return mon;
     }
-    function getCurrentWeekEnd(){
-      const mon=getNextMonday();
-      const sun=new Date(mon);sun.setDate(mon.getDate()+6);sun.setHours(23,59,59,999);
-      return sun;
-    }
-    function getWeekDates(){
-      const mon=getNextMonday();
+    function getWeekDates(offset){
+      const mon=getMondayOfWeek(offset||0);
       return DAY_NAMES.map((name,i)=>{
         const d=new Date(mon);d.setDate(mon.getDate()+i);
         return{name,date:d,dateStr:d.toLocaleDateString('de-DE',{day:'numeric',month:'short'}),key:d.toISOString().split('T')[0]};
       });
     }
+    function getWeekKey(offset){return getMondayOfWeek(offset||0).toISOString().split('T')[0]}
     function isToday(dateKey){return new Date().toISOString().split('T')[0]===dateKey}
+    function shiftWeek(dir){weekOffset=Math.max(-1,Math.min(1,weekOffset+dir));renderPlan()}
 
-    // ── Plan Storage with Auto-Reset ──
-    function getPlan(){
-      try{
-        const stored=JSON.parse(localStorage.getItem('schipfie-plan'));
-        if(!stored||!stored.weekStart)return null;
-        // Check if plan is expired (past Sunday 23:59)
-        const planSunday=new Date(stored.weekStart);planSunday.setDate(planSunday.getDate()+6);planSunday.setHours(23,59,59,999);
-        if(new Date()>planSunday){localStorage.removeItem('schipfie-plan');return null}
-        return stored;
-      }catch(e){return null}
+    // ── Plan Storage (per week) ──
+    function getAllPlans(){try{return JSON.parse(localStorage.getItem('schipfie-plans'))||{}}catch(e){return{}}}
+    function saveAllPlans(plans){localStorage.setItem('schipfie-plans',JSON.stringify(plans));updateBadge()}
+    function getPlanDays(offset){
+      const plans=getAllPlans();const key=getWeekKey(offset||0);
+      return plans[key]||{};
     }
-    function savePlan(days){
-      const mon=getNextMonday();
-      localStorage.setItem('schipfie-plan',JSON.stringify({weekStart:mon.toISOString().split('T')[0],days}));
-      updateBadge();
-    }
-    function getPlanDays(){
-      const plan=getPlan();
-      if(!plan)return{};
-      return plan.days||{};
+    function savePlanDays(days,offset){
+      const plans=getAllPlans();const key=getWeekKey(offset||0);
+      plans[key]=days;
+      // Auto-cleanup: remove plans older than 2 weeks
+      const twoWeeksAgo=getMondayOfWeek(-2).toISOString().split('T')[0];
+      Object.keys(plans).forEach(k=>{if(k<twoWeeksAgo)delete plans[k]});
+      saveAllPlans(plans);
     }
     function updateBadge(){
-      const days=getPlanDays();const total=Object.values(days).reduce((s,d)=>s+d.length,0);
+      const currentDays=getPlanDays(0);
+      const total=Object.values(currentDays).reduce((s,d)=>s+d.length,0);
       const badge=document.getElementById('planBadge');
       if(total>0){badge.style.display='inline-block';badge.textContent=total}else{badge.style.display='none'}
     }
 
-    function addRecipeToPlan(recipe,dayKey){
-      const days=getPlanDays();
+    function addRecipeToPlan(recipe,dayKey,offset){
+      const days=getPlanDays(offset||0);
       if(!days[dayKey])days[dayKey]=[];
-      // Store full recipe data for expandable view
       days[dayKey].push({
         title:recipe.title||'Rezept',subtitle:recipe.subtitle||'',prepTime:recipe.prepTime||'',
         link:recipe.link||null,ingredients:recipe.ingredients||[],steps:recipe.steps||[],
-        tips:recipe.tips||'',id:recipe.id||('ai-'+Date.now())
+        tips:recipe.tips||'',id:recipe.id||('ai-'+Date.now()),source:recipe.source||'KI-generiert'
       });
-      savePlan(days);
+      savePlanDays(days,offset||0);
       document.getElementById('modalContainer').innerHTML='';
-      const dayName=DAY_NAMES[getWeekDates().findIndex(d=>d.key===dayKey)]||dayKey;
+      const week=getWeekDates(offset||0);
+      const dayName=week.find(d=>d.key===dayKey)?.name||dayKey;
       showToast(`✅ "${recipe.title}" → ${dayName}`);
     }
 
     function removePlanRecipe(dayKey,idx){
-      const days=getPlanDays();
+      const days=getPlanDays(weekOffset);
       if(days[dayKey]){days[dayKey].splice(idx,1);if(days[dayKey].length===0)delete days[dayKey]}
-      savePlan(days);renderPlan();
+      savePlanDays(days,weekOffset);renderPlan();
     }
 
-    function clearPlan(){if(!confirm('Wochenplan wirklich leeren?'))return;savePlan({});renderPlan()}
+    function clearCurrentWeekPlan(){if(!confirm('Wochenplan für diese Woche wirklich leeren?'))return;savePlanDays({},weekOffset);renderPlan()}
 
     function togglePlanDetail(id){
       const el=document.getElementById(id);const btn=document.querySelector(`[data-toggle="${id}"]`);
@@ -522,40 +539,53 @@
 
     function showDayPicker(){
       const recipe=state.currentRecipe;if(!recipe){showToast('❌ Kein Rezept ausgewählt');return}
-      const week=getWeekDates();const days=getPlanDays();
+      // Show current week + next week
+      const weeks=[
+        {offset:0,label:'Diese Woche'},
+        {offset:1,label:'Nächste Woche'}
+      ];
       let h=`<div class="modal-overlay" onclick="if(event.target===this)this.remove()"><div class="modal"><h3>📅 Zu welchem Tag hinzufügen?</h3><div class="modal-days">`;
-      week.forEach(d=>{
-        const count=(days[d.key]||[]).length;
-        h+=`<button class="modal-day-btn" onclick="addRecipeToPlan(state.currentRecipe,'${d.key}')"><span>${d.name}, ${d.dateStr}</span><span class="modal-day-count">${count?count+' Rezept'+(count>1?'e':''):'leer'}</span></button>`;
+      weeks.forEach(w=>{
+        const week=getWeekDates(w.offset);const days=getPlanDays(w.offset);
+        h+=`<div style="font-size:0.72rem;font-weight:600;color:var(--stone);text-transform:uppercase;letter-spacing:0.08em;margin:0.6rem 0 0.3rem">${w.label}</div>`;
+        week.forEach(d=>{
+          const count=(days[d.key]||[]).length;
+          h+=`<button class="modal-day-btn" onclick="addRecipeToPlan(state.currentRecipe,'${d.key}',${w.offset})"><span>${d.name}, ${d.dateStr}</span><span class="modal-day-count">${count?count+' Rezept'+(count>1?'e':''):'leer'}</span></button>`;
+        });
       });
       h+=`</div><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">Abbrechen</button></div></div>`;
       document.getElementById('modalContainer').innerHTML=h;
     }
 
     function renderPlan(){
-      const week=getWeekDates();const days=getPlanDays();const el=document.getElementById('planContent');
+      const week=getWeekDates(weekOffset);const days=getPlanDays(weekOffset);const el=document.getElementById('planContent');
       const total=Object.values(days).reduce((s,d)=>s+d.length,0);
 
-      // Week label
-      document.getElementById('planWeekLabel').textContent=`${week[0].dateStr} – ${week[6].dateStr}`;
+      // Week label with type
+      const weekType=weekOffset===-1?'Letzte Woche':weekOffset===0?'Diese Woche':'Nächste Woche';
+      const labelEl=document.getElementById('planWeekLabel');
+      labelEl.innerHTML=`${week[0].dateStr} – ${week[6].dateStr}<span class="week-type">${weekType}</span>`;
+      labelEl.className='week-nav-label '+(weekOffset===0?'current-week':'other-week');
 
-      if(total===0){
-        el.innerHTML=`<div class="plan-empty"><div class="emoji">📅</div><p>Noch kein Wochenplan erstellt</p><p class="hint">Generiere oder wähle Rezepte und füge sie zum Plan hinzu</p><button class="generate-btn" style="margin-top:1rem;max-width:280px;margin-left:auto;margin-right:auto;display:block" onclick="switchScreen('recipes')">🥄 Rezepte finden</button></div>`;
-        return;
-      }
+      const isOtherWeek=weekOffset!==0;
 
+      // Always show all 7 days
       let h='';
       week.forEach(d=>{
         const recipes=days[d.key]||[];
         const todayClass=isToday(d.key)?' today':'';
-        h+=`<div class="plan-day${todayClass}"><div class="plan-day-header"><div class="plan-day-title">${d.name}</div><div class="plan-day-date">${d.dateStr}</div></div>`;
+        const otherClass=isOtherWeek?' plan-other-week':'';
+        h+=`<div class="plan-day${todayClass}${otherClass}"><div class="plan-day-header"><div class="plan-day-title">${d.name}</div><div class="plan-day-date">${d.dateStr}</div></div>`;
         if(recipes.length===0){
-          h+=`<div class="plan-day-empty">—</div>`;
+          h+=`<div class="plan-day-empty" onclick="switchScreen('recipes')">+ Rezept finden</div>`;
         } else {
           recipes.forEach((r,ri)=>{
             const detailId=`detail-${d.key}-${ri}`;
             const hasDetail=(r.ingredients&&r.ingredients.length>0)||(r.steps&&r.steps.length>0)||r.link;
-            h+=`<div class="plan-recipe"><div class="plan-recipe-header" ${hasDetail?`onclick="togglePlanDetail('${detailId}')"`:''}><div class="plan-recipe-info"><div class="plan-recipe-title">${r.title}</div>${r.prepTime?`<div class="plan-recipe-sub">⏱ ${r.prepTime} Min</div>`:''}</div><div class="plan-recipe-actions">${hasDetail?`<button class="plan-recipe-toggle" data-toggle="${detailId}" onclick="event.stopPropagation();togglePlanDetail('${detailId}')">▼</button>`:''}<button class="plan-recipe-remove" onclick="event.stopPropagation();removePlanRecipe('${d.key}',${ri})" title="Entfernen">✕</button></div></div>`;
+            const isKI=r.source==='KI-generiert';
+            const borderStyle=isKI?'border-left:3px solid var(--terra)':'border-left:3px solid var(--olive)';
+            const kiBadge=isKI?'<span class="fav-ki-badge">✨ KI</span>':'';
+            h+=`<div class="plan-recipe" style="${borderStyle}"><div class="plan-recipe-header" ${hasDetail?`onclick="togglePlanDetail('${detailId}')"`:''}><div class="plan-recipe-info"><div class="plan-recipe-title">${r.title} ${kiBadge}</div>${r.prepTime?`<div class="plan-recipe-sub">⏱ ${r.prepTime} Min</div>`:''}</div><div class="plan-recipe-actions">${hasDetail?`<button class="plan-recipe-toggle" data-toggle="${detailId}" onclick="event.stopPropagation();togglePlanDetail('${detailId}')">▼</button>`:''}<button class="plan-recipe-remove" onclick="event.stopPropagation();removePlanRecipe('${d.key}',${ri})" title="Entfernen">✕</button></div></div>`;
             if(hasDetail){
               h+=`<div class="plan-recipe-detail" id="${detailId}">`;
               if(r.ingredients&&r.ingredients.length>0){
@@ -577,14 +607,13 @@
         }
         h+=`</div>`;
       });
-      h+=`<div class="plan-summary">${total} Rezept${total>1?'e':''} diese Woche · Reset Sonntag 23:59</div>`;
+      if(total>0)h+=`<div class="plan-summary">${total} Rezept${total>1?'e':''} ${weekType.toLowerCase()}</div>`;
       el.innerHTML=h;
     }
 
     // ── Recipe Screen Logic ──
     function setMode(m){
       state.mode=m;document.querySelectorAll('.mode-btn').forEach((b,i)=>b.classList.toggle('active',(i===0&&m==='ai')||(i===1&&m==='favorites')));
-      document.getElementById('cuisineSection').classList.toggle('hidden',m==='favorites');
       document.getElementById('ingredientSection').classList.toggle('hidden',m==='favorites');
       const btn=document.getElementById('generateBtn');
       if(m==='ai'){btn.textContent='Was kochen wir heute?';btn.classList.remove('fav-btn')}else{btn.textContent='❤️ Zeig mir einen Favoriten!';btn.classList.add('fav-btn')}
@@ -595,7 +624,7 @@
     function selectCuisine(el){document.querySelectorAll('.cuisine-card').forEach(c=>c.classList.remove('active'));el.classList.add('active');state.cuisine=el.dataset.cuisine}
     function selectMealType(el){document.querySelectorAll('.meal-card').forEach(c=>c.classList.remove('active'));el.classList.add('active');state.mealType=el.dataset.meal}
     function handleGenerate(){state.mode==='ai'?generateRecipe():showRandomFavorite()}
-    function getCompatibleFavorites(){const lucasOnly=state.profiles.has('lucas')&&!state.profiles.has('lola');return FAVORITES.filter(f=>{if(lucasOnly&&(f.tags||[]).includes('Lola-Solo'))return false;if(f.mealType&&f.mealType!==state.mealType)return false;return true})}
+    function getCompatibleFavorites(){const lucasOnly=state.profiles.has('lucas')&&!state.profiles.has('lola');return FAVORITES.filter(f=>{if(lucasOnly&&(f.tags||[]).includes('Lola-Solo'))return false;if(f.mealType&&f.mealType!==state.mealType)return false;if(state.cuisine!=='surprise'&&f.cuisine&&f.cuisine!==state.cuisine)return false;return true})}
 
     function showRandomFavorite(){
       const c=getCompatibleFavorites();

@@ -4,7 +4,7 @@ const FAVORITES = [
     id: "vogerlsalat", title: "Vogerlsalat mit Kürbiskernöl & Knoblauch",
     subtitle: "Österreichischer Klassiker — optional mit Ei & Kartoffeln",
     tags: ["schnell", "österreichisch", "Lola+Luki"], note: "🧀 Luki ohne Käse-Topping",
-    prepTime: "15", servings: "2", cuisine: "comfort", mealType: "vorspeise", link: null,
+    prepTime: "15", servings: "2", cuisine: "oesterreichisch", mealType: "vorspeise", link: null,
     ingredients: [
       {amount:"200",unit:"g",name:"Feldsalat (Vogerlsalat)"},{amount:"3",unit:"EL",name:"Steirisches Kürbiskernöl"},
       {amount:"2",unit:"EL",name:"Weißweinessig"},{amount:"1",unit:"",name:"Knoblauchzehe, fein gehackt"},

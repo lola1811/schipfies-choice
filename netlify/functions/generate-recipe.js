@@ -14,7 +14,7 @@ BRAUCHT: Große Portionen, viel Eiweiß, cholesterinbewusst (wenig gesättigte F
 
       lola: `Lola (33, weiblich, 1.63m, aktiv, Schilddrüsenunterfunktion, Eisenmangel, niedriger Blutdruck, braucht Eiweiß, aktiv in Familienplanung):
 ISST NICHT: Pilze, frittierte Lebensmittel, Fleisch & Fisch, Fast Food, hochverarbeitete Lebensmittel
-LIEBT: frische Kräuter, Auberginen, Nüsse, rote Linsen, Gemüse, Oliven, Feta, Halloumi, Mozzarella, Kürbiskernöl, Knödel, Spinat, Strudel, Pesto, Reis, indische Gewürze, Curry, Ratatouille, Ofengerichte, Radicchio, Körnerbrot, Hummus
+LIEBT: frische Kräuter, Auberginen, Nüsse, rote Linsen, Gemüse, Oliven, Feta, Halloumi, Mozzarella, Kürbiskernöl, Knödel, Spinat, Strudel, Pesto, Reis, indische Gewürze, Curry, Ratatouille, Ofengerichte, Radicchio, Körnerbrot, Hummus, österreichische Küche (Knödel, Nockerl, Strudel, Palatschinken, Erdäpfelgerichte — gerne in gesunder Variante)
 BRAUCHT: Eisenreich (Hülsenfrüchte, Spinat, Kerne), jodhaltige Lebensmittel, Eiweiß, folsäurereich, Omega-3-reich (Leinsamen, Walnüsse, Chiasamen, Hanfsamen — am besten mit einer Fettquelle kombinieren für bessere Aufnahme)`
     };
 
@@ -58,6 +58,7 @@ WICHTIG - Schnittmenge bedeutet:
       asiatisch: "Asiatische Küche (Thai, Japanisch, Vietnamesisch, Koreanisch, Indisch)",
       mediterran: "Mediterrane Küche (Italienisch, Griechisch, Levantinisch)",
       orientalisch: "Orientalische Küche (Nahöstlich, Nordafrikanisch, Persisch)",
+      oesterreichisch: "Österreichische Küche / Hausmannskost (aber gerne in einer gesunden, leichteren Variante — Knödel, Strudel, Eintöpfe, Aufläufe, Palatschinken, Nockerl, Gemüselaibchen, Erdäpfelgerichte)",
       comfort: "Comfort Food (aber gesund und frisch, nicht deftig)",
       surprise: "Überrasche mich mit einer kreativen, unerwarteten Küche!"
     };
