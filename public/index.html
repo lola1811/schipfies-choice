@@ -27,11 +27,20 @@
     .section-label{font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--stone);margin-bottom:0.7rem}
 
     .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--sand);display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom)}
-    .nav-tab{flex:1;padding:0.7rem 0;text-align:center;cursor:pointer;transition:all 0.2s;border:none;background:none;font-family:'DM Sans',sans-serif}
+    .nav-tab{flex:1;padding:0.7rem 0;text-align:center;cursor:pointer;transition:all 0.2s;border:none;background:none;font-family:'DM Sans',sans-serif;position:relative}
     .nav-tab .nav-icon{font-size:1.3rem;display:block}
-    .nav-tab .nav-label{font-size:0.65rem;font-weight:600;color:var(--stone);margin-top:0.15rem}
-    .nav-tab.active .nav-label{color:var(--terra)}
+    .nav-tab .nav-label{font-size:0.65rem;font-weight:500;color:var(--stone);margin-top:0.15rem}
+    .nav-tab.active .nav-label{color:var(--terra);font-weight:600}
+    .nav-tab.active::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:20px;height:2.5px;background:var(--terra);border-radius:2px}
     .nav-tab .nav-badge{display:inline-block;background:var(--terra);color:white;font-size:0.55rem;font-weight:700;padding:0.1rem 0.35rem;border-radius:50px;margin-left:0.2rem;vertical-align:top}
+    .mode-ai .mode-toggle{background:linear-gradient(135deg,rgba(196,94,58,0.15),rgba(212,149,58,0.12))}
+    .mode-fav .mode-toggle{background:linear-gradient(135deg,rgba(107,124,82,0.15),rgba(138,158,108,0.12))}
+    #screenRecipes.mode-ai .generate-btn{background:linear-gradient(135deg,var(--terra),var(--amber)) !important}
+    #screenRecipes.mode-fav .generate-btn{background:linear-gradient(135deg,var(--olive),var(--olive-light)) !important}
+    #screenRecipes.mode-ai .section-label{color:var(--terra)}
+    #screenRecipes.mode-fav .section-label{color:var(--olive)}
+    #screenRecipes.mode-ai .header::after{background:var(--terra)}
+    #screenRecipes.mode-fav .header::after{background:var(--olive)}
 
     .screen{display:none}.screen.active{display:block}
 
@@ -72,6 +81,19 @@
     .generate-btn:disabled{background:var(--sand);cursor:not-allowed;transform:none;box-shadow:none}
     .generate-btn.fav-btn{background:var(--olive)}.generate-btn.fav-btn:hover{background:var(--olive-light)}
 
+    /* ── Favoriten-Modus: alle aktiven Elemente olive/grün ── */
+    #screenRecipes.mode-fav .profile-btn.active{border-color:var(--olive)}
+    #screenRecipes.mode-fav .profile-btn.active::before{background:var(--olive)}
+    #screenRecipes.mode-fav .profile-btn.active .name{color:var(--olive)}
+    #screenRecipes.mode-fav .chip.active{background:var(--olive);border-color:var(--olive)}
+    #screenRecipes.mode-fav .cuisine-card.active{border-color:var(--olive);background:linear-gradient(135deg,rgba(107,124,82,0.08),rgba(107,124,82,0.02))}
+    #screenRecipes.mode-fav .cuisine-card.active .label{color:var(--olive)}
+    #screenRecipes.mode-fav .meal-card.active{border-color:var(--olive);background:linear-gradient(135deg,rgba(107,124,82,0.08),rgba(107,124,82,0.02))}
+    #screenRecipes.mode-fav .meal-card.active .label{color:var(--olive)}
+    #screenRecipes.mode-fav .section-label{color:var(--olive)}
+    #screenRecipes.mode-fav .mode-btn.active{color:var(--olive)}
+    #screenRecipes.mode-fav .ingredient-input:focus{border-color:var(--olive)}
+
     .loading{text-align:center;padding:3rem 1.5rem}
     .loading-spoon{font-size:2.5rem;animation:stir 1.2s ease-in-out infinite;display:inline-block}
     @keyframes stir{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(15deg)}}
@@ -93,6 +115,10 @@
     .heart-btn.saved{background:rgba(255,255,255,0.9)}.heart-btn.saving{pointer-events:none;opacity:0.6}
     @keyframes heartPop{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
     .heart-btn.pop{animation:heartPop 0.4s ease}
+    .recipe-hearts{position:absolute;top:1.2rem;right:1rem;display:flex;gap:0.3rem}
+    .heart-btn-mini{width:2.2rem;height:2.2rem;border-radius:50%;border:none;background:rgba(255,255,255,0.2);backdrop-filter:blur(4px);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.3s;opacity:0.5}
+    .heart-btn-mini:hover{background:rgba(255,255,255,0.35);transform:scale(1.1)}
+    .heart-btn-mini.active{opacity:1;background:rgba(255,255,255,0.9);box-shadow:0 1px 4px rgba(0,0,0,0.15)}
 
     .recipe-tags{padding:1rem 1.5rem 0;display:flex;flex-wrap:wrap;gap:0.35rem}
     .recipe-tag{background:var(--cream);padding:0.25rem 0.6rem;border-radius:50px;font-size:0.7rem;color:var(--stone)}
@@ -239,6 +265,22 @@
     .fav-ki-badge{display:inline-block;background:var(--terra);color:white;font-size:0.6rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:50px;vertical-align:middle;margin-left:0.3rem}
     .fav-cuisine-tag{margin-right:0.3rem}
     .fav-zutaten,.fav-zubereitung{font-size:0.82rem;line-height:1.6;color:var(--charcoal);padding:0.3rem 0}
+    .heart-toggles{display:flex;gap:0.25rem;margin-right:0.4rem}
+    .heart-toggle{width:32px;height:32px;border:none;border-radius:50%;background:var(--cream);cursor:pointer;font-size:0.9rem;opacity:0.35;transition:all 0.2s;display:flex;align-items:center;justify-content:center;padding:0}
+    .heart-toggle.active{opacity:1;background:white;box-shadow:0 1px 4px rgba(0,0,0,0.1);transform:scale(1.1)}
+    .fav-filters{margin-bottom:1rem}
+    .fav-filter-row{display:flex;gap:0.4rem;margin-bottom:0.5rem;flex-wrap:wrap}
+    .fav-filter-btn{padding:0.45rem 0.8rem;border:1.5px solid var(--sand);border-radius:var(--radius-sm);background:white;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:500;color:var(--stone);cursor:pointer;transition:all 0.2s}
+    .fav-filter-btn.active{border-color:var(--terra);color:var(--terra);background:rgba(196,94,58,0.06)}
+    .fav-import-box{background:white;border-radius:var(--radius);padding:1rem;margin-bottom:1rem;box-shadow:var(--shadow)}
+    .fav-import-row{display:flex;gap:0.5rem}
+    .fav-import-input{flex:1;padding:0.6rem 0.8rem;border:1.5px solid var(--sand);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:0.85rem;background:var(--warm);color:var(--charcoal)}
+    .fav-import-input:focus{outline:none;border-color:var(--terra)}
+    .fav-import-btn{width:44px;height:44px;border:none;border-radius:var(--radius-sm);background:var(--terra);color:white;font-size:1.3rem;font-weight:700;cursor:pointer;transition:all 0.2s;flex-shrink:0}
+    .fav-import-btn:disabled{opacity:0.5;cursor:not-allowed}
+    .fav-import-btn.loading{animation:pulse 1s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+    .fav-import-status{font-size:0.78rem;color:var(--stone);margin-top:0.5rem;min-height:1.2em}
     .ingredient-input{width:100%;padding:0.75rem 1rem;border:1.5px solid var(--sand);border-radius:var(--radius);background:white;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--charcoal);transition:border-color 0.2s}
     .ingredient-input:focus{outline:none;border-color:var(--terra)}
     .ingredient-input::placeholder{color:var(--sand)}
@@ -257,10 +299,10 @@
   </header>
 
   <!-- ═══ SCREEN 1: REZEPTE ═══ -->
-  <main class="container screen active" id="screenRecipes">
+  <main class="container screen active mode-fav" id="screenRecipes">
     <div class="mode-toggle">
-      <button class="mode-btn active" onclick="setMode('ai')">✨ KI-Rezept</button>
-      <button class="mode-btn" onclick="setMode('favorites')">❤️ Unsere Favoriten</button>
+      <button class="mode-btn" onclick="setMode('ai')">✨ KI-Rezept</button>
+      <button class="mode-btn active" onclick="setMode('favorites')">❤️ Unsere Favoriten</button>
     </div>
     <section class="section">
       <div class="section-label">Wer isst mit?</div>
@@ -273,11 +315,11 @@
       <div class="section-label">Zusätzliche Filter</div>
       <div class="chips">
         <button class="chip" data-filter="glutenfrei" onclick="toggleFilter(this)">Glutenfrei</button>
-        <button class="chip" data-filter="laktosefrei" onclick="toggleFilter(this)">Laktosefrei</button>
-        <button class="chip" data-filter="vegan" onclick="toggleFilter(this)">Vegan</button>
-        <button class="chip" data-filter="salzarm" onclick="toggleFilter(this)">Salzarm</button>
-        <button class="chip" data-filter="zuckerfrei" onclick="toggleFilter(this)">Zuckerfrei</button>
         <button class="chip" data-filter="kohlenhydratarm" onclick="toggleFilter(this)">Kohlenhydratarm</button>
+        <button class="chip" data-filter="laktosefrei" onclick="toggleFilter(this)">Laktosefrei</button>
+        <button class="chip" data-filter="salzarm" onclick="toggleFilter(this)">Salzarm</button>
+        <button class="chip" data-filter="vegan" onclick="toggleFilter(this)">Vegan</button>
+        <button class="chip" data-filter="zuckerfrei" onclick="toggleFilter(this)">Zuckerfrei</button>
       </div>
     </section>
     <section class="section" id="cuisineSection">
@@ -292,22 +334,22 @@
       </div>
     </section>
     <section class="section" id="mealTypeSection">
-      <div class="section-label">Was soll's sein?</div>
+      <div class="section-label">Was soll's sein? <span style="font-weight:400;text-transform:none;letter-spacing:0">(Mehrfachauswahl möglich)</span></div>
       <div class="meal-grid">
-        <button class="meal-card active" data-meal="hauptgericht" onclick="selectMealType(this)"><span class="emoji">🍽</span><div class="label">Hauptgericht</div></button>
-        <button class="meal-card" data-meal="vorspeise" onclick="selectMealType(this)"><span class="emoji">🥗</span><div class="label">Vorspeise / Salat</div></button>
-        <button class="meal-card" data-meal="suppe" onclick="selectMealType(this)"><span class="emoji">🍲</span><div class="label">Suppe</div></button>
-        <button class="meal-card" data-meal="snack" onclick="selectMealType(this)"><span class="emoji">🥜</span><div class="label">Snack</div></button>
-        <button class="meal-card" data-meal="smoothie" onclick="selectMealType(this)"><span class="emoji">🥤</span><div class="label">Smoothie</div></button>
-        <button class="meal-card" data-meal="dessert_gesund" onclick="selectMealType(this)"><span class="emoji">🍓</span><div class="label">Dessert (gesund)</div></button>
-        <button class="meal-card" data-meal="dessert_ungesund" onclick="selectMealType(this)"><span class="emoji">🍰</span><div class="label">Dessert (Genuss)</div></button>
+        <button class="meal-card" data-meal="vorspeise" onclick="toggleMealType(this)"><span class="emoji">🥗</span><div class="label">Vorspeise / Salat</div></button>
+        <button class="meal-card" data-meal="suppe" onclick="toggleMealType(this)"><span class="emoji">🍲</span><div class="label">Suppe</div></button>
+        <button class="meal-card active" data-meal="hauptgericht" onclick="toggleMealType(this)"><span class="emoji">🍽</span><div class="label">Hauptgericht</div></button>
+        <button class="meal-card" data-meal="dessert_gesund" onclick="toggleMealType(this)"><span class="emoji">🍓</span><div class="label">Dessert (gesund)</div></button>
+        <button class="meal-card" data-meal="dessert_ungesund" onclick="toggleMealType(this)"><span class="emoji">🍰</span><div class="label">Dessert (Genuss)</div></button>
+        <button class="meal-card" data-meal="snack" onclick="toggleMealType(this)"><span class="emoji">🥜</span><div class="label">Snack</div></button>
+        <button class="meal-card" data-meal="smoothie" onclick="toggleMealType(this)"><span class="emoji">🥤</span><div class="label">Smoothie</div></button>
       </div>
     </section>
     <section class="section" id="ingredientSection">
       <div class="section-label">Zutat verkochen? <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></div>
       <input type="text" id="ingredientInput" class="ingredient-input" placeholder="z.B. Aubergine, Linsen, Lachs…" oninput="state.ingredient=this.value.trim()">
     </section>
-    <section class="section"><button class="generate-btn" id="generateBtn" onclick="handleGenerate()">Was kochen wir heute?</button></section>
+    <section class="section"><button class="generate-btn fav-btn" id="generateBtn" onclick="handleGenerate()">❤️ Zeig mir einen Favoriten!</button></section>
     <section id="result"></section>
     <footer class="footer">Schipfie's Choice · Made with 🤍 in Berlin Mitte</footer>
   </main>
@@ -333,6 +375,20 @@
       <h2>❤️ Favorites</h2>
       <div class="fav-screen-count" id="favScreenCount"></div>
     </div>
+    <div class="fav-import-box">
+      <div class="section-label">Neues Rezept hinzufügen</div>
+      <div class="fav-import-row">
+        <input type="url" id="importUrlInput" class="fav-import-input" placeholder="Rezept-URL einfügen…">
+        <button class="fav-import-btn" id="importBtn" onclick="importRecipeFromUrl()">+</button>
+      </div>
+      <div class="fav-import-status" id="importStatus"></div>
+    </div>
+    <div class="fav-filters">
+      <div class="fav-filter-row">
+        <button class="fav-filter-btn" data-favfilter="lola" onclick="toggleFavFilter('lola',this)">🍭 Loli</button>
+        <button class="fav-filter-btn" data-favfilter="luki" onclick="toggleFavFilter('luki',this)">🦖 Luki</button>
+      </div>
+    </div>
     <div id="favContent"></div>
     <footer class="footer">Schipfie's Choice · Made with 🤍 in Berlin Mitte</footer>
   </div>
@@ -348,7 +404,7 @@
 
   <!-- Favorites now loaded from Notion API -->
   <script>
-    const state={mode:'ai',profiles:new Set(["lucas","lola"]),filters:{},cuisine:"surprise",mealType:"hauptgericht",currentRecipe:null,screen:'recipes',ingredient:''};
+    const state={mode:'favorites',profiles:new Set(["lucas","lola"]),filters:{},cuisine:"surprise",mealTypes:new Set(["hauptgericht"]),currentRecipe:null,screen:'recipes',ingredient:''};
     const DAY_NAMES=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
 
     // ── Screen Navigation ──
@@ -417,8 +473,34 @@
       if(el){el.classList.toggle('open');if(btn)btn.classList.toggle('open')}
     }
 
+    let favFilterLola = false;
+    let favFilterLuki = false;
+
+    function toggleFavFilter(f, btn) {
+      if(f === 'lola') favFilterLola = !favFilterLola;
+      else if(f === 'luki') favFilterLuki = !favFilterLuki;
+      btn.classList.toggle('active');
+      renderSavedFavorites();
+    }
+
+    function getFilteredFavorites() {
+      // No filter active = show all
+      if(!favFilterLola && !favFilterLuki) return [...notionFavorites];
+      return notionFavorites.filter(f => {
+        const h = f.geherztVon || [];
+        if(favFilterLola && favFilterLuki) {
+          // Beide aktiv: nur Rezepte die BEIDE geherzt haben
+          return h.includes('Lola') && h.includes('Luki');
+        }
+        if(favFilterLola) return h.includes('Lola');
+        if(favFilterLuki) return h.includes('Luki');
+        return false;
+      });
+    }
+
     function renderSavedFavorites(){
       const el=document.getElementById('favContent');
+      const filtered = getFilteredFavorites();
       const favCount = notionFavorites.filter(f => f.source === 'Favorit').length;
       const kiCount = notionFavorites.filter(f => f.source === 'KI-generiert').length;
       const manualCount = notionFavorites.length - favCount - kiCount;
@@ -433,31 +515,35 @@
         el.innerHTML=`<div class="fav-empty"><div class="emoji">❤️</div><p>Noch keine Favoriten gespeichert</p><p class="hint">Herze Rezepte mit 🤍 um sie hier zu sammeln</p><button class="generate-btn" style="margin-top:1rem;max-width:280px;margin-left:auto;margin-right:auto;display:block" onclick="switchScreen('recipes')">🥄 Rezepte entdecken</button></div>`;
         return;
       }
+      if(filtered.length===0){
+        el.innerHTML=`<div class="fav-empty"><div class="emoji">🤷</div><p>Keine Rezepte mit diesem Filter.</p></div>`;
+        return;
+      }
+
+      let h='';
 
       const mealOrder=[
         {key:'vorspeise',label:'🥗 Vorspeise / Salat'},
         {key:'suppe',label:'🍲 Suppe'},
         {key:'hauptgericht',label:'🍽 Hauptgericht'},
-        {key:'snack',label:'🥜 Snack'},
-        {key:'smoothie',label:'🥤 Smoothie'},
         {key:'dessert_gesund',label:'🍓 Dessert (gesund)'},
         {key:'dessert_ungesund',label:'🍰 Dessert (Genuss)'},
+        {key:'snack',label:'🥜 Snack'},
+        {key:'smoothie',label:'🥤 Smoothie'},
         {key:'other',label:'🥄 Sonstige'}
       ];
-
       const grouped={};
-      notionFavorites.forEach((f,i)=>{
+      filtered.forEach((f,i)=>{
         const type=f.mealType||'other';
         if(!grouped[type])grouped[type]=[];
         grouped[type].push({...f,origIdx:i});
       });
-
-      let h='';
       mealOrder.forEach(cat=>{
         const items=grouped[cat.key];
         if(!items||items.length===0)return;
+        const sorted=items.sort((a,b)=>a.title.localeCompare(b.title,'de'));
         h+=`<div class="fav-section"><div class="fav-section-header">${cat.label}</div>`;
-        items.forEach(r=>{h+=renderFavItem(r)});
+        sorted.forEach(r=>{h+=renderFavItem(r)});
         h+=`</div>`;
       });
       el.innerHTML=h;
@@ -474,9 +560,13 @@
       const cuisineEmojis={asiatisch:'🍜',mediterran:'🫒',orientalisch:'🧆',oesterreichisch:'🇦🇹',comfort:'🍲'};
       const cKey = mapCuisineFromNotion(r.cuisine);
       const cuisineTag = cuisineEmojis[cKey] ? `<span class="fav-cuisine-tag">${cuisineEmojis[cKey]}</span>` : '';
-      const hearts = (r.geherztVon||[]).map(n => n === 'Lola' ? '💜' : '💙').join('');
+      const hearts = (r.geherztVon||[]);
+      const loliHearted = hearts.includes('Lola');
+      const lukiHearted = hearts.includes('Luki');
+      const heartDisplay = (loliHearted || lukiHearted) ? 
+        `${loliHearted?'🍭':''}${lukiHearted?'🦖':''}` : '';
 
-      let h=`<div class="fav-saved-item" style="${borderColor}"><div class="fav-saved-header" ${hasDetail?`onclick="toggleFavDetail('${detailId}')"`:''}><div class="fav-saved-info"><div class="fav-saved-title">${cuisineTag}${r.title} ${sourceLabel}</div>${r.subtitle?`<div class="fav-saved-sub">${r.subtitle}</div>`:''}${r.prepTime?`<div class="fav-saved-sub">⏱ ${r.prepTime} Min ${hearts?'· '+hearts:''}</div>`:`${hearts?`<div class="fav-saved-sub">${hearts}</div>`:''}`}</div><div class="fav-saved-actions">${hasDetail?`<button class="plan-recipe-toggle" data-toggle="${detailId}" onclick="event.stopPropagation();toggleFavDetail('${detailId}')">▼</button>`:''}</div></div>`;
+      let h=`<div class="fav-saved-item" style="${borderColor}"><div class="fav-saved-header" ${hasDetail?`onclick="toggleFavDetail('${detailId}')"`:''}><div class="fav-saved-info"><div class="fav-saved-title">${cuisineTag}${r.title} ${sourceLabel}</div>${r.subtitle?`<div class="fav-saved-sub">${r.subtitle}</div>`:''}${r.prepTime?`<div class="fav-saved-sub">⏱ ${r.prepTime} Min ${heartDisplay?'· '+heartDisplay:''}</div>`:`${heartDisplay?`<div class="fav-saved-sub">${heartDisplay}</div>`:''}`}</div><div class="fav-saved-actions"><div class="heart-toggles" onclick="event.stopPropagation()"><button class="heart-toggle ${loliHearted?'active':''}" onclick="toggleHeart('${r.id}','Lola',this)" title="Loli herzt">🍭</button><button class="heart-toggle ${lukiHearted?'active':''}" onclick="toggleHeart('${r.id}','Luki',this)" title="Luki herzt">🦖</button></div>${hasDetail?`<button class="plan-recipe-toggle" data-toggle="${detailId}" onclick="event.stopPropagation();toggleFavDetail('${detailId}')">▼</button>`:''}</div></div>`;
       if(hasDetail){
         h+=`<div class="fav-saved-detail" id="${detailId}">`;
         if(hasZutaten){
@@ -514,7 +604,7 @@
     function isToday(dateKey){return new Date().toISOString().split('T')[0]===dateKey}
     function shiftWeek(dir){weekOffset=Math.max(-1,Math.min(1,weekOffset+dir));renderPlan()}
 
-    // ── Plan Storage (per week) ──
+    // ── Plan Storage (Notion-synced with localStorage cache) ──
     function getAllPlans(){try{return JSON.parse(localStorage.getItem('schipfie-plans'))||{}}catch(e){return{}}}
     function saveAllPlans(plans){localStorage.setItem('schipfie-plans',JSON.stringify(plans));updateBadge()}
     function getPlanDays(offset){
@@ -524,7 +614,6 @@
     function savePlanDays(days,offset){
       const plans=getAllPlans();const key=getWeekKey(offset||0);
       plans[key]=days;
-      // Auto-cleanup: remove plans older than 2 weeks
       const twoWeeksAgo=getMondayOfWeek(-2).toISOString().split('T')[0];
       Object.keys(plans).forEach(k=>{if(k<twoWeeksAgo)delete plans[k]});
       saveAllPlans(plans);
@@ -541,14 +630,75 @@
       if(!days[dayKey])days[dayKey]=[];
       days[dayKey].push({
         title:recipe.title||'Rezept',subtitle:recipe.subtitle||'',prepTime:recipe.prepTime||'',
-        link:recipe.link||null,ingredients:recipe.ingredients||[],steps:recipe.steps||[],
-        tips:recipe.tips||'',id:recipe.id||('ai-'+Date.now()),source:recipe.source||'KI-generiert'
+        link:recipe.link||null,zutaten:recipe.zutaten||'',zubereitung:recipe.zubereitung||'',
+        tipps:recipe.tipps||'',id:recipe.id||('ai-'+Date.now()),source:recipe.source||'KI-generiert',
+        notionId:recipe.id||null
       });
       savePlanDays(days,offset||0);
       document.getElementById('modalContainer').innerHTML='';
       const week=getWeekDates(offset||0);
       const dayName=week.find(d=>d.key===dayKey)?.name||dayKey;
       showToast(`✅ "${recipe.title}" → ${dayName}`);
+
+      // Sync to Notion in background
+      const weekDates=getWeekDates(offset||0);
+      const dayInfo=weekDates.find(d=>d.key===dayKey);
+      if(dayInfo && recipe.id){
+        const monday=getMondayOfWeek(offset||0);
+        const kwNum=getWeekNumber(monday);
+        fetch('/api/save-plan',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            datum:dayKey,
+            rezeptId:recipe.id,
+            tag:`${dayInfo.name} ${dayInfo.dateStr}`,
+            woche:`KW${kwNum} ${monday.getFullYear()}`,
+            notiz:''
+          })
+        }).catch(e=>console.warn('Plan Notion sync failed:',e));
+      }
+    }
+
+    function getWeekNumber(d){
+      const date=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+      date.setUTCDate(date.getUTCDate()+4-(date.getUTCDay()||7));
+      const yearStart=new Date(Date.UTC(date.getUTCFullYear(),0,1));
+      return Math.ceil((((date-yearStart)/86400000)+1)/7);
+    }
+
+    async function loadPlanFromNotion(offset){
+      try{
+        const monday=getMondayOfWeek(offset||0);
+        const weekStart=monday.toISOString().split('T')[0];
+        const res=await fetch(`/api/get-plan?weekStart=${weekStart}`);
+        if(!res.ok)return;
+        const entries=await res.json();
+        if(!entries.length)return;
+
+        // Merge Notion entries into local plan
+        const days=getPlanDays(offset||0);
+        const existingIds=new Set();
+        Object.values(days).forEach(arr=>arr.forEach(r=>{if(r.notionId)existingIds.add(r.notionId)}));
+
+        entries.forEach(entry=>{
+          if(!entry.datum)return;
+          const dayKey=entry.datum;
+          // Find recipe details from notionFavorites
+          entry.rezeptIds.forEach(rid=>{
+            if(existingIds.has(rid))return; // already in local
+            const recipe=notionFavorites.find(f=>f.id===rid);
+            if(!recipe)return;
+            if(!days[dayKey])days[dayKey]=[];
+            days[dayKey].push({
+              title:recipe.title,subtitle:recipe.subtitle||'',prepTime:recipe.prepTime||'',
+              link:recipe.link||null,zutaten:recipe.zutaten||'',zubereitung:recipe.zubereitung||'',
+              tipps:recipe.tipps||'',id:recipe.id,source:recipe.source||'Favorit',notionId:recipe.id
+            });
+          });
+        });
+        savePlanDays(days,offset||0);
+      }catch(e){console.warn('Plan load from Notion failed:',e)}
     }
 
     function removePlanRecipe(dayKey,idx){
@@ -588,6 +738,13 @@
       const week=getWeekDates(weekOffset);const days=getPlanDays(weekOffset);const el=document.getElementById('planContent');
       const total=Object.values(days).reduce((s,d)=>s+d.length,0);
 
+      // Load from Notion in background (merge any new entries)
+      loadPlanFromNotion(weekOffset).then(()=>{
+        const updatedDays=getPlanDays(weekOffset);
+        const updatedTotal=Object.values(updatedDays).reduce((s,d)=>s+d.length,0);
+        if(updatedTotal!==total) renderPlan(); // re-render if new data
+      });
+
       // Week label with type
       const weekType=weekOffset===-1?'Letzte Woche':weekOffset===0?'Diese Woche':'Nächste Woche';
       const labelEl=document.getElementById('planWeekLabel');
@@ -608,24 +765,22 @@
         } else {
           recipes.forEach((r,ri)=>{
             const detailId=`detail-${d.key}-${ri}`;
-            const hasDetail=(r.ingredients&&r.ingredients.length>0)||(r.steps&&r.steps.length>0)||r.link;
+            const hasZutaten=r.zutaten&&r.zutaten.trim().length>0;
+            const hasZubereitung=r.zubereitung&&r.zubereitung.trim().length>0;
+            const hasDetail=hasZutaten||hasZubereitung||r.link;
             const isKI=r.source==='KI-generiert';
             const borderStyle=isKI?'border-left:3px solid var(--terra)':'border-left:3px solid var(--olive)';
             const kiBadge=isKI?'<span class="fav-ki-badge">✨ KI</span>':'';
             h+=`<div class="plan-recipe" style="${borderStyle}"><div class="plan-recipe-header" ${hasDetail?`onclick="togglePlanDetail('${detailId}')"`:''}><div class="plan-recipe-info"><div class="plan-recipe-title">${r.title} ${kiBadge}</div>${r.prepTime?`<div class="plan-recipe-sub">⏱ ${r.prepTime} Min</div>`:''}</div><div class="plan-recipe-actions">${hasDetail?`<button class="plan-recipe-toggle" data-toggle="${detailId}" onclick="event.stopPropagation();togglePlanDetail('${detailId}')">▼</button>`:''}<button class="plan-recipe-remove" onclick="event.stopPropagation();removePlanRecipe('${d.key}',${ri})" title="Entfernen">✕</button></div></div>`;
             if(hasDetail){
               h+=`<div class="plan-recipe-detail" id="${detailId}">`;
-              if(r.ingredients&&r.ingredients.length>0){
-                h+=`<div class="plan-detail-label">Zutaten</div><ul class="ingredient-list">`;
-                r.ingredients.forEach(ing=>{h+=`<li><span class="ingredient-amount">${ing.amount} ${ing.unit||''}</span><span>${ing.name}</span></li>`});
-                h+=`</ul>`;
+              if(hasZutaten){
+                h+=`<div class="plan-detail-label">Zutaten</div><div class="fav-zutaten">${r.zutaten.replace(/\n/g,'<br>')}</div>`;
               }
-              if(r.steps&&r.steps.length>0){
-                h+=`<div class="plan-detail-label">Zubereitung</div><ol class="steps-list">`;
-                r.steps.forEach(s=>{h+=`<li>${s}</li>`});
-                h+=`</ol>`;
+              if(hasZubereitung){
+                h+=`<div class="plan-detail-label">Zubereitung</div><div class="fav-zubereitung">${r.zubereitung.replace(/\n/g,'<br>')}</div>`;
               }
-              if(r.tips)h+=`<div class="recipe-tip"><strong>💡</strong> ${r.tips}</div>`;
+              if(r.tipps)h+=`<div class="recipe-tip"><strong>💡</strong> ${r.tipps}</div>`;
               if(r.link)h+=`<a class="link-btn" href="${r.link}" target="_blank" onclick="event.stopPropagation()">📖 Originalrezept</a>`;
               h+=`</div>`;
             }
@@ -641,7 +796,9 @@
     // ── Recipe Screen Logic ──
     function setMode(m){
       state.mode=m;document.querySelectorAll('.mode-btn').forEach((b,i)=>b.classList.toggle('active',(i===0&&m==='ai')||(i===1&&m==='favorites')));
-      document.getElementById('ingredientSection').classList.toggle('hidden',m==='favorites');
+      const screen=document.getElementById('screenRecipes');
+      screen.classList.toggle('mode-ai',m==='ai');
+      screen.classList.toggle('mode-fav',m==='favorites');
       const btn=document.getElementById('generateBtn');
       if(m==='ai'){btn.textContent='Was kochen wir heute?';btn.classList.remove('fav-btn')}else{btn.textContent='❤️ Zeig mir einen Favoriten!';btn.classList.add('fav-btn')}
       document.getElementById('result').innerHTML='';
@@ -649,25 +806,49 @@
     function toggleProfile(n){if(state.profiles.has(n)){if(state.profiles.size>1)state.profiles.delete(n)}else state.profiles.add(n);document.querySelectorAll('.profile-btn').forEach(b=>b.classList.toggle('active',state.profiles.has(b.dataset.profile)))}
     function toggleFilter(el){el.classList.toggle('active');state.filters[el.dataset.filter]=el.classList.contains('active')}
     function selectCuisine(el){document.querySelectorAll('.cuisine-card').forEach(c=>c.classList.remove('active'));el.classList.add('active');state.cuisine=el.dataset.cuisine}
-    function selectMealType(el){document.querySelectorAll('.meal-card').forEach(c=>c.classList.remove('active'));el.classList.add('active');state.mealType=el.dataset.meal}
+    function toggleMealType(el){
+      const meal=el.dataset.meal;
+      if(state.mealTypes.has(meal)){
+        if(state.mealTypes.size>1) state.mealTypes.delete(meal);
+      } else {
+        state.mealTypes.add(meal);
+      }
+      document.querySelectorAll('.meal-card').forEach(c=>c.classList.toggle('active',state.mealTypes.has(c.dataset.meal)));
+    }
     function handleGenerate(){state.mode==='ai'?generateRecipe():showRandomFavorite()}
     function getCompatibleFavorites(){
       const lucasOnly=state.profiles.has('lucas')&&!state.profiles.has('lola');
+      const ingredientFilter = state.ingredient ? state.ingredient.toLowerCase() : '';
       return notionFavorites.filter(f=>{
         if(lucasOnly){
           const pf=f.passtFuer||[];
           if(!pf.includes('Luki')&&!pf.includes('Beide'))return false;
         }
-        if(f.mealType&&f.mealType!==state.mealType)return false;
+        if(f.mealType&&!state.mealTypes.has(f.mealType))return false;
         if(state.cuisine!=='surprise'){
           const fCuisine=mapCuisineFromNotion(f.cuisine);
           if(fCuisine&&fCuisine!==state.cuisine)return false;
+        }
+        if(ingredientFilter && f.zutaten){
+          if(!f.zutaten.toLowerCase().includes(ingredientFilter))return false;
+        } else if(ingredientFilter && !f.zutaten){
+          return false;
         }
         return true;
       });
     }
 
     function showRandomFavorite(){
+      if(!favoritesLoaded || notionFavorites.length === 0) {
+        const result = document.getElementById('result');
+        result.innerHTML='<div class="loading"><span class="loading-spoon">🥄</span><p>Lade Favoriten<span class="loading-dots"></span></p></div>';
+        loadFavoritesFromNotion().then(() => {
+          const c = getCompatibleFavorites();
+          if(!c.length){result.innerHTML='<div class="error-card"><div class="emoji">🤷</div><p>Noch keine Favoriten in dieser Kategorie.</p><button class="new-recipe-btn" onclick="setMode(\'ai\');handleGenerate()">✨ KI-Rezept generieren</button></div>';return}
+          renderFavorite(c[Math.floor(Math.random()*c.length)]);
+        });
+        return;
+      }
       const c=getCompatibleFavorites();
       if(!c.length){document.getElementById('result').innerHTML='<div class="error-card"><div class="emoji">🤷</div><p>Noch keine Favoriten in dieser Kategorie.</p><button class="new-recipe-btn" onclick="setMode(\'ai\');handleGenerate()">✨ KI-Rezept generieren</button></div>';return}
       renderFavorite(c[Math.floor(Math.random()*c.length)]);
@@ -695,7 +876,9 @@
       const hasZubereitung=r.zubereitung&&r.zubereitung.trim().length>0;
       const both=state.profiles.has('lucas')&&state.profiles.has('lola');
       const tags=(r.tags||[]).map(t=>`<span class="recipe-tag">${t}</span>`).join('');
-      let h=`<div class="recipe-card"><div class="recipe-header fav-header"><h2>${r.title}</h2><button class="heart-btn" onclick="saveToNotion(this)" title="In Notion speichern">🤍</button>${r.subtitle?`<div class="subtitle">${r.subtitle}</div>`:''}<div class="recipe-meta">${r.prepTime?`<span>⏱ ${r.prepTime} Min</span>`:''}${r.servings?`<span>🍽 ${r.servings} Portionen</span>`:''}<span>❤️ Favorit</span></div></div>`;
+      const loliH = (r.geherztVon||[]).includes('Lola');
+      const lukiH = (r.geherztVon||[]).includes('Luki');
+      let h=`<div class="recipe-card"><div class="recipe-header fav-header"><h2>${r.title}</h2><div class="recipe-hearts"><button class="heart-btn-mini ${loliH?'active':''}" onclick="toggleHeart('${r.id}','Lola',this)" title="Loli herzt">🍭</button><button class="heart-btn-mini ${lukiH?'active':''}" onclick="toggleHeart('${r.id}','Luki',this)" title="Luki herzt">🦖</button></div>${r.subtitle?`<div class="subtitle">${r.subtitle}</div>`:''}<div class="recipe-meta">${r.prepTime?`<span>⏱ ${r.prepTime} Min</span>`:''}${r.servings?`<span>🍽 ${r.servings} Portionen</span>`:''}<span>❤️ Favorit</span></div></div>`;
       if(tags)h+=`<div class="recipe-tags">${tags}</div>`;
       if(r.tipps&&r.tipps.includes('🧀')&&both)h+=`<div class="compat-note">${r.tipps}</div>`;
       if(hasZutaten){h+=`<div class="recipe-section"><div class="recipe-section-title">Zutaten</div><div class="fav-zutaten">${r.zutaten.replace(/\n/g,'<br>')}</div></div>`}
@@ -715,13 +898,82 @@
       try{const res=await fetch('/api/save-to-notion',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(recipe)});if(!res.ok)throw new Error((await res.json().catch(()=>({}))).error||'Fehler');btn.classList.remove('saving');btn.classList.add('saved','pop');btn.textContent='❤️';btn.style.pointerEvents='none';showToast('✅ Gespeichert!')}
       catch(e){btn.classList.remove('saving');btn.classList.add('saved','pop');btn.textContent='❤️';btn.style.pointerEvents='none';showToast('❤️ Lokal gespeichert (Notion-Sync fehlgeschlagen)')}
     }
+    async function importRecipeFromUrl() {
+      const input = document.getElementById('importUrlInput');
+      const btn = document.getElementById('importBtn');
+      const status = document.getElementById('importStatus');
+      const url = input.value.trim();
+
+      if (!url) { status.textContent = '❌ Bitte eine URL eingeben'; return; }
+      if (!url.startsWith('http')) { status.textContent = '❌ Bitte eine gültige URL eingeben'; return; }
+
+      btn.disabled = true;
+      btn.classList.add('loading');
+      btn.textContent = '⏳';
+      status.textContent = '🥄 Rezept wird analysiert…';
+
+      try {
+        const res = await fetch('/api/import-recipe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, passtFuer: ['Beide'] })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Import fehlgeschlagen');
+        }
+
+        status.innerHTML = `✅ <strong>${data.title}</strong> gespeichert!`;
+        input.value = '';
+
+        // Reload favorites from Notion
+        await loadFavoritesFromNotion();
+        renderSavedFavorites();
+        showToast(`✅ ${data.title} importiert!`);
+
+      } catch (e) {
+        status.textContent = `❌ ${e.message}`;
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        btn.textContent = '+';
+      }
+    }
+    async function toggleHeart(recipeId, person, btn) {
+      const isActive = btn.classList.contains('active');
+      const action = isActive ? 'unheart' : 'heart';
+      btn.classList.toggle('active');
+      // Optimistic update in local cache
+      const recipe = notionFavorites.find(r => r.id === recipeId);
+      if(recipe) {
+        if(action === 'heart') {
+          if(!recipe.geherztVon.includes(person)) recipe.geherztVon.push(person);
+        } else {
+          recipe.geherztVon = recipe.geherztVon.filter(n => n !== person);
+        }
+        localStorage.setItem('schipfie-notion-cache', JSON.stringify(notionFavorites));
+      }
+      // Sync to Notion
+      try {
+        await fetch('/api/heart-recipe', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ recipeId, person, action })
+        });
+      } catch(e) {
+        console.warn('Heart sync failed:', e);
+        showToast('⚠️ Offline — wird beim nächsten Mal synchronisiert');
+      }
+    }
     function showToast(msg){const t=document.getElementById('saveToast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
 
     async function generateRecipe(){
       const btn=document.getElementById('generateBtn');const result=document.getElementById('result');
       btn.disabled=true;btn.textContent='Wird gekocht…';
       result.innerHTML=`<div class="loading"><span class="loading-spoon">🥄</span><p>Claude kocht etwas Feines<span class="loading-dots"></span></p></div>`;
-      try{const res=await fetch('/api/generate-recipe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({profiles:Array.from(state.profiles),filters:state.filters,cuisine:state.cuisine,mealType:state.mealType,maxMinutes:30,ingredient:state.ingredient||null})});if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.details||e.error||`HTTP ${res.status}`)}const recipe=await res.json();recipe.source='KI-generiert';recipe.profiles=Array.from(state.profiles);recipe.cuisine=state.cuisine;recipe.mealType=state.mealType;state.currentRecipe=recipe;renderAIRecipe(recipe)}
+      try{const mealType=Array.from(state.mealTypes)[0]||'hauptgericht';const res=await fetch('/api/generate-recipe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({profiles:Array.from(state.profiles),filters:state.filters,cuisine:state.cuisine,mealType:mealType,maxMinutes:30,ingredient:state.ingredient||null})});if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.details||e.error||`HTTP ${res.status}`)}const recipe=await res.json();recipe.source='KI-generiert';recipe.profiles=Array.from(state.profiles);recipe.cuisine=state.cuisine;recipe.mealType=mealType;state.currentRecipe=recipe;renderAIRecipe(recipe)}
       catch(error){result.innerHTML=`<div class="error-card"><div class="emoji">😢</div><p>Da ist leider etwas schiefgegangen.</p><div class="error-detail">${error.message}</div><button class="new-recipe-btn" onclick="generateRecipe()">Nochmal versuchen</button></div>`}
       finally{btn.disabled=false;btn.textContent='Was kochen wir heute?'}
     }
