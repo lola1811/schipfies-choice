@@ -238,6 +238,7 @@
     .fav-empty .hint{font-size:0.8rem;color:var(--sand)}
     .fav-ki-badge{display:inline-block;background:var(--terra);color:white;font-size:0.6rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:50px;vertical-align:middle;margin-left:0.3rem}
     .fav-cuisine-tag{margin-right:0.3rem}
+    .fav-zutaten,.fav-zubereitung{font-size:0.82rem;line-height:1.6;color:var(--charcoal);padding:0.3rem 0}
     .ingredient-input{width:100%;padding:0.75rem 1rem;border:1.5px solid var(--sand);border-radius:var(--radius);background:white;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--charcoal);transition:border-color 0.2s}
     .ingredient-input:focus{outline:none;border-color:var(--terra)}
     .ingredient-input::placeholder{color:var(--sand)}
@@ -345,7 +346,7 @@
   <div class="save-toast" id="saveToast"></div>
   <div id="modalContainer"></div>
 
-  <script src="/favorites.js"></script>
+  <!-- Favorites now loaded from Notion API -->
   <script>
     const state={mode:'ai',profiles:new Set(["lucas","lola"]),filters:{},cuisine:"surprise",mealType:"hauptgericht",currentRecipe:null,screen:'recipes',ingredient:''};
     const DAY_NAMES=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
@@ -370,21 +371,44 @@
       window.scrollTo(0,0);
     }
 
-    // ── Saved Favorites Storage ──
-    function getSavedFavs(){try{return JSON.parse(localStorage.getItem('schipfie-favs'))||[]}catch(e){return[]}}
-    function saveFavs(favs){localStorage.setItem('schipfie-favs',JSON.stringify(favs));updateFavBadge()}
-    function addSavedFav(recipe){
-      const favs=getSavedFavs();
-      favs.push({...recipe,savedAt:new Date().toISOString(),source:recipe.source||'KI-generiert'});
-      saveFavs(favs);
+    // ── Notion Favorites Cache ──
+    let notionFavorites = []; // Loaded from Notion API
+    let favoritesLoaded = false;
+
+    async function loadFavoritesFromNotion() {
+      try {
+        const res = await fetch('/api/get-favorites');
+        if (!res.ok) throw new Error('API Fehler');
+        notionFavorites = await res.json();
+        favoritesLoaded = true;
+        // Cache locally for offline/fast access
+        localStorage.setItem('schipfie-notion-cache', JSON.stringify(notionFavorites));
+        updateFavBadge();
+        return notionFavorites;
+      } catch(e) {
+        console.warn('Notion fetch failed, using cache:', e);
+        try {
+          notionFavorites = JSON.parse(localStorage.getItem('schipfie-notion-cache')) || [];
+        } catch(e2) { notionFavorites = []; }
+        favoritesLoaded = true;
+        updateFavBadge();
+        return notionFavorites;
+      }
     }
-    function removeSavedFav(idx){
-      const favs=getSavedFavs();favs.splice(idx,1);saveFavs(favs);renderSavedFavorites();
+
+    // Map Notion cuisine names to app cuisine keys
+    function mapCuisineFromNotion(name) {
+      const map = {'Asiatisch':'asiatisch','Mediterran':'mediterran','Orientalisch':'orientalisch','Österreichisch':'oesterreichisch','Comfort':'comfort','Andere':'other'};
+      return map[name] || 'comfort';
     }
+    function mapCuisineToNotion(key) {
+      const map = {asiatisch:'Asiatisch',mediterran:'Mediterran',orientalisch:'Orientalisch',oesterreichisch:'Österreichisch',comfort:'Comfort',surprise:'Andere'};
+      return map[key] || 'Comfort';
+    }
+
     function updateFavBadge(){
-      const localFavs=getSavedFavs();
-      const total=FAVORITES.length+localFavs.length;
-      const badge=document.getElementById('favBadge');
+      const total = notionFavorites.length;
+      const badge = document.getElementById('favBadge');
       if(total>0){badge.style.display='inline-block';badge.textContent=total}else{badge.style.display='none'}
     }
 
@@ -394,15 +418,18 @@
     }
 
     function renderSavedFavorites(){
-      const localFavs=getSavedFavs();
-      const builtIn=FAVORITES.map(f=>({...f,isBuiltIn:true}));
-      const local=localFavs.map(f=>({...f,isBuiltIn:false}));
-      const combined=[...builtIn,...local];
-
       const el=document.getElementById('favContent');
-      document.getElementById('favScreenCount').textContent=combined.length?`${combined.length} Rezept${combined.length>1?'e':''} (${builtIn.length} Favoriten · ${local.length} geherzt)`:'';
+      const favCount = notionFavorites.filter(f => f.source === 'Favorit').length;
+      const kiCount = notionFavorites.filter(f => f.source === 'KI-generiert').length;
+      const manualCount = notionFavorites.length - favCount - kiCount;
+      document.getElementById('favScreenCount').textContent = notionFavorites.length ? 
+        `${notionFavorites.length} Rezept${notionFavorites.length>1?'e':''} (${favCount} Favoriten${kiCount?' · '+kiCount+' KI':''}${manualCount?' · '+manualCount+' Manuell':''})` : '';
 
-      if(combined.length===0){
+      if(!favoritesLoaded){
+        el.innerHTML='<div class="fav-empty"><div class="emoji">⏳</div><p>Lade Favoriten...</p></div>';
+        return;
+      }
+      if(notionFavorites.length===0){
         el.innerHTML=`<div class="fav-empty"><div class="emoji">❤️</div><p>Noch keine Favoriten gespeichert</p><p class="hint">Herze Rezepte mit 🤍 um sie hier zu sammeln</p><button class="generate-btn" style="margin-top:1rem;max-width:280px;margin-left:auto;margin-right:auto;display:block" onclick="switchScreen('recipes')">🥄 Rezepte entdecken</button></div>`;
         return;
       }
@@ -419,7 +446,7 @@
       ];
 
       const grouped={};
-      combined.forEach((f,i)=>{
+      notionFavorites.forEach((f,i)=>{
         const type=f.mealType||'other';
         if(!grouped[type])grouped[type]=[];
         grouped[type].push({...f,origIdx:i});
@@ -438,27 +465,27 @@
 
     function renderFavItem(r){
       const detailId=`fav-detail-${r.origIdx}`;
-      const hasDetail=(r.ingredients&&r.ingredients.length>0)||(r.steps&&r.steps.length>0)||r.link;
-      const savedDate=r.savedAt?new Date(r.savedAt).toLocaleDateString('de-DE',{day:'numeric',month:'short',year:'numeric'}):'';
-      const borderColor=r.isBuiltIn?'border-left:3px solid var(--olive)':'border-left:3px solid var(--terra)';
-      const sourceLabel=r.isBuiltIn?'':'<span class="fav-ki-badge">✨ KI</span>';
+      const hasZutaten = r.zutaten && r.zutaten.trim().length > 0;
+      const hasZubereitung = r.zubereitung && r.zubereitung.trim().length > 0;
+      const hasDetail = hasZutaten || hasZubereitung || r.link;
+      const isKI = r.source === 'KI-generiert';
+      const borderColor = isKI ? 'border-left:3px solid var(--terra)' : 'border-left:3px solid var(--olive)';
+      const sourceLabel = isKI ? '<span class="fav-ki-badge">✨ KI</span>' : '';
       const cuisineEmojis={asiatisch:'🍜',mediterran:'🫒',orientalisch:'🧆',oesterreichisch:'🇦🇹',comfort:'🍲'};
-      const cuisineTag=r.cuisine&&cuisineEmojis[r.cuisine]?`<span class="fav-cuisine-tag">${cuisineEmojis[r.cuisine]}</span>`:'';
-      const localIdx=r.isBuiltIn?-1:(r.origIdx-FAVORITES.length);
-      let h=`<div class="fav-saved-item" style="${borderColor}"><div class="fav-saved-header" ${hasDetail?`onclick="toggleFavDetail('${detailId}')"`:''}><div class="fav-saved-info"><div class="fav-saved-title">${cuisineTag}${r.title} ${sourceLabel}</div>${r.subtitle?`<div class="fav-saved-sub">${r.subtitle}</div>`:''}${r.prepTime?`<div class="fav-saved-sub">⏱ ${r.prepTime} Min</div>`:''}${savedDate?`<div class="fav-saved-date">Geherzt am ${savedDate}</div>`:''}</div><div class="fav-saved-actions">${hasDetail?`<button class="plan-recipe-toggle" data-toggle="${detailId}" onclick="event.stopPropagation();toggleFavDetail('${detailId}')">▼</button>`:''}${!r.isBuiltIn?`<button class="plan-recipe-remove" onclick="event.stopPropagation();removeSavedFav(${localIdx})" title="Entfernen">✕</button>`:''}</div></div>`;
+      const cKey = mapCuisineFromNotion(r.cuisine);
+      const cuisineTag = cuisineEmojis[cKey] ? `<span class="fav-cuisine-tag">${cuisineEmojis[cKey]}</span>` : '';
+      const hearts = (r.geherztVon||[]).map(n => n === 'Lola' ? '💜' : '💙').join('');
+
+      let h=`<div class="fav-saved-item" style="${borderColor}"><div class="fav-saved-header" ${hasDetail?`onclick="toggleFavDetail('${detailId}')"`:''}><div class="fav-saved-info"><div class="fav-saved-title">${cuisineTag}${r.title} ${sourceLabel}</div>${r.subtitle?`<div class="fav-saved-sub">${r.subtitle}</div>`:''}${r.prepTime?`<div class="fav-saved-sub">⏱ ${r.prepTime} Min ${hearts?'· '+hearts:''}</div>`:`${hearts?`<div class="fav-saved-sub">${hearts}</div>`:''}`}</div><div class="fav-saved-actions">${hasDetail?`<button class="plan-recipe-toggle" data-toggle="${detailId}" onclick="event.stopPropagation();toggleFavDetail('${detailId}')">▼</button>`:''}</div></div>`;
       if(hasDetail){
         h+=`<div class="fav-saved-detail" id="${detailId}">`;
-        if(r.ingredients&&r.ingredients.length>0){
-          h+=`<div class="plan-detail-label">Zutaten</div><ul class="ingredient-list">`;
-          r.ingredients.forEach(ing=>{h+=`<li><span class="ingredient-amount">${ing.amount} ${ing.unit||''}</span><span>${ing.name}</span></li>`});
-          h+=`</ul>`;
+        if(hasZutaten){
+          h+=`<div class="plan-detail-label">Zutaten</div><div class="fav-zutaten">${r.zutaten.replace(/\n/g,'<br>')}</div>`;
         }
-        if(r.steps&&r.steps.length>0){
-          h+=`<div class="plan-detail-label">Zubereitung</div><ol class="steps-list">`;
-          r.steps.forEach(s=>{h+=`<li>${s}</li>`});
-          h+=`</ol>`;
+        if(hasZubereitung){
+          h+=`<div class="plan-detail-label">Zubereitung</div><div class="fav-zubereitung">${r.zubereitung.replace(/\n/g,'<br>')}</div>`;
         }
-        if(r.tips)h+=`<div class="recipe-tip"><strong>💡</strong> ${r.tips}</div>`;
+        if(r.tipps)h+=`<div class="recipe-tip"><strong>💡</strong> ${r.tipps}</div>`;
         if(r.healthNote)h+=`<div class="health-note"><strong>🌿</strong> ${r.healthNote}</div>`;
         if(r.link)h+=`<a class="link-btn" href="${r.link}" target="_blank" onclick="event.stopPropagation()">📖 Originalrezept</a>`;
         h+=`</div>`;
@@ -624,7 +651,21 @@
     function selectCuisine(el){document.querySelectorAll('.cuisine-card').forEach(c=>c.classList.remove('active'));el.classList.add('active');state.cuisine=el.dataset.cuisine}
     function selectMealType(el){document.querySelectorAll('.meal-card').forEach(c=>c.classList.remove('active'));el.classList.add('active');state.mealType=el.dataset.meal}
     function handleGenerate(){state.mode==='ai'?generateRecipe():showRandomFavorite()}
-    function getCompatibleFavorites(){const lucasOnly=state.profiles.has('lucas')&&!state.profiles.has('lola');return FAVORITES.filter(f=>{if(lucasOnly&&(f.tags||[]).includes('Lola-Solo'))return false;if(f.mealType&&f.mealType!==state.mealType)return false;if(state.cuisine!=='surprise'&&f.cuisine&&f.cuisine!==state.cuisine)return false;return true})}
+    function getCompatibleFavorites(){
+      const lucasOnly=state.profiles.has('lucas')&&!state.profiles.has('lola');
+      return notionFavorites.filter(f=>{
+        if(lucasOnly){
+          const pf=f.passtFuer||[];
+          if(!pf.includes('Luki')&&!pf.includes('Beide'))return false;
+        }
+        if(f.mealType&&f.mealType!==state.mealType)return false;
+        if(state.cuisine!=='surprise'){
+          const fCuisine=mapCuisineFromNotion(f.cuisine);
+          if(fCuisine&&fCuisine!==state.cuisine)return false;
+        }
+        return true;
+      });
+    }
 
     function showRandomFavorite(){
       const c=getCompatibleFavorites();
@@ -633,23 +674,34 @@
     }
     function showAllFavorites(){
       const c=getCompatibleFavorites();const result=document.getElementById('result');
+      const cuisineEmojis={asiatisch:'🍜',mediterran:'🫒',orientalisch:'🧆',oesterreichisch:'🇦🇹',comfort:'🍲'};
       let h='<div class="fav-list">';
-      c.forEach(f=>{const tags=(f.tags||[]).filter(t=>!['Lola+Luki','Lola-Solo'].includes(t)).map(t=>`<span class="fav-item-tag">${t}</span>`).join('');h+=`<div class="fav-item" onclick="renderFavoriteById('${f.id}')"><div class="fav-item-title">${f.title}</div><div class="fav-item-subtitle">${f.subtitle||''}</div><div class="fav-item-meta">${tags}</div>${f.note?`<div class="fav-item-note">${f.note}</div>`:''}</div>`});
+      c.forEach(f=>{
+        const tags=(f.tags||[]).map(t=>`<span class="fav-item-tag">${t}</span>`).join('');
+        const cKey=mapCuisineFromNotion(f.cuisine);
+        const cEmoji=cuisineEmojis[cKey]||'';
+        h+=`<div class="fav-item" onclick="renderFavoriteById('${f.id}')"><div class="fav-item-title">${cEmoji} ${f.title}</div><div class="fav-item-subtitle">${f.subtitle||''}</div><div class="fav-item-meta">${tags}</div></div>`;
+      });
       h+=`</div><div class="fav-count">${c.length} Rezepte</div>`;
-      h+=`<div class="inspiration-box"><div class="section-label">Inspiration entdecken</div><div class="inspiration-links">${INSPIRATION_SOURCES.map(s=>`<a class="inspiration-link" href="${s.url}" target="_blank">→ ${s.name}</a>`).join('')}</div></div>`;
       result.innerHTML=h;result.scrollIntoView({behavior:'smooth',block:'start'});
     }
-    function renderFavoriteById(id){renderFavorite(FAVORITES.find(r=>r.id===id))}
+    function renderFavoriteById(id){renderFavorite(notionFavorites.find(r=>r.id===id))}
 
     function renderFavorite(r){
-      state.currentRecipe={...r,source:'Favorit',profiles:Array.from(state.profiles)};
-      const result=document.getElementById('result');const hasRecipe=r.ingredients&&r.ingredients.length>0;const both=state.profiles.has('lucas')&&state.profiles.has('lola');
-      const tags=(r.tags||[]).filter(t=>!['Lola+Luki','Lola-Solo'].includes(t)).map(t=>`<span class="recipe-tag">${t}</span>`).join('');
+      if(!r)return;
+      state.currentRecipe={...r,source:r.source||'Favorit',profiles:Array.from(state.profiles)};
+      const result=document.getElementById('result');
+      const hasZutaten=r.zutaten&&r.zutaten.trim().length>0;
+      const hasZubereitung=r.zubereitung&&r.zubereitung.trim().length>0;
+      const both=state.profiles.has('lucas')&&state.profiles.has('lola');
+      const tags=(r.tags||[]).map(t=>`<span class="recipe-tag">${t}</span>`).join('');
       let h=`<div class="recipe-card"><div class="recipe-header fav-header"><h2>${r.title}</h2><button class="heart-btn" onclick="saveToNotion(this)" title="In Notion speichern">🤍</button>${r.subtitle?`<div class="subtitle">${r.subtitle}</div>`:''}<div class="recipe-meta">${r.prepTime?`<span>⏱ ${r.prepTime} Min</span>`:''}${r.servings?`<span>🍽 ${r.servings} Portionen</span>`:''}<span>❤️ Favorit</span></div></div>`;
       if(tags)h+=`<div class="recipe-tags">${tags}</div>`;
-      if(r.note&&both)h+=`<div class="compat-note">${r.note}</div>`;
-      if(hasRecipe){h+=`<div class="recipe-section"><div class="recipe-section-title">Zutaten</div><ul class="ingredient-list">`;r.ingredients.forEach(i=>{h+=`<li><span class="ingredient-amount">${i.amount} ${i.unit||''}</span><span>${i.name}</span></li>`});h+=`</ul></div><div class="recipe-section"><div class="recipe-section-title">Zubereitung</div><ol class="steps-list">`;r.steps.forEach(s=>{h+=`<li>${s}</li>`});h+=`</ol></div>`;if(r.tips)h+=`<div class="recipe-tip"><strong>💡 Tipp:</strong> ${r.tips}</div>`}
-      else{h+=`<div class="recipe-section" style="text-align:center;padding:1.5rem"><p style="color:var(--stone);font-size:0.85rem">Schnellansicht — Originalrezept für Details öffnen</p></div>`}
+      if(r.tipps&&r.tipps.includes('🧀')&&both)h+=`<div class="compat-note">${r.tipps}</div>`;
+      if(hasZutaten){h+=`<div class="recipe-section"><div class="recipe-section-title">Zutaten</div><div class="fav-zutaten">${r.zutaten.replace(/\n/g,'<br>')}</div></div>`}
+      if(hasZubereitung){h+=`<div class="recipe-section"><div class="recipe-section-title">Zubereitung</div><div class="fav-zubereitung">${r.zubereitung.replace(/\n/g,'<br>')}</div></div>`}
+      if(!hasZutaten&&!hasZubereitung){h+=`<div class="recipe-section" style="text-align:center;padding:1.5rem"><p style="color:var(--stone);font-size:0.85rem">Schnellansicht — Originalrezept für Details öffnen</p></div>`}
+      if(r.tipps&&!r.tipps.includes('🧀'))h+=`<div class="recipe-tip"><strong>💡 Tipp:</strong> ${r.tipps}</div>`;
       if(r.link)h+=`<a class="link-btn" href="${r.link}" target="_blank">📖 Originalrezept öffnen</a>`;
       h+=`</div><button class="add-plan-btn" onclick="showDayPicker()">📅 Zum Wochenplan hinzufügen</button><button class="new-recipe-btn fav" onclick="showRandomFavorite()">🔄 Anderer Favorit</button><button class="back-btn" onclick="showAllFavorites()">📋 Alle Favoriten anzeigen</button>`;
       result.innerHTML=h;result.scrollIntoView({behavior:'smooth',block:'start'});
@@ -694,8 +746,14 @@
     }
 
     // Init
-    updateBadge();
+    // Load cached favorites immediately for fast UI
+    try { notionFavorites = JSON.parse(localStorage.getItem('schipfie-notion-cache')) || []; } catch(e) {}
     updateFavBadge();
+    // Then refresh from Notion in background
+    loadFavoritesFromNotion().then(() => {
+      updateFavBadge();
+      if(document.getElementById('screenFavorites').classList.contains('active')) renderSavedFavorites();
+    });
     if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
   </script>
 </body>
