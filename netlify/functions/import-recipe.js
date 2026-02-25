@@ -24,16 +24,28 @@ export default async (req) => {
     // Step 1: Fetch the recipe page
     let pageContent;
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
       const fetchRes = await fetch(url, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; SchipfiesChoice/1.0)',
-          'Accept': 'text/html,application/xhtml+xml'
-        }
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+          'Accept': 'text/html'
+        },
+        signal: controller.signal
       });
+      clearTimeout(timeout);
       if (!fetchRes.ok) throw new Error(`HTTP ${fetchRes.status}`);
       pageContent = await fetchRes.text();
-      // Limit content to avoid token overflow
-      pageContent = pageContent.substring(0, 30000);
+      // Strip scripts, styles, SVGs, and nav to reduce size drastically
+      pageContent = pageContent
+        .replace(/<script[\s\S]*?<\/script>/gi, '')
+        .replace(/<style[\s\S]*?<\/style>/gi, '')
+        .replace(/<svg[\s\S]*?<\/svg>/gi, '')
+        .replace(/<nav[\s\S]*?<\/nav>/gi, '')
+        .replace(/<footer[\s\S]*?<\/footer>/gi, '')
+        .replace(/<header[\s\S]*?<\/header>/gi, '')
+        .replace(/\s{2,}/g, ' ')
+        .substring(0, 15000);
     } catch (e) {
       return new Response(JSON.stringify({ error: "Seite konnte nicht geladen werden", details: e.message }), {
         status: 400, headers: { "Content-Type": "application/json" }
@@ -73,7 +85,7 @@ ${pageContent}`;
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "claude-haiku-4-5-20251001",
         max_tokens: 2000,
         messages: [{ role: "user", content: extractPrompt }]
       })
