@@ -43,9 +43,8 @@ export default async (req) => {
         .replace(/<svg[\s\S]*?<\/svg>/gi, '')
         .replace(/<nav[\s\S]*?<\/nav>/gi, '')
         .replace(/<footer[\s\S]*?<\/footer>/gi, '')
-        .replace(/<header[\s\S]*?<\/header>/gi, '')
         .replace(/\s{2,}/g, ' ')
-        .substring(0, 15000);
+        .substring(0, 25000);
     } catch (e) {
       return new Response(JSON.stringify({ error: "Seite konnte nicht geladen werden", details: e.message }), {
         status: 400, headers: { "Content-Type": "application/json" }

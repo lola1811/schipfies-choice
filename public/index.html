@@ -281,6 +281,14 @@
     .fav-import-btn.loading{animation:pulse 1s infinite}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
     .fav-import-status{font-size:0.78rem;color:var(--stone);margin-top:0.5rem;min-height:1.2em}
+    .ai-save-bar{background:white;border-radius:var(--radius);padding:1rem;margin-top:0.5rem;box-shadow:var(--shadow);text-align:center}
+    .ai-save-label{font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--stone);margin-bottom:0.6rem}
+    .ai-save-btns{display:flex;gap:0.5rem;justify-content:center}
+    .ai-save-btn{padding:0.6rem 1.2rem;border:2px solid var(--sand);border-radius:var(--radius);background:white;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s}
+    .ai-save-btn:hover{border-color:var(--terra);background:rgba(196,94,58,0.04)}
+    .ai-save-btn.saving{opacity:0.6;cursor:not-allowed}
+    .ai-save-btn.saved{border-color:var(--olive);background:rgba(107,124,82,0.08);color:var(--olive)}
+    .ai-save-both{border-color:var(--amber)}
     .ingredient-input{width:100%;padding:0.75rem 1rem;border:1.5px solid var(--sand);border-radius:var(--radius);background:white;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--charcoal);transition:border-color 0.2s}
     .ingredient-input:focus{outline:none;border-color:var(--terra)}
     .ingredient-input::placeholder{color:var(--sand)}
@@ -307,8 +315,8 @@
     <section class="section">
       <div class="section-label">Wer isst mit?</div>
       <div class="profiles">
-        <button class="profile-btn active" data-profile="lucas" onclick="toggleProfile('lucas')"><span class="emoji">🧑‍🍳</span><div class="name">Luki's Choice</div><div class="badge">Fisch ok · Viel Eiweiß</div></button>
-        <button class="profile-btn active" data-profile="lola" onclick="toggleProfile('lola')"><span class="emoji">👩‍🍳</span><div class="name">Lola's Choice</div><div class="badge">Vegetarisch · Eisenreich</div></button>
+        <button class="profile-btn active" data-profile="lucas" onclick="toggleProfile('lucas')"><span class="emoji">🦖</span><div class="name">Luki's Choice</div><div class="badge">Fisch ok · Viel Eiweiß</div></button>
+        <button class="profile-btn active" data-profile="lola" onclick="toggleProfile('lola')"><span class="emoji">🍭</span><div class="name">Lola's Choice</div><div class="badge">Vegetarisch · Eisenreich</div></button>
       </div>
     </section>
     <section class="section">
@@ -372,7 +380,7 @@
   <!-- ═══ SCREEN 3: FAVORITES (geherzt) ═══ -->
   <div class="container screen" id="screenFavorites">
     <div class="plan-header">
-      <h2>❤️ Favorites</h2>
+      <h2>📚 Rezeptdatenbank</h2>
       <div class="fav-screen-count" id="favScreenCount"></div>
     </div>
     <div class="fav-import-box">
@@ -395,7 +403,7 @@
 
   <nav class="bottom-nav">
     <button class="nav-tab active" onclick="switchScreen('recipes')"><span class="nav-icon">🥄</span><span class="nav-label">Rezepte</span></button>
-    <button class="nav-tab" onclick="switchScreen('favorites')"><span class="nav-icon">❤️</span><span class="nav-label">Favorites<span class="nav-badge" id="favBadge" style="display:none">0</span></span></button>
+    <button class="nav-tab" onclick="switchScreen('favorites')"><span class="nav-icon">📚</span><span class="nav-label">Rezepte<span class="nav-badge" id="favBadge" style="display:none">0</span></span></button>
     <button class="nav-tab" onclick="switchScreen('plan')"><span class="nav-icon">📅</span><span class="nav-label">Weekly Plan<span class="nav-badge" id="planBadge" style="display:none">0</span></span></button>
   </nav>
 
@@ -628,10 +636,20 @@
     function addRecipeToPlan(recipe,dayKey,offset){
       const days=getPlanDays(offset||0);
       if(!days[dayKey])days[dayKey]=[];
+      // Convert AI recipe arrays to text if needed
+      let zutaten = recipe.zutaten || '';
+      let zubereitung = recipe.zubereitung || '';
+      let tipps = recipe.tipps || recipe.tips || '';
+      if(!zutaten && recipe.ingredients && recipe.ingredients.length){
+        zutaten = recipe.ingredients.map(i=>`${i.amount} ${i.unit||''} ${i.name}`.trim()).join('\n');
+      }
+      if(!zubereitung && recipe.steps && recipe.steps.length){
+        zubereitung = recipe.steps.map((s,i)=>`${i+1}. ${s}`).join('\n');
+      }
       days[dayKey].push({
         title:recipe.title||'Rezept',subtitle:recipe.subtitle||'',prepTime:recipe.prepTime||'',
-        link:recipe.link||null,zutaten:recipe.zutaten||'',zubereitung:recipe.zubereitung||'',
-        tipps:recipe.tipps||'',id:recipe.id||('ai-'+Date.now()),source:recipe.source||'KI-generiert',
+        link:recipe.link||null,zutaten,zubereitung,tipps,
+        id:recipe.id||('ai-'+Date.now()),source:recipe.source||'KI-generiert',
         notionId:recipe.id||null
       });
       savePlanDays(days,offset||0);
@@ -984,7 +1002,7 @@
       const ingr=(r.ingredients||[]).map(i=>`<li><span class="ingredient-amount">${i.amount} ${i.unit||''}</span><span>${i.name}</span></li>`).join('');
       const steps=(r.steps||[]).map(s=>`<li>${s}</li>`).join('');
       result.innerHTML=`
-        <div class="recipe-card"><div class="recipe-header"><h2>${r.title||'Rezept'}</h2><button class="heart-btn" onclick="saveToNotion(this)" title="In Notion speichern">🤍</button>${r.subtitle?`<div class="subtitle">${r.subtitle}</div>`:''}<div class="recipe-meta"><span>⏱ ${r.prepTime||'30'} Min</span><span>🍽 ${r.servings||'2'} Portionen</span></div></div>
+        <div class="recipe-card"><div class="recipe-header"><h2>${r.title||'Rezept'}</h2>${r.subtitle?`<div class="subtitle">${r.subtitle}</div>`:''}<div class="recipe-meta"><span>⏱ ${r.prepTime||'30'} Min</span><span>🍽 ${r.servings||'2'} Portionen</span></div></div>
           ${tags?`<div class="recipe-tags">${tags}</div>`:''}
           ${r.nutrition?`<div class="recipe-nutrition"><div class="nutrition-item"><div class="nutrition-value">${r.nutrition.calories||'–'}</div><div class="nutrition-label">kcal</div></div><div class="nutrition-item"><div class="nutrition-value">${r.nutrition.protein||'–'}</div><div class="nutrition-label">Eiweiß</div></div><div class="nutrition-item"><div class="nutrition-value">${r.nutrition.fiber||'–'}</div><div class="nutrition-label">Ballaststoffe</div></div></div>`:''}
           <div class="recipe-section"><div class="recipe-section-title">Zutaten</div><ul class="ingredient-list">${ingr}</ul></div>
@@ -992,9 +1010,45 @@
           ${r.tips?`<div class="recipe-tip"><strong>💡 Tipp:</strong> ${r.tips}</div>`:''}
           ${r.healthNote?`<div class="health-note"><strong>🌿 Gesundheitshinweis:</strong> ${r.healthNote}</div>`:''}
         </div>
+        <div class="ai-save-bar">
+          <div class="ai-save-label">Rezept speichern & herzen:</div>
+          <div class="ai-save-btns">
+            <button class="ai-save-btn" id="saveLoli" onclick="saveAIRecipeAs('Lola',this)">🍭 Loli</button>
+            <button class="ai-save-btn" id="saveLuki" onclick="saveAIRecipeAs('Luki',this)">🦖 Luki</button>
+            <button class="ai-save-btn ai-save-both" id="saveBoth" onclick="saveAIRecipeAs('Beide',this)">🍭🦖 Beide</button>
+          </div>
+        </div>
         <button class="add-plan-btn" onclick="showDayPicker()">📅 Zum Wochenplan hinzufügen</button>
         <button class="new-recipe-btn" onclick="generateRecipe()">🔄 Neues Rezept</button>`;
       result.scrollIntoView({behavior:'smooth',block:'start'});
+    }
+
+    async function saveAIRecipeAs(who, btn){
+      if(btn.classList.contains('saved')||btn.classList.contains('saving'))return;
+      btn.classList.add('saving');const origText=btn.textContent;btn.textContent='⏳';
+      const recipe=state.currentRecipe;
+      if(!recipe){showToast('❌ Kein Rezept zum Speichern');btn.classList.remove('saving');btn.textContent=origText;return}
+      recipe.geherztVon = who==='Beide'?['Lola','Luki']:[who];
+      try{
+        const res=await fetch('/api/save-to-notion',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(recipe)});
+        if(!res.ok)throw new Error((await res.json().catch(()=>({}))).error||'Fehler');
+        const data=await res.json();
+        // Now heart it
+        if(data.id){
+          const hearts=who==='Beide'?['Lola','Luki']:[who];
+          for(const person of hearts){
+            await fetch('/api/heart-recipe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recipeId:data.id,person,action:'heart'})}).catch(()=>{});
+          }
+        }
+        btn.classList.remove('saving');btn.classList.add('saved');btn.textContent='✅';
+        // Disable all save buttons
+        document.querySelectorAll('.ai-save-btn').forEach(b=>{b.style.pointerEvents='none';if(!b.classList.contains('saved'))b.style.opacity='0.4'});
+        showToast(`✅ Gespeichert & geherzt von ${who}!`);
+        await loadFavoritesFromNotion();
+      }catch(e){
+        btn.classList.remove('saving');btn.textContent=origText;
+        showToast('❌ Speichern fehlgeschlagen: '+e.message);
+      }
     }
 
     // Init
