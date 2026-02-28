@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#c45e3a">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Schipfie's Choice</title>
   <link rel="manifest" href="/manifest.json">
@@ -14,7 +15,7 @@
   <style>
     :root{--warm:#faf7f2;--cream:#f3ede4;--terra:#c45e3a;--terra-light:#e8856a;--olive:#6b7c52;--olive-light:#8a9e6c;--charcoal:#2d2a26;--stone:#8c857b;--sand:#d4c9b8;--amber:#d4953a;--radius:16px;--radius-sm:10px;--shadow:0 2px 12px rgba(45,42,38,0.08);--shadow-lg:0 8px 32px rgba(45,42,38,0.12)}
     *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'DM Sans',sans-serif;background:var(--warm);color:var(--charcoal);min-height:100dvh;-webkit-font-smoothing:antialiased;padding-bottom:70px}
+    body{font-family:'DM Sans',sans-serif;background:var(--warm);color:var(--charcoal);min-height:100dvh;-webkit-font-smoothing:antialiased;padding-top:env(safe-area-inset-top);padding-bottom:70px}
 
     .header{text-align:center;padding:2rem 1.5rem 1.2rem;position:relative}
     .header::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:60px;height:3px;background:var(--terra);border-radius:2px}
@@ -26,7 +27,7 @@
     .section{margin-bottom:1.5rem}
     .section-label{font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--stone);margin-bottom:0.7rem}
 
-    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--sand);display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom)}
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--sand);display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
     .nav-tab{flex:1;padding:0.7rem 0;text-align:center;cursor:pointer;transition:all 0.2s;border:none;background:none;font-family:'DM Sans',sans-serif;position:relative}
     .nav-tab .nav-icon{font-size:1.3rem;display:block}
     .nav-tab .nav-label{font-size:0.65rem;font-weight:500;color:var(--stone);margin-top:0.15rem}
