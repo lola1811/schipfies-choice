@@ -601,15 +601,18 @@
       const mon=new Date(now);mon.setDate(now.getDate()+diffToMonday+(offset*7));mon.setHours(0,0,0,0);
       return mon;
     }
+    function toLocalDateKey(d){
+      return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    }
     function getWeekDates(offset){
       const mon=getMondayOfWeek(offset||0);
       return DAY_NAMES.map((name,i)=>{
         const d=new Date(mon);d.setDate(mon.getDate()+i);
-        return{name,date:d,dateStr:d.toLocaleDateString('de-DE',{day:'numeric',month:'short'}),key:d.toISOString().split('T')[0]};
+        return{name,date:d,dateStr:d.toLocaleDateString('de-DE',{day:'numeric',month:'short'}),key:toLocalDateKey(d)};
       });
     }
-    function getWeekKey(offset){return getMondayOfWeek(offset||0).toISOString().split('T')[0]}
-    function isToday(dateKey){return new Date().toISOString().split('T')[0]===dateKey}
+    function getWeekKey(offset){return toLocalDateKey(getMondayOfWeek(offset||0))}
+    function isToday(dateKey){return toLocalDateKey(new Date())===dateKey}
     function shiftWeek(dir){weekOffset=Math.max(-1,Math.min(1,weekOffset+dir));renderPlan()}
 
     // ── Plan Storage (Notion-synced with localStorage cache) ──
@@ -622,7 +625,7 @@
     function savePlanDays(days,offset){
       const plans=getAllPlans();const key=getWeekKey(offset||0);
       plans[key]=days;
-      const twoWeeksAgo=getMondayOfWeek(-2).toISOString().split('T')[0];
+      const twoWeeksAgo=toLocalDateKey(getMondayOfWeek(-2));
       Object.keys(plans).forEach(k=>{if(k<twoWeeksAgo)delete plans[k]});
       saveAllPlans(plans);
     }
@@ -699,7 +702,7 @@
     async function loadPlanFromNotion(offset){
       try{
         const monday=getMondayOfWeek(offset||0);
-        const weekStart=monday.toISOString().split('T')[0];
+        const weekStart=toLocalDateKey(monday);
         const res=await fetch(`/api/get-plan?weekStart=${weekStart}`);
         if(!res.ok)return;
         const entries=await res.json();
@@ -753,7 +756,7 @@
       if(!confirm('Wochenplan für diese Woche wirklich leeren?'))return;
       // Delete all entries from Notion for this week
       const monday=getMondayOfWeek(weekOffset);
-      const weekStart=monday.toISOString().split('T')[0];
+      const weekStart=toLocalDateKey(monday);
       fetch('/api/delete-plan',{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({deleteAll:true,weekStart})
       }).catch(e=>console.warn('Notion clear failed:',e));
