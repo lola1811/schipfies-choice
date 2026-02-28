@@ -4,13 +4,19 @@ export default async (req) => {
   }
 
   try {
-    const { datum, rezeptId, tag, woche, notiz } = await req.json();
-    // datum: "2026-02-24", rezeptId: notion page id, tag: "Montag 24.2.", woche: "KW9 2026"
+    const body = await req.json();
+    const { datum, rezeptId, tag, woche, notiz } = body;
     const notionKey = process.env.NOTION_TOKEN;
     const planDbId = process.env.NOTION_PLAN_DATABASE_ID;
 
-    if (!notionKey || !planDbId || !datum || !rezeptId) {
-      return new Response(JSON.stringify({ error: "Missing parameters" }), {
+    if (!notionKey || !planDbId) {
+      return new Response(JSON.stringify({ error: "Missing config", hasToken: !!notionKey, hasDbId: !!planDbId }), {
+        status: 400, headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    if (!datum || !rezeptId) {
+      return new Response(JSON.stringify({ error: "Missing parameters", datum, rezeptId, tag, woche }), {
         status: 400, headers: { "Content-Type": "application/json" }
       });
     }
@@ -26,6 +32,11 @@ export default async (req) => {
       properties["Notizen"] = { rich_text: [{ text: { content: notiz } }] };
     }
 
+    const notionBody = {
+      parent: { database_id: planDbId },
+      properties
+    };
+
     const response = await fetch("https://api.notion.com/v1/pages", {
       method: "POST",
       headers: {
@@ -33,15 +44,17 @@ export default async (req) => {
         "Content-Type": "application/json",
         "Notion-Version": "2022-06-28"
       },
-      body: JSON.stringify({
-        parent: { database_id: planDbId },
-        properties
-      })
+      body: JSON.stringify(notionBody)
     });
 
     if (!response.ok) {
       const err = await response.text();
-      return new Response(JSON.stringify({ error: "Notion Fehler", details: err }), {
+      return new Response(JSON.stringify({ 
+        error: "Notion Fehler", 
+        status: response.status,
+        details: err,
+        sentBody: { planDbId: planDbId.substring(0, 8) + '...', rezeptId: rezeptId.substring(0, 8) + '...', datum, tag }
+      }), {
         status: 500, headers: { "Content-Type": "application/json" }
       });
     }
@@ -52,7 +65,7 @@ export default async (req) => {
     });
 
   } catch (error) {
-    return new Response(JSON.stringify({ error: "Interner Fehler", message: error.message }), {
+    return new Response(JSON.stringify({ error: "Interner Fehler", message: error.message, stack: error.stack }), {
       status: 500, headers: { "Content-Type": "application/json" }
     });
   }
