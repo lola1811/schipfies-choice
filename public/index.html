@@ -359,7 +359,7 @@
     </section>
     <section class="section"><button class="generate-btn fav-btn" id="generateBtn" onclick="handleGenerate()">📚 Zeig mir ein Rezept!</button></section>
     <section id="result"></section>
-    <footer class="footer">Schipfie's Choice v8.3 · Made with 🤍 in Berlin Mitte</footer>
+    <footer class="footer">Schipfie's Choice v8.5 · Made with 🤍 in Berlin Mitte</footer>
   </main>
 
   <!-- ═══ SCREEN 2: WOCHENPLAN ═══ -->
@@ -374,7 +374,7 @@
       <button class="week-nav-btn" onclick="shiftWeek(1)">→</button>
     </div>
     <div id="planContent"></div>
-    <footer class="footer">Schipfie's Choice v8.3 · Made with 🤍 in Berlin Mitte</footer>
+    <footer class="footer">Schipfie's Choice v8.5 · Made with 🤍 in Berlin Mitte</footer>
   </div>
 
   <!-- ═══ SCREEN 3: FAVORITES (geherzt) ═══ -->
@@ -398,7 +398,7 @@
       </div>
     </div>
     <div id="favContent"></div>
-    <footer class="footer">Schipfie's Choice v8.3 · Made with 🤍 in Berlin Mitte</footer>
+    <footer class="footer">Schipfie's Choice v8.5 · Made with 🤍 in Berlin Mitte</footer>
   </div>
 
   <nav class="bottom-nav">
@@ -1129,7 +1129,29 @@
       updateFavBadge();
       if(document.getElementById('screenFavorites').classList.contains('active')) renderSavedFavorites();
     });
-    if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.register('/sw.js').then(reg=>{
+        // Check for updates on every app start
+        reg.update();
+        // Also check every 5 minutes while app is open
+        setInterval(()=>reg.update(), 5*60*1000);
+        // When a new SW is found, activate it and reload
+        reg.addEventListener('updatefound',()=>{
+          const newSW=reg.installing;
+          if(!newSW)return;
+          newSW.addEventListener('statechange',()=>{
+            if(newSW.state==='installed' && navigator.serviceWorker.controller){
+              newSW.postMessage('skipWaiting');
+            }
+          });
+        });
+      });
+      // Reload when the new SW takes over
+      let refreshing=false;
+      navigator.serviceWorker.addEventListener('controllerchange',()=>{
+        if(!refreshing){refreshing=true;window.location.reload()}
+      });
+    }
   </script>
 </body>
 </html>
