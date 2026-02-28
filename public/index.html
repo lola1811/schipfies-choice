@@ -310,7 +310,7 @@
   <main class="container screen active mode-fav" id="screenRecipes">
     <div class="mode-toggle">
       <button class="mode-btn" onclick="setMode('ai')">✨ KI-Rezept</button>
-      <button class="mode-btn active" onclick="setMode('favorites')">❤️ Unsere Favoriten</button>
+      <button class="mode-btn active" onclick="setMode('favorites')">📚 Aus unseren Rezepten</button>
     </div>
     <section class="section">
       <div class="section-label">Wer isst mit?</div>
@@ -357,7 +357,7 @@
       <div class="section-label">Zutat verkochen? <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></div>
       <input type="text" id="ingredientInput" class="ingredient-input" placeholder="z.B. Aubergine, Linsen, Lachs…" oninput="state.ingredient=this.value.trim()">
     </section>
-    <section class="section"><button class="generate-btn fav-btn" id="generateBtn" onclick="handleGenerate()">❤️ Zeig mir einen Favoriten!</button></section>
+    <section class="section"><button class="generate-btn fav-btn" id="generateBtn" onclick="handleGenerate()">📚 Zeig mir ein Rezept!</button></section>
     <section id="result"></section>
     <footer class="footer">Schipfie's Choice v8.3 · Made with 🤍 in Berlin Mitte</footer>
   </main>
@@ -646,12 +646,13 @@
       if(!zubereitung && recipe.steps && recipe.steps.length){
         zubereitung = recipe.steps.map((s,i)=>`${i+1}. ${s}`).join('\n');
       }
-      days[dayKey].push({
+      const entry = {
         title:recipe.title||'Rezept',subtitle:recipe.subtitle||'',prepTime:recipe.prepTime||'',
         link:recipe.link||null,zutaten,zubereitung,tipps,
         id:recipe.id||('ai-'+Date.now()),source:recipe.source||'KI-generiert',
-        notionId:recipe.id||null
-      });
+        notionId:recipe.id||null, planEntryId:null
+      };
+      days[dayKey].push(entry);
       savePlanDays(days,offset||0);
       document.getElementById('modalContainer').innerHTML='';
       const week=getWeekDates(offset||0);
@@ -674,6 +675,16 @@
             woche:`KW${kwNum} ${monday.getFullYear()}`,
             notiz:''
           })
+        }).then(res=>res.json()).then(data=>{
+          if(data.id){
+            // Store the Notion plan entry ID for later deletion
+            const d=getPlanDays(offset||0);
+            if(d[dayKey]){
+              const last=d[dayKey][d[dayKey].length-1];
+              if(last && last.title===entry.title) last.planEntryId=data.id;
+              savePlanDays(d,offset||0);
+            }
+          }
         }).catch(e=>console.warn('Plan Notion sync failed:',e));
       }
     }
@@ -696,22 +707,25 @@
 
         // Merge Notion entries into local plan
         const days=getPlanDays(offset||0);
-        const existingIds=new Set();
-        Object.values(days).forEach(arr=>arr.forEach(r=>{if(r.notionId)existingIds.add(r.notionId)}));
+        const existingPlanIds=new Set();
+        Object.values(days).forEach(arr=>arr.forEach(r=>{if(r.planEntryId)existingPlanIds.add(r.planEntryId)}));
 
         entries.forEach(entry=>{
           if(!entry.datum)return;
           const dayKey=entry.datum;
+          if(existingPlanIds.has(entry.id))return; // already tracked
           // Find recipe details from notionFavorites
           entry.rezeptIds.forEach(rid=>{
-            if(existingIds.has(rid))return; // already in local
             const recipe=notionFavorites.find(f=>f.id===rid);
             if(!recipe)return;
+            // Check if recipe already exists for this day (by recipe id)
+            if(days[dayKey]&&days[dayKey].some(r=>r.notionId===rid))return;
             if(!days[dayKey])days[dayKey]=[];
             days[dayKey].push({
               title:recipe.title,subtitle:recipe.subtitle||'',prepTime:recipe.prepTime||'',
               link:recipe.link||null,zutaten:recipe.zutaten||'',zubereitung:recipe.zubereitung||'',
-              tipps:recipe.tipps||'',id:recipe.id,source:recipe.source||'Favorit',notionId:recipe.id
+              tipps:recipe.tipps||'',id:recipe.id,source:recipe.source||'Favorit',
+              notionId:recipe.id, planEntryId:entry.id
             });
           });
         });
@@ -721,11 +735,30 @@
 
     function removePlanRecipe(dayKey,idx){
       const days=getPlanDays(weekOffset);
-      if(days[dayKey]){days[dayKey].splice(idx,1);if(days[dayKey].length===0)delete days[dayKey]}
+      if(days[dayKey]){
+        const removed=days[dayKey][idx];
+        days[dayKey].splice(idx,1);
+        if(days[dayKey].length===0)delete days[dayKey];
+        // Delete from Notion if we have the plan entry ID
+        if(removed && removed.planEntryId){
+          fetch('/api/delete-plan',{method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({planEntryId:removed.planEntryId})
+          }).catch(e=>console.warn('Notion delete failed:',e));
+        }
+      }
       savePlanDays(days,weekOffset);renderPlan();
     }
 
-    function clearCurrentWeekPlan(){if(!confirm('Wochenplan für diese Woche wirklich leeren?'))return;savePlanDays({},weekOffset);renderPlan()}
+    function clearCurrentWeekPlan(){
+      if(!confirm('Wochenplan für diese Woche wirklich leeren?'))return;
+      // Delete all entries from Notion for this week
+      const monday=getMondayOfWeek(weekOffset);
+      const weekStart=monday.toISOString().split('T')[0];
+      fetch('/api/delete-plan',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({deleteAll:true,weekStart})
+      }).catch(e=>console.warn('Notion clear failed:',e));
+      savePlanDays({},weekOffset);renderPlan();
+    }
 
     function togglePlanDetail(id){
       const el=document.getElementById(id);const btn=document.querySelector(`[data-toggle="${id}"]`);
@@ -818,7 +851,7 @@
       screen.classList.toggle('mode-ai',m==='ai');
       screen.classList.toggle('mode-fav',m==='favorites');
       const btn=document.getElementById('generateBtn');
-      if(m==='ai'){btn.textContent='Was kochen wir heute?';btn.classList.remove('fav-btn')}else{btn.textContent='❤️ Zeig mir einen Favoriten!';btn.classList.add('fav-btn')}
+      if(m==='ai'){btn.textContent='Was kochen wir heute?';btn.classList.remove('fav-btn')}else{btn.textContent='📚 Zeig mir ein Rezept!';btn.classList.add('fav-btn')}
       document.getElementById('result').innerHTML='';
     }
     function toggleProfile(n){if(state.profiles.has(n)){if(state.profiles.size>1)state.profiles.delete(n)}else state.profiles.add(n);document.querySelectorAll('.profile-btn').forEach(b=>b.classList.toggle('active',state.profiles.has(b.dataset.profile)))}
@@ -896,16 +929,51 @@
       const tags=(r.tags||[]).map(t=>`<span class="recipe-tag">${t}</span>`).join('');
       const loliH = (r.geherztVon||[]).includes('Lola');
       const lukiH = (r.geherztVon||[]).includes('Luki');
-      let h=`<div class="recipe-card"><div class="recipe-header fav-header"><h2>${r.title}</h2><div class="recipe-hearts"><button class="heart-btn-mini ${loliH?'active':''}" onclick="toggleHeart('${r.id}','Lola',this)" title="Loli herzt">🍭</button><button class="heart-btn-mini ${lukiH?'active':''}" onclick="toggleHeart('${r.id}','Luki',this)" title="Luki herzt">🦖</button></div>${r.subtitle?`<div class="subtitle">${r.subtitle}</div>`:''}<div class="recipe-meta">${r.prepTime?`<span>⏱ ${r.prepTime} Min</span>`:''}${r.servings?`<span>🍽 ${r.servings} Portionen</span>`:''}<span>❤️ Favorit</span></div></div>`;
+      let h=`<div class="recipe-card"><div class="recipe-header fav-header"><h2>${r.title}</h2><div class="recipe-hearts"><button class="heart-btn-mini ${loliH?'active':''}" onclick="toggleHeart('${r.id}','Lola',this)" title="Loli herzt">🍭</button><button class="heart-btn-mini ${lukiH?'active':''}" onclick="toggleHeart('${r.id}','Luki',this)" title="Luki herzt">🦖</button></div>${r.subtitle?`<div class="subtitle">${r.subtitle}</div>`:''}<div class="recipe-meta">${r.prepTime?`<span>⏱ ${r.prepTime} Min</span>`:''}${r.servings?`<span>🍽 ${r.servings} Portionen</span>`:''}<span>${r.source==='KI-generiert'?'✨ KI':'📚 Rezept'}</span></div></div>`;
       if(tags)h+=`<div class="recipe-tags">${tags}</div>`;
       if(r.tipps&&r.tipps.includes('🧀')&&both)h+=`<div class="compat-note">${r.tipps}</div>`;
       if(hasZutaten){h+=`<div class="recipe-section"><div class="recipe-section-title">Zutaten</div><div class="fav-zutaten">${r.zutaten.replace(/\n/g,'<br>')}</div></div>`}
       if(hasZubereitung){h+=`<div class="recipe-section"><div class="recipe-section-title">Zubereitung</div><div class="fav-zubereitung">${r.zubereitung.replace(/\n/g,'<br>')}</div></div>`}
-      if(!hasZutaten&&!hasZubereitung){h+=`<div class="recipe-section" style="text-align:center;padding:1.5rem"><p style="color:var(--stone);font-size:0.85rem">Schnellansicht — Originalrezept für Details öffnen</p></div>`}
+      if(!hasZutaten&&!hasZubereitung&&r.link){
+        h+=`<div class="recipe-section" id="favFetchSection"><div class="loading"><span class="loading-spoon">🥄</span><p>Lade Rezeptdetails<span class="loading-dots"></span></p></div></div>`;
+      } else if(!hasZutaten&&!hasZubereitung){
+        h+=`<div class="recipe-section" style="text-align:center;padding:1.5rem"><p style="color:var(--stone);font-size:0.85rem">Keine Details vorhanden</p></div>`;
+      }
       if(r.tipps&&!r.tipps.includes('🧀'))h+=`<div class="recipe-tip"><strong>💡 Tipp:</strong> ${r.tipps}</div>`;
-      if(r.link)h+=`<a class="link-btn" href="${r.link}" target="_blank">📖 Originalrezept öffnen</a>`;
-      h+=`</div><button class="add-plan-btn" onclick="showDayPicker()">📅 Zum Wochenplan hinzufügen</button><button class="new-recipe-btn fav" onclick="showRandomFavorite()">🔄 Anderer Favorit</button><button class="back-btn" onclick="showAllFavorites()">📋 Alle Favoriten anzeigen</button>`;
+      if(r.link)h+=`<a class="link-btn" href="${r.link}" target="_blank" onclick="event.stopPropagation()">📖 Originalrezept öffnen</a>`;
+      h+=`</div><button class="add-plan-btn" onclick="showDayPicker()">📅 Zum Wochenplan hinzufügen</button><button class="new-recipe-btn fav" onclick="showRandomFavorite()">🔄 Anderes Rezept</button><button class="back-btn" onclick="showAllFavorites()">📋 Alle Rezepte anzeigen</button>`;
       result.innerHTML=h;result.scrollIntoView({behavior:'smooth',block:'start'});
+
+      // Auto-fetch details from link if missing
+      if(!hasZutaten&&!hasZubereitung&&r.link){
+        fetchRecipeDetails(r);
+      }
+    }
+
+    async function fetchRecipeDetails(r){
+      const section=document.getElementById('favFetchSection');
+      if(!section)return;
+      try{
+        const res=await fetch('/api/import-recipe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:r.link,fetchOnly:true})});
+        const data=await res.json();
+        if(!res.ok||!data.success)throw new Error(data.error||'Fetch fehlgeschlagen');
+        let h='';
+        if(data.zutaten){h+=`<div class="recipe-section-title">Zutaten</div><div class="fav-zutaten">${data.zutaten.replace(/\n/g,'<br>')}</div>`}
+        if(data.zubereitung){h+=`<div class="recipe-section-title">Zubereitung</div><div class="fav-zubereitung">${data.zubereitung.replace(/\n/g,'<br>')}</div>`}
+        if(data.tipps){h+=`<div class="recipe-tip"><strong>💡 Tipp:</strong> ${data.tipps}</div>`}
+        if(h){
+          section.innerHTML=h;
+          // Update Notion in background with fetched details
+          fetch('/api/update-recipe-details',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recipeId:r.id,zutaten:data.zutaten||'',zubereitung:data.zubereitung||'',tipps:data.tipps||''})}).catch(()=>{});
+          // Update local cache
+          const cached=notionFavorites.find(f=>f.id===r.id);
+          if(cached){cached.zutaten=data.zutaten||'';cached.zubereitung=data.zubereitung||'';cached.tipps=data.tipps||'';localStorage.setItem('schipfie-notion-cache',JSON.stringify(notionFavorites))}
+        } else {
+          section.innerHTML='<p style="color:var(--stone);font-size:0.85rem;text-align:center">Keine Details gefunden</p>';
+        }
+      }catch(e){
+        section.innerHTML=`<p style="color:var(--stone);font-size:0.85rem;text-align:center">Details konnten nicht geladen werden</p>`;
+      }
     }
 
     async function saveToNotion(btn){
@@ -988,6 +1056,7 @@
     function showToast(msg){const t=document.getElementById('saveToast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
 
     async function generateRecipe(){
+      aiRecipeSavedId = null;
       const btn=document.getElementById('generateBtn');const result=document.getElementById('result');
       btn.disabled=true;btn.textContent='Wird gekocht…';
       result.innerHTML=`<div class="loading"><span class="loading-spoon">🥄</span><p>Claude kocht etwas Feines<span class="loading-dots"></span></p></div>`;
@@ -1002,7 +1071,7 @@
       const ingr=(r.ingredients||[]).map(i=>`<li><span class="ingredient-amount">${i.amount} ${i.unit||''}</span><span>${i.name}</span></li>`).join('');
       const steps=(r.steps||[]).map(s=>`<li>${s}</li>`).join('');
       result.innerHTML=`
-        <div class="recipe-card"><div class="recipe-header"><h2>${r.title||'Rezept'}</h2>${r.subtitle?`<div class="subtitle">${r.subtitle}</div>`:''}<div class="recipe-meta"><span>⏱ ${r.prepTime||'30'} Min</span><span>🍽 ${r.servings||'2'} Portionen</span></div></div>
+        <div class="recipe-card"><div class="recipe-header"><h2>${r.title||'Rezept'}</h2><div class="recipe-hearts"><button class="heart-btn-mini" id="aiHeartLoli" onclick="saveAIAndHeart('Lola',this)" title="Loli herzt">🍭</button><button class="heart-btn-mini" id="aiHeartLuki" onclick="saveAIAndHeart('Luki',this)" title="Luki herzt">🦖</button></div>${r.subtitle?`<div class="subtitle">${r.subtitle}</div>`:''}<div class="recipe-meta"><span>⏱ ${r.prepTime||'30'} Min</span><span>🍽 ${r.servings||'2'} Portionen</span><span>✨ KI</span></div></div>
           ${tags?`<div class="recipe-tags">${tags}</div>`:''}
           ${r.nutrition?`<div class="recipe-nutrition"><div class="nutrition-item"><div class="nutrition-value">${r.nutrition.calories||'–'}</div><div class="nutrition-label">kcal</div></div><div class="nutrition-item"><div class="nutrition-value">${r.nutrition.protein||'–'}</div><div class="nutrition-label">Eiweiß</div></div><div class="nutrition-item"><div class="nutrition-value">${r.nutrition.fiber||'–'}</div><div class="nutrition-label">Ballaststoffe</div></div></div>`:''}
           <div class="recipe-section"><div class="recipe-section-title">Zutaten</div><ul class="ingredient-list">${ingr}</ul></div>
@@ -1010,44 +1079,41 @@
           ${r.tips?`<div class="recipe-tip"><strong>💡 Tipp:</strong> ${r.tips}</div>`:''}
           ${r.healthNote?`<div class="health-note"><strong>🌿 Gesundheitshinweis:</strong> ${r.healthNote}</div>`:''}
         </div>
-        <div class="ai-save-bar">
-          <div class="ai-save-label">Rezept speichern & herzen:</div>
-          <div class="ai-save-btns">
-            <button class="ai-save-btn" id="saveLoli" onclick="saveAIRecipeAs('Lola',this)">🍭 Loli</button>
-            <button class="ai-save-btn" id="saveLuki" onclick="saveAIRecipeAs('Luki',this)">🦖 Luki</button>
-            <button class="ai-save-btn ai-save-both" id="saveBoth" onclick="saveAIRecipeAs('Beide',this)">🍭🦖 Beide</button>
-          </div>
-        </div>
         <button class="add-plan-btn" onclick="showDayPicker()">📅 Zum Wochenplan hinzufügen</button>
         <button class="new-recipe-btn" onclick="generateRecipe()">🔄 Neues Rezept</button>`;
       result.scrollIntoView({behavior:'smooth',block:'start'});
     }
 
-    async function saveAIRecipeAs(who, btn){
-      if(btn.classList.contains('saved')||btn.classList.contains('saving'))return;
-      btn.classList.add('saving');const origText=btn.textContent;btn.textContent='⏳';
+    let aiRecipeSavedId = null; // Track if AI recipe was already saved to Notion
+
+    async function saveAIAndHeart(person, btn){
+      if(btn.classList.contains('saving'))return;
+      const isActive = btn.classList.contains('active');
       const recipe=state.currentRecipe;
-      if(!recipe){showToast('❌ Kein Rezept zum Speichern');btn.classList.remove('saving');btn.textContent=origText;return}
-      recipe.geherztVon = who==='Beide'?['Lola','Luki']:[who];
+      if(!recipe){showToast('❌ Kein Rezept');return}
+
+      btn.classList.add('saving');
+
       try{
-        const res=await fetch('/api/save-to-notion',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(recipe)});
-        if(!res.ok)throw new Error((await res.json().catch(()=>({}))).error||'Fehler');
-        const data=await res.json();
-        // Now heart it
-        if(data.id){
-          const hearts=who==='Beide'?['Lola','Luki']:[who];
-          for(const person of hearts){
-            await fetch('/api/heart-recipe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recipeId:data.id,person,action:'heart'})}).catch(()=>{});
-          }
+        // First save: save to Notion if not yet saved
+        if(!aiRecipeSavedId){
+          recipe.geherztVon = [person];
+          const res=await fetch('/api/save-to-notion',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(recipe)});
+          if(!res.ok)throw new Error((await res.json().catch(()=>({}))).error||'Fehler');
+          const data=await res.json();
+          aiRecipeSavedId=data.id;
         }
-        btn.classList.remove('saving');btn.classList.add('saved');btn.textContent='✅';
-        // Disable all save buttons
-        document.querySelectorAll('.ai-save-btn').forEach(b=>{b.style.pointerEvents='none';if(!b.classList.contains('saved'))b.style.opacity='0.4'});
-        showToast(`✅ Gespeichert & geherzt von ${who}!`);
+
+        // Toggle heart
+        const action = isActive ? 'unheart' : 'heart';
+        await fetch('/api/heart-recipe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recipeId:aiRecipeSavedId,person,action})});
+        btn.classList.toggle('active');
+        btn.classList.remove('saving');
+        showToast(action==='heart'?`${person==='Lola'?'🍭':'🦖'} ${person} herzt das!`:`${person} hat Herz entfernt`);
         await loadFavoritesFromNotion();
       }catch(e){
-        btn.classList.remove('saving');btn.textContent=origText;
-        showToast('❌ Speichern fehlgeschlagen: '+e.message);
+        btn.classList.remove('saving');
+        showToast('❌ '+e.message);
       }
     }
 

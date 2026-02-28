@@ -4,7 +4,7 @@ export default async (req) => {
   }
 
   try {
-    const { url, passtFuer } = await req.json();
+    const { url, passtFuer, fetchOnly } = await req.json();
     const notionKey = process.env.NOTION_TOKEN;
     const dbId = process.env.NOTION_DATABASE_ID;
     const anthropicKey = process.env.ANTHROPIC_API_KEY;
@@ -108,6 +108,20 @@ ${pageContent}`;
     } catch (e) {
       return new Response(JSON.stringify({ error: "Rezept konnte nicht extrahiert werden", raw: rawText }), {
         status: 500, headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    // If fetchOnly, return extracted data without saving to Notion
+    if (fetchOnly) {
+      return new Response(JSON.stringify({ 
+        success: true, 
+        title: recipe.title,
+        zutaten: recipe.zutaten || '',
+        zubereitung: recipe.zubereitung || '',
+        tipps: recipe.tipps || '',
+        recipe: recipe 
+      }), {
+        status: 200, headers: { "Content-Type": "application/json" }
       });
     }
 
