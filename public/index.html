@@ -127,6 +127,7 @@
     .nutrition-item{flex:1;text-align:center;padding:0.7rem 0.4rem}
     .nutrition-item:not(:last-child){border-right:1px solid var(--sand)}
     .nutrition-value{font-weight:600;font-size:0.95rem;color:var(--terra)}
+    .fav-recipe .nutrition-value{color:var(--olive)}
     .nutrition-label{font-size:0.65rem;color:var(--stone);margin-top:0.15rem}
     .recipe-section{padding:1rem 1.5rem}
     .recipe-section-title{font-family:'DM Serif Display',serif;font-size:1.05rem;margin-bottom:0.7rem}
@@ -134,9 +135,11 @@
     .ingredient-list li{padding:0.45rem 0;border-bottom:1px solid var(--cream);font-size:0.85rem;display:flex;gap:0.5rem}
     .ingredient-list li:last-child{border:none}
     .ingredient-amount{font-weight:600;color:var(--terra);min-width:70px}
+    .fav-recipe .ingredient-amount{color:var(--olive)}
     .steps-list{list-style:none;counter-reset:steps}
     .steps-list li{counter-increment:steps;padding:0.6rem 0 0.6rem 2.2rem;position:relative;font-size:0.85rem;line-height:1.5}
     .steps-list li::before{content:counter(steps);position:absolute;left:0;top:0.55rem;width:1.5rem;height:1.5rem;background:var(--terra);color:white;border-radius:50%;font-size:0.7rem;font-weight:600;display:flex;align-items:center;justify-content:center}
+    .fav-recipe .steps-list li::before{background:var(--olive)}
 
     .recipe-tip,.health-note,.compat-note{margin:0 1.5rem 1rem;padding:0.8rem 1rem;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:0.8rem}
     .recipe-tip{background:linear-gradient(135deg,rgba(107,124,82,0.08),rgba(107,124,82,0.03));border-left:3px solid var(--olive)}
@@ -208,13 +211,18 @@
     .plan-empty .hint{font-size:0.8rem;color:var(--sand)}
 
     .plan-day{margin-bottom:0.8rem}
+    .plan-day.drag-over>.plan-day-header{border-bottom-color:var(--terra)}
+    .plan-day.drag-over{background:rgba(193,119,82,0.06);border-radius:var(--radius-sm)}
     .plan-day-header{padding:0.5rem 0;border-bottom:1px solid var(--sand);margin-bottom:0.4rem;display:flex;justify-content:space-between;align-items:center}
     .plan-day-title{font-family:'DM Serif Display',serif;font-size:0.95rem;color:var(--charcoal)}
     .plan-day-date{font-size:0.72rem;color:var(--stone)}
     .plan-day.today .plan-day-title{color:var(--terra)}
 
-    .plan-recipe{background:white;border-radius:var(--radius-sm);box-shadow:var(--shadow);margin-bottom:0.4rem;overflow:hidden}
-    .plan-recipe-header{padding:0.8rem 1rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+    .plan-recipe{background:white;border-radius:var(--radius-sm);box-shadow:var(--shadow);margin-bottom:0.4rem;overflow:hidden;transition:opacity 0.2s,transform 0.2s}
+    .plan-recipe.dragging{opacity:0.4;transform:scale(0.95)}
+    .plan-recipe-drag{width:1.5rem;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--sand);font-size:0.9rem;cursor:grab;touch-action:none;flex-shrink:0;padding:0 0.2rem 0 0.5rem;user-select:none}
+    .plan-recipe-drag:active{cursor:grabbing;color:var(--terra)}
+    .plan-recipe-header{padding:0.8rem 0.5rem 0.8rem 0;display:flex;justify-content:space-between;align-items:center;cursor:pointer;flex:1}
     .plan-recipe-info{flex:1}
     .plan-recipe-title{font-weight:600;font-size:0.85rem}
     .plan-recipe-sub{font-size:0.72rem;color:var(--stone);margin-top:0.15rem}
@@ -814,7 +822,7 @@
         const recipes=days[d.key]||[];
         const todayClass=isToday(d.key)?' today':'';
         const otherClass=isOtherWeek?' plan-other-week':'';
-        h+=`<div class="plan-day${todayClass}${otherClass}"><div class="plan-day-header"><div class="plan-day-title">${d.name}</div><div class="plan-day-date">${d.dateStr}</div></div>`;
+        h+=`<div class="plan-day${todayClass}${otherClass}" data-day="${d.key}"><div class="plan-day-header"><div class="plan-day-title">${d.name}</div><div class="plan-day-date">${d.dateStr}</div></div>`;
         if(recipes.length===0){
           h+=`<div class="plan-day-empty" onclick="switchScreen('recipes')">+ Rezept finden</div>`;
         } else {
@@ -826,7 +834,7 @@
             const isKI=r.source==='KI-generiert';
             const borderStyle=isKI?'border-left:3px solid var(--terra)':'border-left:3px solid var(--olive)';
             const kiBadge=isKI?'<span class="fav-ki-badge">✨ KI</span>':'';
-            h+=`<div class="plan-recipe" style="${borderStyle}"><div class="plan-recipe-header" ${hasDetail?`onclick="togglePlanDetail('${detailId}')"`:''}><div class="plan-recipe-info"><div class="plan-recipe-title">${r.title} ${kiBadge}</div>${r.prepTime?`<div class="plan-recipe-sub">⏱ ${r.prepTime} Min</div>`:''}</div><div class="plan-recipe-actions">${hasDetail?`<button class="plan-recipe-toggle" data-toggle="${detailId}" onclick="event.stopPropagation();togglePlanDetail('${detailId}')">▼</button>`:''}<button class="plan-recipe-remove" onclick="event.stopPropagation();removePlanRecipe('${d.key}',${ri})" title="Entfernen">✕</button></div></div>`;
+            h+=`<div class="plan-recipe" style="${borderStyle}" draggable="true" data-day="${d.key}" data-idx="${ri}"><div style="display:flex;align-items:stretch"><div class="plan-recipe-drag" title="Verschieben">⠿</div><div class="plan-recipe-header" ${hasDetail?`onclick="togglePlanDetail('${detailId}')"`:''}><div class="plan-recipe-info"><div class="plan-recipe-title">${r.title} ${kiBadge}</div>${r.prepTime?`<div class="plan-recipe-sub">⏱ ${r.prepTime} Min</div>`:''}</div><div class="plan-recipe-actions">${hasDetail?`<button class="plan-recipe-toggle" data-toggle="${detailId}" onclick="event.stopPropagation();togglePlanDetail('${detailId}')">▼</button>`:''}<button class="plan-recipe-remove" onclick="event.stopPropagation();removePlanRecipe('${d.key}',${ri})" title="Entfernen">✕</button></div></div></div>`;
             if(hasDetail){
               h+=`<div class="plan-recipe-detail" id="${detailId}">`;
               if(hasZutaten){
@@ -846,6 +854,151 @@
       });
       if(total>0)h+=`<div class="plan-summary">${total} Rezept${total>1?'e':''} ${weekType.toLowerCase()}</div>`;
       el.innerHTML=h;
+      initPlanDragDrop();
+    }
+
+    // ── Drag & Drop for Wochenplan ──
+    function initPlanDragDrop(){
+      const planEl=document.getElementById('planContent');
+      let dragSrc=null; // {dayKey, idx}
+
+      // HTML5 drag events (desktop)
+      planEl.querySelectorAll('.plan-recipe[draggable]').forEach(el=>{
+        el.addEventListener('dragstart',e=>{
+          dragSrc={dayKey:el.dataset.day,idx:parseInt(el.dataset.idx)};
+          el.classList.add('dragging');
+          e.dataTransfer.effectAllowed='move';
+          e.dataTransfer.setData('text/plain',''); // required for Firefox
+        });
+        el.addEventListener('dragend',e=>{
+          el.classList.remove('dragging');
+          planEl.querySelectorAll('.plan-day').forEach(d=>d.classList.remove('drag-over'));
+          dragSrc=null;
+        });
+      });
+
+      planEl.querySelectorAll('.plan-day').forEach(dayEl=>{
+        dayEl.addEventListener('dragover',e=>{
+          e.preventDefault();e.dataTransfer.dropEffect='move';
+          dayEl.classList.add('drag-over');
+        });
+        dayEl.addEventListener('dragleave',e=>{
+          if(!dayEl.contains(e.relatedTarget))dayEl.classList.remove('drag-over');
+        });
+        dayEl.addEventListener('drop',e=>{
+          e.preventDefault();dayEl.classList.remove('drag-over');
+          if(!dragSrc)return;
+          const targetDay=dayEl.dataset.day;
+          if(targetDay===dragSrc.dayKey)return;
+          movePlanRecipe(dragSrc.dayKey,dragSrc.idx,targetDay);
+          dragSrc=null;
+        });
+      });
+
+      // Touch events (iOS/mobile)
+      let touchSrc=null;
+      let touchClone=null;
+      let touchStartY=0;
+      let isDragging=false;
+
+      planEl.querySelectorAll('.plan-recipe-drag').forEach(handle=>{
+        handle.addEventListener('touchstart',e=>{
+          const recipe=handle.closest('.plan-recipe');
+          if(!recipe)return;
+          touchSrc={dayKey:recipe.dataset.day,idx:parseInt(recipe.dataset.idx)};
+          touchStartY=e.touches[0].clientY;
+          isDragging=false;
+        },{passive:true});
+      });
+
+      document.addEventListener('touchmove',e=>{
+        if(!touchSrc)return;
+        const dy=Math.abs(e.touches[0].clientY-touchStartY);
+        if(dy>10 && !isDragging){
+          isDragging=true;
+          const srcEl=planEl.querySelector(`.plan-recipe[data-day="${touchSrc.dayKey}"][data-idx="${touchSrc.idx}"]`);
+          if(srcEl)srcEl.classList.add('dragging');
+          // Create floating clone
+          touchClone=document.createElement('div');
+          touchClone.style.cssText='position:fixed;z-index:9999;pointer-events:none;opacity:0.85;padding:0.5rem 1rem;background:white;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.15);font-size:0.82rem;font-weight:600;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+          const days=getPlanDays(weekOffset);
+          const recipes=days[touchSrc.dayKey]||[];
+          touchClone.textContent=recipes[touchSrc.idx]?.title||'Rezept';
+          document.body.appendChild(touchClone);
+        }
+        if(isDragging){
+          e.preventDefault();
+          if(touchClone){
+            touchClone.style.left=(e.touches[0].clientX-60)+'px';
+            touchClone.style.top=(e.touches[0].clientY-20)+'px';
+          }
+          // Highlight drop target
+          planEl.querySelectorAll('.plan-day').forEach(d=>d.classList.remove('drag-over'));
+          const target=document.elementFromPoint(e.touches[0].clientX,e.touches[0].clientY);
+          const dayEl=target?.closest('.plan-day');
+          if(dayEl)dayEl.classList.add('drag-over');
+        }
+      },{passive:false});
+
+      document.addEventListener('touchend',e=>{
+        if(!touchSrc)return;
+        if(isDragging){
+          // Find drop target
+          const lastTouch=e.changedTouches[0];
+          if(touchClone){touchClone.remove();touchClone=null}
+          const target=document.elementFromPoint(lastTouch.clientX,lastTouch.clientY);
+          const dayEl=target?.closest('.plan-day');
+          planEl.querySelectorAll('.plan-day').forEach(d=>d.classList.remove('drag-over'));
+          planEl.querySelectorAll('.plan-recipe').forEach(r=>r.classList.remove('dragging'));
+          if(dayEl){
+            const targetDay=dayEl.dataset.day;
+            if(targetDay && targetDay!==touchSrc.dayKey){
+              movePlanRecipe(touchSrc.dayKey,touchSrc.idx,targetDay);
+            }
+          }
+        }
+        touchSrc=null;isDragging=false;
+      });
+    }
+
+    function movePlanRecipe(fromDay,idx,toDay){
+      const days=getPlanDays(weekOffset);
+      if(!days[fromDay]||!days[fromDay][idx])return;
+      const recipe=days[fromDay].splice(idx,1)[0];
+      if(!days[toDay])days[toDay]=[];
+      days[toDay].push(recipe);
+
+      // Delete old Notion entry
+      if(recipe.planEntryId){
+        fetch('/api/delete-plan',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({planEntryId:recipe.planEntryId})
+        }).catch(e=>console.warn('Notion delete failed:',e));
+        recipe.planEntryId=null;
+      }
+
+      // Create new Notion entry on target day
+      if(recipe.notionId||recipe.id){
+        const week=getWeekDates(weekOffset);
+        const dayInfo=week.find(d=>d.key===toDay);
+        const monday=getMondayOfWeek(weekOffset);
+        const kwNum=getWeekNumber(monday);
+        fetch('/api/save-plan',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            datum:toDay,
+            rezeptId:recipe.notionId||recipe.id,
+            tag:`${dayInfo?.name||toDay} ${dayInfo?.dateStr||''}`,
+            woche:`KW${kwNum} ${monday.getFullYear()}`,
+            notiz:''
+          })
+        }).then(r=>r.json()).then(data=>{
+          if(data.id){recipe.planEntryId=data.id;savePlanDays(days,weekOffset)}
+        }).catch(e=>console.warn('Notion save failed:',e));
+      }
+
+      savePlanDays(days,weekOffset);
+      renderPlan();
+      const dayName=getWeekDates(weekOffset).find(d=>d.key===toDay)?.name||toDay;
+      showToast(`↔️ "${recipe.title}" → ${dayName}`);
     }
 
     // ── Recipe Screen Logic ──
@@ -933,17 +1086,46 @@
       const tags=(r.tags||[]).map(t=>`<span class="recipe-tag">${t}</span>`).join('');
       const loliH = (r.geherztVon||[]).includes('Lola');
       const lukiH = (r.geherztVon||[]).includes('Luki');
-      let h=`<div class="recipe-card"><div class="recipe-header fav-header"><h2>${r.title}</h2><div class="recipe-hearts"><button class="heart-btn-mini ${loliH?'active':''}" onclick="toggleHeart('${r.id}','Lola',this)" title="Loli herzt">🍭</button><button class="heart-btn-mini ${lukiH?'active':''}" onclick="toggleHeart('${r.id}','Luki',this)" title="Luki herzt">🦖</button></div>${r.subtitle?`<div class="subtitle">${r.subtitle}</div>`:''}<div class="recipe-meta">${r.prepTime?`<span>⏱ ${r.prepTime} Min</span>`:''}${r.servings?`<span>🍽 ${r.servings} Portionen</span>`:''}<span>${r.source==='KI-generiert'?'✨ KI':'📚 Rezept'}</span></div></div>`;
+      const isKI = r.source==='KI-generiert';
+      const cardClass = isKI ? '' : 'fav-recipe';
+
+      let h=`<div class="recipe-card ${cardClass}"><div class="recipe-header ${isKI?'':'fav-header'}"><h2>${r.title}</h2><div class="recipe-hearts"><button class="heart-btn-mini ${loliH?'active':''}" onclick="toggleHeart('${r.id}','Lola',this)" title="Loli herzt">🍭</button><button class="heart-btn-mini ${lukiH?'active':''}" onclick="toggleHeart('${r.id}','Luki',this)" title="Luki herzt">🦖</button></div>${r.subtitle?`<div class="subtitle">${r.subtitle}</div>`:''}<div class="recipe-meta">${r.prepTime?`<span>⏱ ${r.prepTime} Min</span>`:''}${r.servings?`<span>🍽 ${r.servings} Portionen</span>`:''}<span>${isKI?'✨ KI':'📚 Rezept'}</span></div></div>`;
       if(tags)h+=`<div class="recipe-tags">${tags}</div>`;
       if(r.tipps&&r.tipps.includes('🧀')&&both)h+=`<div class="compat-note">${r.tipps}</div>`;
-      if(hasZutaten){h+=`<div class="recipe-section"><div class="recipe-section-title">Zutaten</div><div class="fav-zutaten">${r.zutaten.replace(/\n/g,'<br>')}</div></div>`}
-      if(hasZubereitung){h+=`<div class="recipe-section"><div class="recipe-section-title">Zubereitung</div><div class="fav-zubereitung">${r.zubereitung.replace(/\n/g,'<br>')}</div></div>`}
+
+      // Zutaten — structured like AI recipe
+      if(hasZutaten){
+        h+=`<div class="recipe-section"><div class="recipe-section-title">Zutaten</div><ul class="ingredient-list">`;
+        r.zutaten.split(/\n|<br\s*\/?>/).filter(z=>z.trim()).forEach(z=>{
+          const match=z.trim().match(/^([\d½¼¾⅓⅔.,\/\-–]+\s*(?:g|kg|ml|l|EL|TL|Stück|Prise|Handvoll|Bund|Dose|Becher|Scheibe|Zehe|kleine?r?s?|mittler?e?s?|große?r?s?|grüne?r?s?)?)\s+(.+)$/i);
+          if(match){
+            h+=`<li><span class="ingredient-amount">${match[1]}</span><span>${match[2]}</span></li>`;
+          } else {
+            h+=`<li><span>${z.trim()}</span></li>`;
+          }
+        });
+        h+=`</ul></div>`;
+      }
+
+      // Zubereitung — structured with numbered steps
+      if(hasZubereitung){
+        h+=`<div class="recipe-section"><div class="recipe-section-title">Zubereitung</div><ol class="steps-list">`;
+        r.zubereitung.split(/\n|<br\s*\/?>/).filter(z=>z.trim()).forEach(z=>{
+          const cleaned=z.trim().replace(/^\d+[\.\)]\s*/,'');
+          if(cleaned)h+=`<li>${cleaned}</li>`;
+        });
+        h+=`</ol></div>`;
+      }
+
+      // Auto-fetch if no details
       if(!hasZutaten&&!hasZubereitung&&r.link){
         h+=`<div class="recipe-section" id="favFetchSection"><div class="loading"><span class="loading-spoon">🥄</span><p>Lade Rezeptdetails<span class="loading-dots"></span></p></div></div>`;
       } else if(!hasZutaten&&!hasZubereitung){
         h+=`<div class="recipe-section" style="text-align:center;padding:1.5rem"><p style="color:var(--stone);font-size:0.85rem">Keine Details vorhanden</p></div>`;
       }
+
       if(r.tipps&&!r.tipps.includes('🧀'))h+=`<div class="recipe-tip"><strong>💡 Tipp:</strong> ${r.tipps}</div>`;
+      if(r.healthNote)h+=`<div class="health-note"><strong>🌿 Gesundheitshinweis:</strong> ${r.healthNote}</div>`;
       if(r.link)h+=`<a class="link-btn" href="${r.link}" target="_blank" onclick="event.stopPropagation()">📖 Originalrezept öffnen</a>`;
       h+=`</div><button class="add-plan-btn" onclick="showDayPicker()">📅 Zum Wochenplan hinzufügen</button><button class="new-recipe-btn fav" onclick="showRandomFavorite()">🔄 Anderes Rezept</button><button class="back-btn" onclick="showAllFavorites()">📋 Alle Rezepte anzeigen</button>`;
       result.innerHTML=h;result.scrollIntoView({behavior:'smooth',block:'start'});
