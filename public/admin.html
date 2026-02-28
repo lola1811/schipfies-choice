@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🥄 Batch Enrichment</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0 }
+  body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 600px; margin: 2rem auto; padding: 1rem; background: #faf8f5; color: #2d2a26 }
+  h1 { font-size: 1.4rem; margin-bottom: 1rem }
+  .btn { padding: 0.7rem 1.2rem; border: none; border-radius: 8px; font-size: 0.9rem; cursor: pointer; margin: 0.3rem; font-family: inherit }
+  .btn-scan { background: #6b7c52; color: white }
+  .btn-fetch { background: #c17752; color: white }
+  .btn-health { background: #d4953a; color: white }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed }
+  .log { margin-top: 1rem; background: white; border-radius: 8px; padding: 1rem; max-height: 60vh; overflow-y: auto; font-size: 0.82rem; line-height: 1.6 }
+  .log-entry { padding: 0.3rem 0; border-bottom: 1px solid #f0ece6 }
+  .log-ok { color: #6b7c52 }
+  .log-err { color: #c17752 }
+  .log-info { color: #8a8580 }
+  .log-done { color: #d4953a; font-weight: 600 }
+  .progress { margin-top: 0.8rem; background: #f0ece6; border-radius: 8px; height: 1.5rem; overflow: hidden; position: relative }
+  .progress-bar { height: 100%; border-radius: 8px; transition: width 0.3s; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: white; font-weight: 600 }
+  .progress-fetch { background: #c17752 }
+  .progress-health { background: #d4953a }
+  .stats { margin-top: 0.8rem; display: flex; gap: 0.5rem; flex-wrap: wrap }
+  .stat { background: white; padding: 0.5rem 0.8rem; border-radius: 8px; font-size: 0.78rem }
+  .stat b { display: block; font-size: 1.1rem }
+</style>
+</head>
+<body>
+<h1>🥄 Schipfie's Batch Enrichment</h1>
+<div>
+  <button class="btn btn-scan" onclick="runScan()">🔍 Scan</button>
+  <button class="btn btn-fetch" onclick="runBatch('fetch')" id="btnFetch" disabled>📥 Rezepte fetchen</button>
+  <button class="btn btn-health" onclick="runBatch('health')" id="btnHealth" disabled>🌿 Gesundheitshinweise</button>
+</div>
+<div class="stats" id="stats"></div>
+<div class="progress" id="progressWrap" style="display:none"><div class="progress-bar" id="progressBar"></div></div>
+<div class="log" id="log"></div>
+
+<script>
+const log = document.getElementById('log');
+const stats = document.getElementById('stats');
+
+function addLog(msg, cls = 'log-info') {
+  const d = document.createElement('div');
+  d.className = 'log-entry ' + cls;
+  d.textContent = `${new Date().toLocaleTimeString()} — ${msg}`;
+  log.prepend(d);
+}
+
+async function api(body) {
+  const res = await fetch('/api/batch-enrich', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  return res.json();
+}
+
+async function runScan() {
+  addLog('Scanne Rezept-Datenbank...');
+  const data = await api({ mode: 'scan' });
+  stats.innerHTML = `
+    <div class="stat"><b>${data.total}</b>Rezepte gesamt</div>
+    <div class="stat"><b>${data.complete}</b>✅ komplett</div>
+    <div class="stat"><b>${data.countFetch}</b>📥 brauchen Fetch</div>
+    <div class="stat"><b>${data.countHealth}</b>🌿 brauchen Healthnote</div>
+  `;
+  addLog(`Scan fertig: ${data.countFetch} fetchen, ${data.countHealth} Healthnotes`, 'log-ok');
+
+  if (data.countFetch > 0) {
+    addLog('Rezepte ohne Zutaten/Zubereitung:');
+    data.needsFetch.forEach(r => addLog(`  → ${r.title} (${r.link})`));
+    document.getElementById('btnFetch').disabled = false;
+  }
+  if (data.countHealth > 0) {
+    document.getElementById('btnHealth').disabled = false;
+  }
+  window._scanData = data;
+}
+
+async function runBatch(mode) {
+  const btn = document.getElementById(mode === 'fetch' ? 'btnFetch' : 'btnHealth');
+  btn.disabled = true;
+  const wrap = document.getElementById('progressWrap');
+  const bar = document.getElementById('progressBar');
+  wrap.style.display = 'block';
+  bar.className = 'progress-bar ' + (mode === 'fetch' ? 'progress-fetch' : 'progress-health');
+
+  const total = mode === 'fetch' ? window._scanData?.countFetch : window._scanData?.countHealth;
+  let cursor = null;
+  let processed = 0;
+
+  addLog(`Starte ${mode === 'fetch' ? 'Rezept-Fetch' : 'Gesundheitshinweise'}... (${total} Rezepte)`, 'log-info');
+
+  while (true) {
+    try {
+      const data = await api({ mode, cursor });
+
+      if (data.action === 'fetch_done' || data.action === 'health_done' || data.action === 'done') {
+        addLog(`✅ ${mode} komplett! ${processed} Rezepte verarbeitet.`, 'log-done');
+        bar.style.width = '100%';
+        bar.textContent = '100%';
+        break;
+      }
+
+      processed++;
+      const pct = Math.round((processed / total) * 100);
+      bar.style.width = pct + '%';
+      bar.textContent = `${processed}/${total}`;
+
+      if (data.status === 'ok') {
+        const detail = data.updated ? ` [${data.updated.join(', ')}]` : '';
+        addLog(`✅ ${data.title}${detail}${data.note ? ' — ' + data.note : ''}`, 'log-ok');
+      } else {
+        addLog(`❌ ${data.title}: ${data.error}`, 'log-err');
+      }
+
+      cursor = data.next;
+
+      if (data.remaining <= 0) {
+        addLog(`✅ ${mode} komplett! ${processed} Rezepte verarbeitet.`, 'log-done');
+        bar.style.width = '100%';
+        bar.textContent = '100%';
+        break;
+      }
+
+      // Small delay to avoid rate limits
+      await new Promise(r => setTimeout(r, 500));
+
+    } catch (e) {
+      addLog(`💥 Fehler: ${e.message}`, 'log-err');
+      break;
+    }
+  }
+
+  btn.disabled = false;
+  // Re-scan to update stats
+  await runScan();
+}
+</script>
+</body>
+</html>

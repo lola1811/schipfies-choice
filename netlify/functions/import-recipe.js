@@ -56,6 +56,11 @@ export default async (req) => {
 
 WICHTIG: Übersetze ALLES ins Deutsche — auch den Titel! Wenn das Originalrezept "Thai Green Curry" heißt, wird daraus "Thailändisches Grünes Curry". Wenn es "Roasted Cauliflower Salad" heißt, wird daraus "Gerösteter Blumenkohl-Salat".
 
+PROFIL der Nutzer (wichtig für tipps, gesundheitshinweis und passtFuer):
+- Lola (33, vegetarisch, Schilddrüsenunterfunktion, Eisenmangel, niedriger Blutdruck, Familienplanung, liebt Käse/Oliven/Kürbiskernöl/Kräuter)
+- Lucas (34, isst Fisch aber kein Käse/keine Oliven/keine Pilze, erhöhtes Cholesterin, Familienplanung)
+- Beide brauchen: viel Eiweiß, Folsäure, Omega-3, Eisen (Lola), Jod (Lola), cholesterinbewusst (Lucas)
+
 Antworte NUR mit einem JSON-Objekt (kein Markdown, keine Erklärung), mit genau diesen Feldern:
 {
   "title": "Rezeptname auf Deutsch",
@@ -64,13 +69,38 @@ Antworte NUR mit einem JSON-Objekt (kein Markdown, keine Erklärung), mit genau 
   "mealType": "Hauptgericht" oder "Vorspeise / Salat" oder "Suppe" oder "Snack" oder "Smoothie" oder "Dessert (gesund)" oder "Dessert (Genuss)",
   "zubereitungszeit": Zahl in Minuten oder null,
   "portionen": "2" oder was angegeben ist,
-  "zutaten": "Zutat 1\\nZutat 2\\nZutat 3",
+  "zutaten": "Menge1 Zutat1\\nMenge2 Zutat2\\nMenge3 Zutat3",
   "zubereitung": "1. Schritt eins\\n2. Schritt zwei\\n3. Schritt drei",
-  "tipps": "Optionaler Tipp oder null",
+  "tipps": "Kochtipps + Kompatibilitätshinweise (siehe unten)",
+  "gesundheitshinweis": "2-4 Sätze: welche Zutaten welche Nährstoffe liefern und warum relevant für Lola/Lucas",
+  "passtFuer": ["Lola", "Luki"] oder ["Lola"] oder ["Luki"],
   "tags": ["vegan", "schnell"] oder leeres Array - mögliche Tags: vegan, eiweißreich, schnell, ofengericht, suppe, glutenfrei, eisenreich
 }
 
-Alle Texte auf Deutsch — Titel, Beschreibung, Zutaten, Schritte, Tipps. Zutaten mit Mengenangaben. Schritte nummeriert.
+REGELN für "tipps":
+- Beginne mit Kochtipps/Variationen falls vorhanden.
+- DANN prüfe Kompatibilität mit den Profilen:
+  - Enthält Fleisch/Geflügel? → 🌿 Lola ist vegetarisch — schlage eine konkrete pflanzliche Alternative vor (z.B. "Huhn durch 400g Kräuterseitlinge ersetzen").
+  - Enthält Käse/Oliven/Pilze? → 🦕 Für Luki: Käse/Oliven/Pilze weglassen oder durch X ersetzen.
+  - Enthält cholesterinreiche Zutaten? → Für Lucas cholesterinbewusst: Menge reduzieren oder Alternative.
+- Sei konkret mit Alternativen, nicht nur "weglassen".
+
+REGELN für "passtFuer":
+- Vegetarisch ohne Käse/Oliven/Pilze → ["Lola", "Luki"]
+- Mit Fleisch → ["Luki"] (oder ["Lola", "Luki"] wenn vegetarische Variante einfach möglich)
+- Mit Fisch → ["Luki"] oder ["Lola", "Luki"] je nach Rezept
+- Mit Käse/Oliven/Pilzen → ["Lola"] (oder ["Lola", "Luki"] wenn leicht weglassbar)
+
+REGELN für "gesundheitshinweis":
+- Nenne konkret welche Zutaten welche Nährstoffe liefern.
+- Beziehe dich auf Lola und/oder Lucas je nach passtFuer.
+- Kompakt, informativ, auf Deutsch.
+
+REGELN für "zutaten":
+- IMMER mit Mengenangaben: "250g Spaghetti" nicht nur "Spaghetti"
+- Format pro Zeile: "Menge Zutat" — z.B. "2 EL Olivenöl", "1 Zwiebel, gewürfelt", "400g stückige Tomaten"
+
+Alle Texte auf Deutsch — Titel, Beschreibung, Zutaten, Schritte, Tipps, Gesundheitshinweis. Schritte nummeriert.
 Wenn du etwas nicht findest, setze null oder leeres Array.
 
 HTML-Inhalt der Seite:
@@ -119,6 +149,7 @@ ${pageContent}`;
         zutaten: recipe.zutaten || '',
         zubereitung: recipe.zubereitung || '',
         tipps: recipe.tipps || '',
+        gesundheitshinweis: recipe.gesundheitshinweis || '',
         recipe: recipe 
       }), {
         status: 200, headers: { "Content-Type": "application/json" }
@@ -126,7 +157,8 @@ ${pageContent}`;
     }
 
     // Step 3: Save to Notion
-    const passtFuerValue = (passtFuer || ["Beide"]).map(n => ({ name: n }));
+    const aiPasstFuer = recipe.passtFuer || [];
+    const passtFuerValue = (passtFuer && passtFuer.length > 0 ? passtFuer : (aiPasstFuer.length > 0 ? aiPasstFuer : ["Beide"])).map(n => ({ name: n }));
     const notionTags = (recipe.tags || []).map(t => ({ name: t }));
 
     const properties = {
@@ -142,6 +174,9 @@ ${pageContent}`;
 
     if (recipe.tipps) {
       properties["Tipps"] = { rich_text: [{ text: { content: recipe.tipps.substring(0, 2000) } }] };
+    }
+    if (recipe.gesundheitshinweis) {
+      properties["Gesundheitshinweis"] = { rich_text: [{ text: { content: recipe.gesundheitshinweis.substring(0, 2000) } }] };
     }
     if (recipe.zubereitungszeit) {
       properties["Zubereitungszeit"] = { number: parseInt(recipe.zubereitungszeit) || null };

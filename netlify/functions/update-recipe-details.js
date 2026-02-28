@@ -4,7 +4,7 @@ export default async (req) => {
   }
 
   try {
-    const { recipeId, zutaten, zubereitung, tipps } = await req.json();
+    const { recipeId, zutaten, zubereitung, tipps, gesundheitshinweis } = await req.json();
     const notionKey = process.env.NOTION_TOKEN;
 
     if (!notionKey || !recipeId) {
@@ -22,6 +22,9 @@ export default async (req) => {
     }
     if (tipps) {
       properties["Tipps"] = { rich_text: [{ text: { content: tipps.substring(0, 2000) } }] };
+    }
+    if (gesundheitshinweis) {
+      properties["Gesundheitshinweis"] = { rich_text: [{ text: { content: gesundheitshinweis.substring(0, 2000) } }] };
     }
 
     if (Object.keys(properties).length === 0) {

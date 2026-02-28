@@ -1147,13 +1147,14 @@
         if(data.zutaten){h+=`<div class="recipe-section-title">Zutaten</div><div class="fav-zutaten">${data.zutaten.replace(/\n/g,'<br>')}</div>`}
         if(data.zubereitung){h+=`<div class="recipe-section-title">Zubereitung</div><div class="fav-zubereitung">${data.zubereitung.replace(/\n/g,'<br>')}</div>`}
         if(data.tipps){h+=`<div class="recipe-tip"><strong>💡 Tipp:</strong> ${data.tipps}</div>`}
+        if(data.gesundheitshinweis){h+=`<div class="recipe-health"><strong>🌿 Gesundheitshinweis:</strong> ${data.gesundheitshinweis}</div>`}
         if(h){
           section.innerHTML=h;
           // Update Notion in background with fetched details
-          fetch('/api/update-recipe-details',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recipeId:r.id,zutaten:data.zutaten||'',zubereitung:data.zubereitung||'',tipps:data.tipps||''})}).catch(()=>{});
+          fetch('/api/update-recipe-details',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recipeId:r.id,zutaten:data.zutaten||'',zubereitung:data.zubereitung||'',tipps:data.tipps||'',gesundheitshinweis:data.gesundheitshinweis||''})}).catch(()=>{});
           // Update local cache
           const cached=notionFavorites.find(f=>f.id===r.id);
-          if(cached){cached.zutaten=data.zutaten||'';cached.zubereitung=data.zubereitung||'';cached.tipps=data.tipps||'';localStorage.setItem('schipfie-notion-cache',JSON.stringify(notionFavorites))}
+          if(cached){cached.zutaten=data.zutaten||'';cached.zubereitung=data.zubereitung||'';cached.tipps=data.tipps||'';cached.healthNote=data.gesundheitshinweis||'';localStorage.setItem('schipfie-notion-cache',JSON.stringify(notionFavorites))}
         } else {
           section.innerHTML='<p style="color:var(--stone);font-size:0.85rem;text-align:center">Keine Details gefunden</p>';
         }
