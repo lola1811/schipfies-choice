@@ -7,9 +7,9 @@ export default async (req) => {
     const { url, passtFuer, fetchOnly } = await req.json();
     const notionKey = process.env.NOTION_TOKEN;
     const dbId = process.env.NOTION_DATABASE_ID;
-    const anthropicKey = process.env.ANTHROPIC_API_KEY;
+    const openrouterKey = process.env.OPENROUTER_API_KEY;
 
-    if (!notionKey || !dbId || !anthropicKey) {
+    if (!notionKey || !dbId || !openrouterKey) {
       return new Response(JSON.stringify({ error: "API Keys nicht konfiguriert" }), {
         status: 500, headers: { "Content-Type": "application/json" }
       });
@@ -51,7 +51,8 @@ export default async (req) => {
       });
     }
 
-    // Step 2: Extract recipe via Claude
+    // Step 2: Extract recipe via AI (free model with Claude fallback)
+    const { aiCall } = await import("./ai-router.js");
     const extractPrompt = `Du bist ein Rezept-Parser. Extrahiere aus dem folgenden HTML einer Rezept-Website die Rezeptdaten.
 
 WICHTIG: Übersetze ALLES ins Deutsche — auch den Titel! Wenn das Originalrezept "Thai Green Curry" heißt, wird daraus "Thailändisches Grünes Curry". Wenn es "Roasted Cauliflower Salad" heißt, wird daraus "Gerösteter Blumenkohl-Salat".
@@ -106,37 +107,13 @@ Wenn du etwas nicht findest, setze null oder leeres Array.
 HTML-Inhalt der Seite:
 ${pageContent}`;
 
-    const claudeRes = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": anthropicKey,
-        "anthropic-version": "2023-06-01",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 2000,
-        messages: [{ role: "user", content: extractPrompt }]
-      })
-    });
-
-    if (!claudeRes.ok) {
-      const err = await claudeRes.text();
-      return new Response(JSON.stringify({ error: "Claude API Fehler", details: err }), {
-        status: 500, headers: { "Content-Type": "application/json" }
-      });
-    }
-
-    const claudeData = await claudeRes.json();
-    const rawText = claudeData.content[0].text.trim();
-    
-    let recipe;
+    let recipe, usedModel;
     try {
-      // Strip possible markdown code fences
-      const cleaned = rawText.replace(/^```json\s*\n?/,'').replace(/\n?```$/,'').trim();
-      recipe = JSON.parse(cleaned);
+      const result = await aiCall("parse", extractPrompt, 2000);
+      recipe = result.recipe;
+      usedModel = result.usedModel;
     } catch (e) {
-      return new Response(JSON.stringify({ error: "Rezept konnte nicht extrahiert werden", raw: rawText }), {
+      return new Response(JSON.stringify({ error: "Rezept konnte nicht extrahiert werden", details: e.message }), {
         status: 500, headers: { "Content-Type": "application/json" }
       });
     }

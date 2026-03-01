@@ -7,10 +7,22 @@ export default async (req) => {
     const { mode, cursor } = await req.json();
     const notionKey = process.env.NOTION_TOKEN;
     const dbId = process.env.NOTION_DATABASE_ID;
-    const anthropicKey = process.env.ANTHROPIC_API_KEY;
+    const openrouterKey = process.env.OPENROUTER_API_KEY;
 
-    if (!notionKey || !dbId || !anthropicKey) {
+    if (!notionKey || !dbId || !openrouterKey) {
       return Response.json({ error: "API Keys nicht konfiguriert" }, { status: 500 });
+    }
+
+    // Helper: call OpenRouter
+    async function callAI(prompt, maxTokens = 2000) {
+      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${openrouterKey}`, "Content-Type": "application/json", "HTTP-Referer": "https://schipfies-choice.netlify.app", "X-Title": "Schipfies Choice" },
+        body: JSON.stringify({ model: "meta-llama/llama-3.3-70b-instruct:free", max_tokens: maxTokens, messages: [{ role: "user", content: prompt }] })
+      });
+      if (!res.ok) throw new Error(`OpenRouter ${res.status}`);
+      const data = await res.json();
+      return data.choices?.[0]?.message?.content?.trim() || "";
     }
 
     // Fetch all recipes from Notion
@@ -94,15 +106,10 @@ Zutaten mit Mengenangaben, Schritte nummeriert.
 HTML:
 ${pageContent}`;
 
-      const claudeRes = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "x-api-key": anthropicKey, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
-        body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 2000, messages: [{ role: "user", content: extractPrompt }] })
-      });
-      if (!claudeRes.ok) return Response.json({ action: "fetch", status: "error", title: target.title, error: `Claude ${claudeRes.status}`, next: target.id, remaining: needsFetch.length - (cursorIdx + 2) });
-
-      const claudeData = await claudeRes.json();
-      const rawText = claudeData.content[0].text.trim();
+      let rawText;
+      try { rawText = await callAI(extractPrompt, 2000); } catch(e) {
+        return Response.json({ action: "fetch", status: "error", title: target.title, error: e.message, next: target.id, remaining: needsFetch.length - (cursorIdx + 2) });
+      }
       const cleaned = rawText.replace(/^```json\s*\n?/, "").replace(/\n?```$/, "").trim();
       let extracted;
       try { extracted = JSON.parse(cleaned); } catch (e) {
@@ -141,15 +148,10 @@ Rezept: "${target.title}" — passt für: ${who}
 Zutaten: ${target.zutaten.substring(0, 500)}
 Erkläre welche Zutaten welche Nährstoffe liefern und warum das für ${who} relevant ist. NUR den Hinweistext, kompakt, Deutsch.`;
 
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "x-api-key": anthropicKey, "anthropic-version": "2023-06-01", "Content-Type": "application/json" },
-        body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 300, messages: [{ role: "user", content: prompt }] })
-      });
-      if (!res.ok) return Response.json({ action: "health", status: "error", title: target.title, error: `Claude ${res.status}`, next: target.id, remaining: needsHealth.length - (cursorIdx + 2) });
-
-      const data = await res.json();
-      const note = data.content[0].text.trim();
+      let note;
+      try { note = await callAI(prompt, 300); } catch(e) {
+        return Response.json({ action: "health", status: "error", title: target.title, error: e.message, next: target.id, remaining: needsHealth.length - (cursorIdx + 2) });
+      }
 
       await fetch(`https://api.notion.com/v1/pages/${target.id}`, {
         method: "PATCH",

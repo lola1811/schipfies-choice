@@ -117,40 +117,17 @@ Antworte AUSSCHLIESSLICH im folgenden JSON-Format (kein anderer Text):
   "healthNote": "Kurzer Hinweis warum das Gericht gut für euer Profil ist"
 }`;
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01"
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 2000,
-        messages: [{ role: "user", content: prompt }]
-      })
-    });
+    const { aiCall } = await import("./ai-router.js");
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Anthropic API error:", errorText);
-      return new Response(JSON.stringify({ error: "API Fehler", details: errorText }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-
-    const data = await response.json();
-    const recipeText = data.content[0].text;
-
-    let recipe;
+    let recipe, usedModel;
     try {
-      const jsonMatch = recipeText.match(/\{[\s\S]*\}/);
-      recipe = JSON.parse(jsonMatch[0]);
+      const result = await aiCall("creative", prompt, 2000);
+      recipe = result.recipe;
+      usedModel = result.usedModel;
     } catch (e) {
-      return new Response(JSON.stringify({ error: "Rezept konnte nicht verarbeitet werden", raw: recipeText }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
+      console.error("AI error:", e.message);
+      return new Response(JSON.stringify({ error: "Rezept konnte nicht generiert werden", details: e.message }), {
+        status: 500, headers: { "Content-Type": "application/json" }
       });
     }
 
