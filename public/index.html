@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#c45e3a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
@@ -15,7 +15,8 @@
   <style>
     :root{--warm:#faf7f2;--cream:#f3ede4;--terra:#c45e3a;--terra-light:#e8856a;--olive:#6b7c52;--olive-light:#8a9e6c;--charcoal:#2d2a26;--stone:#8c857b;--sand:#d4c9b8;--amber:#d4953a;--radius:16px;--radius-sm:10px;--shadow:0 2px 12px rgba(45,42,38,0.08);--shadow-lg:0 8px 32px rgba(45,42,38,0.12)}
     *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'DM Sans',sans-serif;background:var(--warm);color:var(--charcoal);min-height:100dvh;-webkit-font-smoothing:antialiased;padding-top:env(safe-area-inset-top);padding-bottom:70px}
+    html{overscroll-behavior:none}
+    body{font-family:'DM Sans',sans-serif;background:var(--warm);color:var(--charcoal);min-height:100dvh;-webkit-font-smoothing:antialiased;padding-top:env(safe-area-inset-top);padding-bottom:70px;overscroll-behavior:none;touch-action:pan-x pan-y}
 
     .header{text-align:center;padding:2rem 1.5rem 1.2rem;position:relative}
     .header::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:60px;height:3px;background:var(--terra);border-radius:2px}
