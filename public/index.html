@@ -235,14 +235,21 @@
 
     .plan-recipe-detail{display:none;padding:0 1rem 1rem;border-top:1px solid var(--cream)}
     .plan-recipe-detail.open{display:block}
-    .plan-recipe-detail .ingredient-list{margin-top:0.5rem}
+    .plan-recipe-detail .recipe-section{padding:0.5rem 0}
+    .plan-recipe-detail .recipe-section-title{font-size:0.85rem;margin-bottom:0.4rem}
     .plan-recipe-detail .ingredient-list li{font-size:0.8rem;padding:0.3rem 0}
     .plan-recipe-detail .ingredient-amount{min-width:60px;font-size:0.8rem}
-    .plan-recipe-detail .steps-list{margin-top:0.5rem}
     .plan-recipe-detail .steps-list li{font-size:0.8rem;padding:0.4rem 0 0.4rem 2rem}
     .plan-recipe-detail .steps-list li::before{width:1.3rem;height:1.3rem;font-size:0.6rem;top:0.4rem}
-    .plan-recipe-detail .recipe-tip{margin:0.5rem 0;font-size:0.75rem;padding:0.6rem 0.8rem}
+    .plan-recipe-detail .recipe-tip,.plan-recipe-detail .health-note{margin:0.5rem 0;font-size:0.75rem;padding:0.6rem 0.8rem}
     .plan-recipe-detail .link-btn{margin:0.5rem 0 0;padding:0.5rem;font-size:0.78rem}
+    .fav-saved-detail .recipe-section{padding:0.5rem 0}
+    .fav-saved-detail .recipe-section-title{font-size:0.85rem;margin-bottom:0.4rem}
+    .fav-saved-detail .ingredient-list li{font-size:0.8rem;padding:0.3rem 0}
+    .fav-saved-detail .ingredient-amount{min-width:60px;font-size:0.8rem}
+    .fav-saved-detail .steps-list li{font-size:0.8rem;padding:0.4rem 0 0.4rem 2rem}
+    .fav-saved-detail .steps-list li::before{width:1.3rem;height:1.3rem;font-size:0.6rem;top:0.4rem}
+    .fav-saved-detail .recipe-tip,.fav-saved-detail .health-note{margin:0.5rem 0;font-size:0.75rem;padding:0.6rem 0.8rem}
     .plan-detail-label{font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--stone);margin-top:0.7rem;margin-bottom:0.3rem}
 
     .plan-day-empty{padding:0.6rem;text-align:center;color:var(--sand);font-size:0.78rem;background:white;border-radius:var(--radius-sm);border:1px dashed var(--sand);cursor:pointer;transition:all 0.2s}
@@ -267,6 +274,8 @@
     .fav-saved-actions{display:flex;gap:0.3rem;align-items:center;flex-shrink:0;margin-left:0.5rem}
     .fav-saved-detail{display:none;padding:0 1rem 1rem;border-top:1px solid var(--cream)}
     .fav-saved-detail.open{display:block}
+    .fav-recipe .ingredient-amount,.fav-saved-item.fav-recipe .ingredient-amount{color:var(--olive)}
+    .fav-recipe .steps-list li::before,.fav-saved-item.fav-recipe .steps-list li::before{background:var(--olive)}
     .fav-empty{text-align:center;padding:3rem 1.5rem}
     .fav-empty .emoji{font-size:2.5rem;margin-bottom:0.7rem}
     .fav-empty p{color:var(--stone);font-size:0.9rem;margin-bottom:0.3rem}
@@ -274,6 +283,15 @@
     .fav-ki-badge{display:inline-block;background:var(--terra);color:white;font-size:0.6rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:50px;vertical-align:middle;margin-left:0.3rem}
     .fav-cuisine-tag{margin-right:0.3rem}
     .fav-zutaten,.fav-zubereitung{font-size:0.82rem;line-height:1.6;color:var(--charcoal);padding:0.3rem 0}
+
+    /* Recipe preview/toggle for Screen 1 */
+    .recipe-preview{position:relative;cursor:pointer}
+    .recipe-preview .recipe-body{max-height:180px;overflow:hidden;transition:max-height 0.4s ease}
+    .recipe-preview .recipe-body.expanded{max-height:none}
+    .recipe-preview .preview-fade{position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(transparent,white);pointer-events:none;transition:opacity 0.3s}
+    .recipe-preview .preview-fade.hidden{opacity:0;height:0}
+    .recipe-toggle-btn{display:block;width:100%;padding:0.7rem;background:var(--cream);border:none;border-radius:0 0 var(--radius) var(--radius);font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;color:var(--stone);cursor:pointer;transition:all 0.2s}
+    .recipe-toggle-btn:hover{background:var(--sand)}
     .heart-toggles{display:flex;gap:0.25rem;margin-right:0.4rem}
     .heart-toggle{width:32px;height:32px;border:none;border-radius:50%;background:var(--cream);cursor:pointer;font-size:0.9rem;opacity:0.35;transition:all 0.2s;display:flex;align-items:center;justify-content:center;padding:0}
     .heart-toggle.active{opacity:1;background:white;box-shadow:0 1px 4px rgba(0,0,0,0.1);transform:scale(1.1)}
@@ -583,14 +601,14 @@
       const heartDisplay = (loliHearted || lukiHearted) ? 
         `${loliHearted?'🍭':''}${lukiHearted?'🦖':''}` : '';
 
-      let h=`<div class="fav-saved-item" style="${borderColor}"><div class="fav-saved-header" ${hasDetail?`onclick="toggleFavDetail('${detailId}')"`:''}><div class="fav-saved-info"><div class="fav-saved-title">${cuisineTag}${r.title} ${sourceLabel}</div>${r.subtitle?`<div class="fav-saved-sub">${r.subtitle}</div>`:''}${r.prepTime?`<div class="fav-saved-sub">⏱ ${r.prepTime} Min ${heartDisplay?'· '+heartDisplay:''}</div>`:`${heartDisplay?`<div class="fav-saved-sub">${heartDisplay}</div>`:''}`}</div><div class="fav-saved-actions"><div class="heart-toggles" onclick="event.stopPropagation()"><button class="heart-toggle ${loliHearted?'active':''}" onclick="toggleHeart('${r.id}','Lola',this)" title="Loli herzt">🍭</button><button class="heart-toggle ${lukiHearted?'active':''}" onclick="toggleHeart('${r.id}','Luki',this)" title="Luki herzt">🦖</button></div>${hasDetail?`<button class="plan-recipe-toggle" data-toggle="${detailId}" onclick="event.stopPropagation();toggleFavDetail('${detailId}')">▼</button>`:''}</div></div>`;
+      let h=`<div class="fav-saved-item ${isKI?'':'fav-recipe'}" style="${borderColor}"><div class="fav-saved-header" ${hasDetail?`onclick="toggleFavDetail('${detailId}')"`:''}><div class="fav-saved-info"><div class="fav-saved-title">${cuisineTag}${r.title} ${sourceLabel}</div>${r.subtitle?`<div class="fav-saved-sub">${r.subtitle}</div>`:''}${r.prepTime?`<div class="fav-saved-sub">⏱ ${r.prepTime} Min ${heartDisplay?'· '+heartDisplay:''}</div>`:`${heartDisplay?`<div class="fav-saved-sub">${heartDisplay}</div>`:''}`}</div><div class="fav-saved-actions"><div class="heart-toggles" onclick="event.stopPropagation()"><button class="heart-toggle ${loliHearted?'active':''}" onclick="toggleHeart('${r.id}','Lola',this)" title="Loli herzt">🍭</button><button class="heart-toggle ${lukiHearted?'active':''}" onclick="toggleHeart('${r.id}','Luki',this)" title="Luki herzt">🦖</button></div>${hasDetail?`<button class="plan-recipe-toggle" data-toggle="${detailId}" onclick="event.stopPropagation();toggleFavDetail('${detailId}')">▼</button>`:''}</div></div>`;
       if(hasDetail){
         h+=`<div class="fav-saved-detail" id="${detailId}">`;
         if(hasZutaten){
-          h+=`<div class="plan-detail-label">Zutaten</div><div class="fav-zutaten">${r.zutaten.replace(/\n/g,'<br>')}</div>`;
+          h+=`<div class="recipe-section"><div class="recipe-section-title">Zutaten</div>${formatIngredients(r.zutaten)}</div>`;
         }
         if(hasZubereitung){
-          h+=`<div class="plan-detail-label">Zubereitung</div><div class="fav-zubereitung">${r.zubereitung.replace(/\n/g,'<br>')}</div>`;
+          h+=`<div class="recipe-section"><div class="recipe-section-title">Zubereitung</div>${formatSteps(r.zubereitung)}</div>`;
         }
         if(r.tipps)h+=`<div class="recipe-tip"><strong>💡</strong> ${r.tipps}</div>`;
         if(r.healthNote)h+=`<div class="health-note"><strong>🌿</strong> ${r.healthNote}</div>`;
@@ -838,10 +856,10 @@
             if(hasDetail){
               h+=`<div class="plan-recipe-detail" id="${detailId}">`;
               if(hasZutaten){
-                h+=`<div class="plan-detail-label">Zutaten</div><div class="fav-zutaten">${r.zutaten.replace(/\n/g,'<br>')}</div>`;
+                h+=`<div class="recipe-section"><div class="recipe-section-title">Zutaten</div>${formatIngredients(r.zutaten)}</div>`;
               }
               if(hasZubereitung){
-                h+=`<div class="plan-detail-label">Zubereitung</div><div class="fav-zubereitung">${r.zubereitung.replace(/\n/g,'<br>')}</div>`;
+                h+=`<div class="recipe-section"><div class="recipe-section-title">Zubereitung</div>${formatSteps(r.zubereitung)}</div>`;
               }
               if(r.tipps)h+=`<div class="recipe-tip"><strong>💡</strong> ${r.tipps}</div>`;
               if(r.link)h+=`<a class="link-btn" href="${r.link}" target="_blank" onclick="event.stopPropagation()">📖 Originalrezept</a>`;
@@ -1080,57 +1098,22 @@
       if(!r)return;
       state.currentRecipe={...r,source:r.source||'Favorit',profiles:Array.from(state.profiles)};
       const result=document.getElementById('result');
-      const hasZutaten=r.zutaten&&r.zutaten.trim().length>0;
-      const hasZubereitung=r.zubereitung&&r.zubereitung.trim().length>0;
       const both=state.profiles.has('lucas')&&state.profiles.has('lola');
-      const tags=(r.tags||[]).map(t=>`<span class="recipe-tag">${t}</span>`).join('');
       const loliH = (r.geherztVon||[]).includes('Lola');
       const lukiH = (r.geherztVon||[]).includes('Luki');
       const isKI = r.source==='KI-generiert';
       const cardClass = isKI ? '' : 'fav-recipe';
 
-      let h=`<div class="recipe-card ${cardClass}"><div class="recipe-header ${isKI?'':'fav-header'}"><h2>${r.title}</h2><div class="recipe-hearts"><button class="heart-btn-mini ${loliH?'active':''}" onclick="toggleHeart('${r.id}','Lola',this)" title="Loli herzt">🍭</button><button class="heart-btn-mini ${lukiH?'active':''}" onclick="toggleHeart('${r.id}','Luki',this)" title="Luki herzt">🦖</button></div>${r.subtitle?`<div class="subtitle">${r.subtitle}</div>`:''}<div class="recipe-meta">${r.prepTime?`<span>⏱ ${r.prepTime} Min</span>`:''}${r.servings?`<span>🍽 ${r.servings} Portionen</span>`:''}<span>${isKI?'✨ KI':'📚 Rezept'}</span></div></div>`;
-      if(tags)h+=`<div class="recipe-tags">${tags}</div>`;
+      let h=`<div class="recipe-card ${cardClass} recipe-preview"><div class="recipe-header ${isKI?'':'fav-header'}"><h2>${r.title}</h2><div class="recipe-hearts"><button class="heart-btn-mini ${loliH?'active':''}" onclick="toggleHeart('${r.id}','Lola',this)" title="Loli herzt">🍭</button><button class="heart-btn-mini ${lukiH?'active':''}" onclick="toggleHeart('${r.id}','Luki',this)" title="Luki herzt">🦖</button></div>${r.subtitle?`<div class="subtitle">${r.subtitle}</div>`:''}<div class="recipe-meta">${r.prepTime?`<span>⏱ ${r.prepTime} Min</span>`:''}${r.servings?`<span>🍽 ${r.servings} Portionen</span>`:''}<span>${isKI?'✨ KI':'📚 Rezept'}</span></div></div>`;
       if(r.tipps&&r.tipps.includes('🧀')&&both)h+=`<div class="compat-note">${r.tipps}</div>`;
-
-      // Zutaten — structured like AI recipe
-      if(hasZutaten){
-        h+=`<div class="recipe-section"><div class="recipe-section-title">Zutaten</div><ul class="ingredient-list">`;
-        r.zutaten.split(/\n|<br\s*\/?>/).filter(z=>z.trim()).forEach(z=>{
-          const match=z.trim().match(/^([\d½¼¾⅓⅔.,\/\-–]+\s*(?:g|kg|ml|l|EL|TL|Stück|Prise|Handvoll|Bund|Dose|Becher|Scheibe|Zehe|kleine?r?s?|mittler?e?s?|große?r?s?|grüne?r?s?)?)\s+(.+)$/i);
-          if(match){
-            h+=`<li><span class="ingredient-amount">${match[1]}</span><span>${match[2]}</span></li>`;
-          } else {
-            h+=`<li><span>${z.trim()}</span></li>`;
-          }
-        });
-        h+=`</ul></div>`;
-      }
-
-      // Zubereitung — structured with numbered steps
-      if(hasZubereitung){
-        h+=`<div class="recipe-section"><div class="recipe-section-title">Zubereitung</div><ol class="steps-list">`;
-        r.zubereitung.split(/\n|<br\s*\/?>/).filter(z=>z.trim()).forEach(z=>{
-          const cleaned=z.trim().replace(/^\d+[\.\)]\s*/,'');
-          if(cleaned)h+=`<li>${cleaned}</li>`;
-        });
-        h+=`</ol></div>`;
-      }
-
-      // Auto-fetch if no details
-      if(!hasZutaten&&!hasZubereitung&&r.link){
-        h+=`<div class="recipe-section" id="favFetchSection"><div class="loading"><span class="loading-spoon">🥄</span><p>Lade Rezeptdetails<span class="loading-dots"></span></p></div></div>`;
-      } else if(!hasZutaten&&!hasZubereitung){
-        h+=`<div class="recipe-section" style="text-align:center;padding:1.5rem"><p style="color:var(--stone);font-size:0.85rem">Keine Details vorhanden</p></div>`;
-      }
-
-      if(r.tipps&&!r.tipps.includes('🧀'))h+=`<div class="recipe-tip"><strong>💡 Tipp:</strong> ${r.tipps}</div>`;
-      if(r.healthNote)h+=`<div class="health-note"><strong>🌿 Gesundheitshinweis:</strong> ${r.healthNote}</div>`;
-      if(r.link)h+=`<a class="link-btn" href="${r.link}" target="_blank" onclick="event.stopPropagation()">📖 Originalrezept öffnen</a>`;
-      h+=`</div><button class="add-plan-btn" onclick="showDayPicker()">📅 Zum Wochenplan hinzufügen</button><button class="new-recipe-btn fav" onclick="showRandomFavorite()">🔄 Anderes Rezept</button><button class="back-btn" onclick="showAllFavorites()">📋 Alle Rezepte anzeigen</button>`;
+      h+=`<div class="recipe-body">${formatRecipeBody(r)}</div><div class="preview-fade"></div></div>`;
+      h+=`<button class="recipe-toggle-btn" onclick="toggleRecipePreview(this)">▼ Rezept anzeigen</button>`;
+      h+=`<button class="add-plan-btn" onclick="showDayPicker()">📅 Zum Wochenplan hinzufügen</button><button class="new-recipe-btn fav" onclick="showRandomFavorite()">🔄 Anderes Rezept</button><button class="back-btn" onclick="showAllFavorites()">📋 Alle Rezepte anzeigen</button>`;
       result.innerHTML=h;result.scrollIntoView({behavior:'smooth',block:'start'});
 
       // Auto-fetch details from link if missing
+      const hasZutaten=r.zutaten&&r.zutaten.trim().length>0;
+      const hasZubereitung=r.zubereitung&&r.zubereitung.trim().length>0;
       if(!hasZutaten&&!hasZubereitung&&r.link){
         fetchRecipeDetails(r);
       }
@@ -1144,15 +1127,13 @@
         const data=await res.json();
         if(!res.ok||!data.success)throw new Error(data.error||'Fetch fehlgeschlagen');
         let h='';
-        if(data.zutaten){h+=`<div class="recipe-section-title">Zutaten</div><div class="fav-zutaten">${data.zutaten.replace(/\n/g,'<br>')}</div>`}
-        if(data.zubereitung){h+=`<div class="recipe-section-title">Zubereitung</div><div class="fav-zubereitung">${data.zubereitung.replace(/\n/g,'<br>')}</div>`}
+        if(data.zutaten){h+=`<div class="recipe-section"><div class="recipe-section-title">Zutaten</div>${formatIngredients(data.zutaten)}</div>`}
+        if(data.zubereitung){h+=`<div class="recipe-section"><div class="recipe-section-title">Zubereitung</div>${formatSteps(data.zubereitung)}</div>`}
         if(data.tipps){h+=`<div class="recipe-tip"><strong>💡 Tipp:</strong> ${data.tipps}</div>`}
-        if(data.gesundheitshinweis){h+=`<div class="recipe-health"><strong>🌿 Gesundheitshinweis:</strong> ${data.gesundheitshinweis}</div>`}
+        if(data.gesundheitshinweis){h+=`<div class="health-note"><strong>🌿 Gesundheitshinweis:</strong> ${data.gesundheitshinweis}</div>`}
         if(h){
           section.innerHTML=h;
-          // Update Notion in background with fetched details
           fetch('/api/update-recipe-details',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recipeId:r.id,zutaten:data.zutaten||'',zubereitung:data.zubereitung||'',tipps:data.tipps||'',gesundheitshinweis:data.gesundheitshinweis||''})}).catch(()=>{});
-          // Update local cache
           const cached=notionFavorites.find(f=>f.id===r.id);
           if(cached){cached.zutaten=data.zutaten||'';cached.zubereitung=data.zubereitung||'';cached.tipps=data.tipps||'';cached.healthNote=data.gesundheitshinweis||'';localStorage.setItem('schipfie-notion-cache',JSON.stringify(notionFavorites))}
         } else {
@@ -1242,6 +1223,100 @@
     }
     function showToast(msg){const t=document.getElementById('saveToast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
 
+    // ── Shared recipe content formatter for consistent design across all screens ──
+    function formatIngredients(zutaten) {
+      if (!zutaten || !zutaten.trim()) return '';
+      let h = '<ul class="ingredient-list">';
+      zutaten.split(/\n|<br\s*\/?>/).filter(z => z.trim()).forEach(z => {
+        const match = z.trim().match(/^([\d½¼¾⅓⅔.,\/\-–]+\s*(?:g|kg|ml|l|EL|TL|Stück|Prise|Handvoll|Bund|Dose|Becher|Scheibe|Zehe|kleine?r?s?|mittler?e?s?|große?r?s?|grüne?r?s?)?)\s+(.+)$/i);
+        if (match) {
+          h += `<li><span class="ingredient-amount">${match[1]}</span><span>${match[2]}</span></li>`;
+        } else {
+          h += `<li><span>${z.trim()}</span></li>`;
+        }
+      });
+      return h + '</ul>';
+    }
+
+    function formatSteps(zubereitung) {
+      if (!zubereitung || !zubereitung.trim()) return '';
+      let h = '<ol class="steps-list">';
+      zubereitung.split(/\n|<br\s*\/?>/).filter(z => z.trim()).forEach(z => {
+        const cleaned = z.trim().replace(/^\d+[\.\)]\s*/, '');
+        if (cleaned) h += `<li>${cleaned}</li>`;
+      });
+      return h + '</ol>';
+    }
+
+    function formatRecipeBody(r, opts = {}) {
+      const isKI = r.source === 'KI-generiert';
+      const cardClass = isKI ? '' : 'fav-recipe';
+      let h = '';
+
+      // Tags
+      const tags = (r.tags || []).map(t => `<span class="recipe-tag">${t}</span>`).join('');
+      if (tags) h += `<div class="recipe-tags">${tags}</div>`;
+
+      // Nutrition (AI recipes)
+      if (r.nutrition) {
+        h += `<div class="recipe-nutrition"><div class="nutrition-item"><div class="nutrition-value">${r.nutrition.calories || '–'}</div><div class="nutrition-label">kcal</div></div><div class="nutrition-item"><div class="nutrition-value">${r.nutrition.protein || '–'}</div><div class="nutrition-label">Eiweiß</div></div><div class="nutrition-item"><div class="nutrition-value">${r.nutrition.fiber || '–'}</div><div class="nutrition-label">Ballaststoffe</div></div></div>`;
+      }
+
+      // Zutaten
+      const hasZutaten = (r.zutaten && r.zutaten.trim()) || (r.ingredients && r.ingredients.length);
+      if (hasZutaten) {
+        h += `<div class="recipe-section"><div class="recipe-section-title">Zutaten</div>`;
+        if (r.ingredients) {
+          // AI recipe structured format
+          h += '<ul class="ingredient-list">' + r.ingredients.map(i => `<li><span class="ingredient-amount">${i.amount} ${i.unit || ''}</span><span>${i.name}</span></li>`).join('') + '</ul>';
+        } else {
+          h += formatIngredients(r.zutaten);
+        }
+        h += '</div>';
+      }
+
+      // Zubereitung
+      const hasZubereitung = (r.zubereitung && r.zubereitung.trim()) || (r.steps && r.steps.length);
+      if (hasZubereitung) {
+        h += `<div class="recipe-section"><div class="recipe-section-title">Zubereitung</div>`;
+        if (r.steps) {
+          h += '<ol class="steps-list">' + r.steps.map(s => `<li>${s}</li>`).join('') + '</ol>';
+        } else {
+          h += formatSteps(r.zubereitung);
+        }
+        h += '</div>';
+      }
+
+      // Loading state for auto-fetch
+      if (!hasZutaten && !hasZubereitung && r.link) {
+        h += `<div class="recipe-section" id="favFetchSection"><div class="loading"><span class="loading-spoon">🥄</span><p>Lade Rezeptdetails<span class="loading-dots"></span></p></div></div>`;
+      } else if (!hasZutaten && !hasZubereitung && !r.ingredients && !r.steps) {
+        h += `<div class="recipe-section" style="text-align:center;padding:1.5rem"><p style="color:var(--stone);font-size:0.85rem">Keine Details vorhanden</p></div>`;
+      }
+
+      // Tipps
+      const tipps = r.tipps || r.tips;
+      if (tipps) h += `<div class="recipe-tip"><strong>💡 Tipp:</strong> ${tipps}</div>`;
+
+      // Health note
+      const health = r.healthNote || r.gesundheitshinweis;
+      if (health) h += `<div class="health-note"><strong>🌿 Gesundheitshinweis:</strong> ${health}</div>`;
+
+      // Original link
+      if (r.link) h += `<a class="link-btn" href="${r.link}" target="_blank" onclick="event.stopPropagation()">📖 Originalrezept öffnen</a>`;
+
+      return h;
+    }
+
+    // Toggle recipe preview
+    function toggleRecipePreview(btn) {
+      const body = btn.previousElementSibling.querySelector('.recipe-body');
+      const fade = btn.previousElementSibling.querySelector('.preview-fade');
+      const expanded = body.classList.toggle('expanded');
+      if (fade) fade.classList.toggle('hidden', expanded);
+      btn.textContent = expanded ? '▲ Einklappen' : '▼ Rezept anzeigen';
+    }
+
     async function generateRecipe(){
       aiRecipeSavedId = null;
       const btn=document.getElementById('generateBtn');const result=document.getElementById('result');
@@ -1254,18 +1329,13 @@
 
     function renderAIRecipe(r){
       const result=document.getElementById('result');
-      const tags=(r.tags||[]).map(t=>`<span class="recipe-tag">${t}</span>`).join('');
-      const ingr=(r.ingredients||[]).map(i=>`<li><span class="ingredient-amount">${i.amount} ${i.unit||''}</span><span>${i.name}</span></li>`).join('');
-      const steps=(r.steps||[]).map(s=>`<li>${s}</li>`).join('');
       result.innerHTML=`
-        <div class="recipe-card"><div class="recipe-header"><h2>${r.title||'Rezept'}</h2><div class="recipe-hearts"><button class="heart-btn-mini" id="aiHeartLoli" onclick="saveAIAndHeart('Lola',this)" title="Loli herzt">🍭</button><button class="heart-btn-mini" id="aiHeartLuki" onclick="saveAIAndHeart('Luki',this)" title="Luki herzt">🦖</button></div>${r.subtitle?`<div class="subtitle">${r.subtitle}</div>`:''}<div class="recipe-meta"><span>⏱ ${r.prepTime||'30'} Min</span><span>🍽 ${r.servings||'2'} Portionen</span><span>✨ KI</span></div></div>
-          ${tags?`<div class="recipe-tags">${tags}</div>`:''}
-          ${r.nutrition?`<div class="recipe-nutrition"><div class="nutrition-item"><div class="nutrition-value">${r.nutrition.calories||'–'}</div><div class="nutrition-label">kcal</div></div><div class="nutrition-item"><div class="nutrition-value">${r.nutrition.protein||'–'}</div><div class="nutrition-label">Eiweiß</div></div><div class="nutrition-item"><div class="nutrition-value">${r.nutrition.fiber||'–'}</div><div class="nutrition-label">Ballaststoffe</div></div></div>`:''}
-          <div class="recipe-section"><div class="recipe-section-title">Zutaten</div><ul class="ingredient-list">${ingr}</ul></div>
-          <div class="recipe-section"><div class="recipe-section-title">Zubereitung</div><ol class="steps-list">${steps}</ol></div>
-          ${r.tips?`<div class="recipe-tip"><strong>💡 Tipp:</strong> ${r.tips}</div>`:''}
-          ${r.healthNote?`<div class="health-note"><strong>🌿 Gesundheitshinweis:</strong> ${r.healthNote}</div>`:''}
+        <div class="recipe-card recipe-preview">
+          <div class="recipe-header"><h2>${r.title||'Rezept'}</h2><div class="recipe-hearts"><button class="heart-btn-mini" id="aiHeartLoli" onclick="saveAIAndHeart('Lola',this)" title="Loli herzt">🍭</button><button class="heart-btn-mini" id="aiHeartLuki" onclick="saveAIAndHeart('Luki',this)" title="Luki herzt">🦖</button></div>${r.subtitle?`<div class="subtitle">${r.subtitle}</div>`:''}<div class="recipe-meta"><span>⏱ ${r.prepTime||'30'} Min</span><span>🍽 ${r.servings||'2'} Portionen</span><span>✨ KI</span></div></div>
+          <div class="recipe-body">${formatRecipeBody(r)}</div>
+          <div class="preview-fade"></div>
         </div>
+        <button class="recipe-toggle-btn" onclick="toggleRecipePreview(this)">▼ Rezept anzeigen</button>
         <button class="add-plan-btn" onclick="showDayPicker()">📅 Zum Wochenplan hinzufügen</button>
         <button class="new-recipe-btn" onclick="generateRecipe()">🔄 Neues Rezept</button>`;
       result.scrollIntoView({behavior:'smooth',block:'start'});
