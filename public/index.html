@@ -1112,36 +1112,55 @@
       h+=`<button class="add-plan-btn" onclick="showDayPicker()">📅 Zum Wochenplan hinzufügen</button><button class="new-recipe-btn fav" onclick="showRandomFavorite()">🔄 Anderes Rezept</button><button class="back-btn" onclick="showAllFavorites()">📋 Alle Rezepte anzeigen</button>`;
       result.innerHTML=h;result.scrollIntoView({behavior:'smooth',block:'start'});
 
-      // Auto-fetch details from link if missing
+      // Auto-fetch details from link if zutaten or zubereitung missing
       const hasZutaten=r.zutaten&&r.zutaten.trim().length>0;
       const hasZubereitung=r.zubereitung&&r.zubereitung.trim().length>0;
-      if(!hasZutaten&&!hasZubereitung&&r.link){
+      if((!hasZutaten||!hasZubereitung)&&r.link){
         fetchRecipeDetails(r);
       }
     }
 
     async function fetchRecipeDetails(r){
       const section=document.getElementById('favFetchSection');
-      if(!section)return;
+      // Even without loading section, update missing fields in background
+      const hasZutaten=r.zutaten&&r.zutaten.trim().length>0;
+      const hasZubereitung=r.zubereitung&&r.zubereitung.trim().length>0;
       try{
         const res=await fetch('/api/import-recipe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:r.link,fetchOnly:true})});
         const data=await res.json();
         if(!res.ok||!data.success)throw new Error(data.error||'Fetch fehlgeschlagen');
-        let h='';
-        if(data.zutaten){h+=`<div class="recipe-section"><div class="recipe-section-title">Zutaten</div>${formatIngredients(data.zutaten)}</div>`}
-        if(data.zubereitung){h+=`<div class="recipe-section"><div class="recipe-section-title">Zubereitung</div>${formatSteps(data.zubereitung)}</div>`}
-        if(data.tipps){h+=`<div class="recipe-tip"><strong>💡 Tipp:</strong> ${data.tipps}</div>`}
-        if(data.gesundheitshinweis){h+=`<div class="health-note"><strong>🌿 Gesundheitshinweis:</strong> ${data.gesundheitshinweis}</div>`}
-        if(h){
-          section.innerHTML=h;
-          fetch('/api/update-recipe-details',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recipeId:r.id,zutaten:data.zutaten||'',zubereitung:data.zubereitung||'',tipps:data.tipps||'',gesundheitshinweis:data.gesundheitshinweis||''})}).catch(()=>{});
-          const cached=notionFavorites.find(f=>f.id===r.id);
-          if(cached){cached.zutaten=data.zutaten||'';cached.zubereitung=data.zubereitung||'';cached.tipps=data.tipps||'';cached.healthNote=data.gesundheitshinweis||'';localStorage.setItem('schipfie-notion-cache',JSON.stringify(notionFavorites))}
-        } else {
-          section.innerHTML='<p style="color:var(--stone);font-size:0.85rem;text-align:center">Keine Details gefunden</p>';
+        
+        // Only fill in what's missing
+        const updates={};
+        if(!hasZutaten&&data.zutaten){updates.zutaten=data.zutaten}
+        if(!hasZubereitung&&data.zubereitung){updates.zubereitung=data.zubereitung}
+        if(!r.tipps&&data.tipps){updates.tipps=data.tipps}
+        if(!r.healthNote&&data.gesundheitshinweis){updates.gesundheitshinweis=data.gesundheitshinweis}
+
+        if(Object.keys(updates).length===0){
+          if(section)section.innerHTML='';
+          return;
+        }
+
+        // Re-render the recipe body with merged data
+        const merged={...r,...updates,zutaten:updates.zutaten||r.zutaten,zubereitung:updates.zubereitung||r.zubereitung,tipps:updates.tipps||r.tipps,healthNote:updates.gesundheitshinweis||r.healthNote};
+        const body=document.querySelector('.recipe-body');
+        if(body)body.innerHTML=formatRecipeBody(merged);
+        if(section)section.remove();
+
+        // Save to Notion in background
+        fetch('/api/update-recipe-details',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({recipeId:r.id,zutaten:updates.zutaten||'',zubereitung:updates.zubereitung||'',tipps:updates.tipps||'',gesundheitshinweis:updates.gesundheitshinweis||''})}).catch(()=>{});
+        // Update local cache
+        const cached=notionFavorites.find(f=>f.id===r.id);
+        if(cached){
+          if(updates.zutaten)cached.zutaten=updates.zutaten;
+          if(updates.zubereitung)cached.zubereitung=updates.zubereitung;
+          if(updates.tipps)cached.tipps=updates.tipps;
+          if(updates.gesundheitshinweis)cached.healthNote=updates.gesundheitshinweis;
+          localStorage.setItem('schipfie-notion-cache',JSON.stringify(notionFavorites));
         }
       }catch(e){
-        section.innerHTML=`<p style="color:var(--stone);font-size:0.85rem;text-align:center">Details konnten nicht geladen werden</p>`;
+        if(section)section.innerHTML=`<p style="color:var(--stone);font-size:0.85rem;text-align:center">Details konnten nicht geladen werden</p>`;
       }
     }
 
