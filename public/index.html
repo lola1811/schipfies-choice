@@ -329,29 +329,29 @@
     .hidden{display:none !important}
     @media(min-width:520px){.container{padding:2rem}.header{padding:2.5rem 2rem 1.5rem}}
     /* Profile Overlay */
-    .profile-overlay{position:fixed;inset:0;background:var(--warm);z-index:200;transform:translateY(100%);transition:transform 0.35s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
+    .profile-overlay{position:fixed;inset:0;background:var(--warm);z-index:200;transform:translateY(100%);transition:transform 0.35s ease;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
     .profile-overlay.open{transform:translateY(0)}
-    .profile-overlay-header{text-align:center;padding:1.5rem;position:sticky;top:0;background:var(--warm);z-index:1;border-bottom:1px solid var(--sand)}
-    .profile-close-btn{position:absolute;top:1rem;right:1rem;border:none;background:none;font-size:1.3rem;cursor:pointer;color:var(--stone);padding:0.3rem}
-    .profile-avatar-switch{display:flex;gap:0.5rem;justify-content:center;margin-bottom:0.8rem}
-    .profile-avatar-opt{padding:0.5rem 1.2rem;border-radius:50px;border:2px solid var(--sand);background:white;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s}
+    .profile-overlay-header{text-align:center;padding:1rem 1rem 1rem;position:sticky;top:0;background:var(--warm);z-index:1;border-bottom:1px solid var(--sand);padding-top:max(1rem, calc(env(safe-area-inset-top) + 0.5rem))}
+    .profile-close-btn{position:absolute;top:max(0.8rem, calc(env(safe-area-inset-top) + 0.3rem));left:0.8rem;border:1.5px solid var(--sand);background:white;font-size:1rem;cursor:pointer;color:var(--stone);width:2.5rem;height:2.5rem;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);-webkit-tap-highlight-color:transparent}
+    .profile-avatar-switch{display:flex;gap:0.5rem;justify-content:center;margin-bottom:0.6rem}
+    .profile-avatar-opt{padding:0.6rem 1.4rem;border-radius:50px;border:2px solid var(--sand);background:white;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all 0.2s;min-height:44px}
     .profile-avatar-opt.active{border-color:var(--terra);background:linear-gradient(135deg,rgba(196,94,58,0.1),rgba(196,94,58,0.03))}
-    .profile-overlay-header h2{font-family:'DM Serif Display',serif;font-size:1.2rem;font-weight:400}
-    .profile-static{font-family:'DM Sans',sans-serif;font-size:0.75rem;color:var(--stone);font-weight:400;margin-top:0.3rem;letter-spacing:0.02em}
-    .profile-overlay-body{padding:1rem 1.5rem 6rem;max-width:480px;margin:0 auto}
-    .profile-field{margin-bottom:1.5rem}
-    .profile-label{font-size:0.85rem;font-weight:600;display:block;margin-bottom:0.2rem}
-    .profile-hint{font-size:0.7rem;color:var(--stone);margin-bottom:0.5rem}
-    .tag-container{display:flex;flex-wrap:wrap;gap:0.35rem;min-height:1.8rem;margin-bottom:0.4rem}
-    .tag-pill{display:inline-flex;align-items:center;gap:0.3rem;padding:0.3rem 0.7rem;background:white;border:1.5px solid var(--sand);border-radius:50px;font-size:0.78rem;cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif}
-    .tag-pill:hover{border-color:var(--terra-light);background:rgba(196,94,58,0.05)}
-    .tag-pill .tag-x{font-size:0.65rem;color:var(--stone);font-weight:700}
-    .tag-input-row{display:flex;gap:0.4rem}
-    .tag-input{flex:1;padding:0.5rem 0.8rem;border:1.5px solid var(--sand);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:0.82rem;background:white;transition:border-color 0.2s}
+    .profile-overlay-header h2{font-family:'DM Serif Display',serif;font-size:1.15rem;font-weight:400}
+    .profile-static{font-family:'DM Sans',sans-serif;font-size:0.75rem;color:var(--stone);font-weight:400;margin-top:0.25rem;letter-spacing:0.02em}
+    .profile-overlay-body{padding:0.8rem 1rem 0;max-width:480px;margin:0 auto;padding-bottom:calc(5rem + env(safe-area-inset-bottom, 0px))}
+    .profile-field{margin-bottom:1.2rem}
+    .profile-label{font-size:0.82rem;font-weight:600;display:block;margin-bottom:0.15rem}
+    .profile-hint{font-size:0.68rem;color:var(--stone);margin-bottom:0.4rem}
+    .tag-container{display:flex;flex-wrap:wrap;gap:0.3rem;min-height:1.6rem;margin-bottom:0.35rem}
+    .tag-pill{display:inline-flex;align-items:center;gap:0.25rem;padding:0.35rem 0.65rem;background:white;border:1.5px solid var(--sand);border-radius:50px;font-size:0.75rem;cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:transparent}
+    .tag-pill:hover,.tag-pill:active{border-color:var(--terra-light);background:rgba(196,94,58,0.05)}
+    .tag-pill .tag-x{font-size:0.6rem;color:var(--stone);font-weight:700}
+    .tag-input-row{display:flex;gap:0.35rem}
+    .tag-input{flex:1;padding:0.55rem 0.7rem;border:1.5px solid var(--sand);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:16px;background:white;transition:border-color 0.2s;-webkit-appearance:none}
     .tag-input:focus{outline:none;border-color:var(--terra)}
-    .tag-add-btn{width:2.2rem;height:2.2rem;border-radius:var(--radius-sm);border:1.5px solid var(--terra);background:white;color:var(--terra);font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center}
-    .tag-add-btn:hover{background:var(--terra);color:white}
-    .profile-save-btn{width:100%;padding:0.85rem;background:linear-gradient(135deg,var(--terra),var(--amber));color:white;border:none;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:600;cursor:pointer;margin-top:1rem;transition:opacity 0.2s}
+    .tag-add-btn{width:44px;height:44px;border-radius:var(--radius-sm);border:1.5px solid var(--terra);background:white;color:var(--terra);font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+    .tag-add-btn:hover,.tag-add-btn:active{background:var(--terra);color:white}
+    .profile-save-btn{width:100%;padding:0.9rem;background:linear-gradient(135deg,var(--terra),var(--amber));color:white;border:none;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:600;cursor:pointer;margin-top:0.8rem;transition:opacity 0.2s;min-height:48px;-webkit-tap-highlight-color:transparent}
     .profile-save-btn:disabled{opacity:0.5;cursor:not-allowed}
     .profile-save-btn.saved{background:var(--olive)}
   </style>
@@ -472,7 +472,7 @@
   <!-- ═══ PROFILE OVERLAY ═══ -->
   <div class="profile-overlay" id="profileOverlay">
     <div class="profile-overlay-header">
-      <button class="profile-close-btn" onclick="closeProfileOverlay()">✕</button>
+      <button class="profile-close-btn" onclick="closeProfileOverlay()">← </button>
       <div class="profile-avatar-switch">
         <button class="profile-avatar-opt" data-who="Luki" onclick="switchProfileView('Luki')">🦖 Luki</button>
         <button class="profile-avatar-opt" data-who="Lola" onclick="switchProfileView('Lola')">🍭 Lola</button>
