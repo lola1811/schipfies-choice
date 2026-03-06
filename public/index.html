@@ -1509,18 +1509,19 @@
 
     function renderTags(field) {
       const container = document.getElementById('tags-' + field);
-      const data = profileData[currentProfileUser] || {};
-      const tags = tagsToArray(data[field]);
+      if (!container) return;
+      if (!profileData[currentProfileUser]) profileData[currentProfileUser] = {};
+      const tags = tagsToArray(profileData[currentProfileUser][field]);
       container.innerHTML = tags.map((t, i) =>
         `<span class="tag-pill" onclick="removeTag('${field}',${i})">${t} <span class="tag-x">✕</span></span>`
       ).join('');
     }
 
     function removeTag(field, idx) {
-      const data = profileData[currentProfileUser] || {};
-      const tags = tagsToArray(data[field]);
+      if (!profileData[currentProfileUser]) return;
+      const tags = tagsToArray(profileData[currentProfileUser][field]);
       tags.splice(idx, 1);
-      data[field] = arrayToTags(tags);
+      profileData[currentProfileUser][field] = arrayToTags(tags);
       renderTags(field);
     }
 
@@ -1528,13 +1529,12 @@
       const input = document.getElementById('input-' + field);
       const val = input.value.trim();
       if (!val) return;
-      const data = profileData[currentProfileUser] || {};
-      const tags = tagsToArray(data[field]);
-      // Support comma-separated input
+      if (!profileData[currentProfileUser]) profileData[currentProfileUser] = {};
+      const tags = tagsToArray(profileData[currentProfileUser][field]);
       val.split(',').map(s => s.trim()).filter(Boolean).forEach(t => {
         if (!tags.includes(t)) tags.push(t);
       });
-      data[field] = arrayToTags(tags);
+      profileData[currentProfileUser][field] = arrayToTags(tags);
       input.value = '';
       renderTags(field);
     }
@@ -1547,12 +1547,12 @@
     }
 
     async function loadProfile(name) {
-      // Try cache first
-      const cached = localStorage.getItem('schipfie-profile-' + name);
-      if (cached) {
-        profileData[name] = JSON.parse(cached);
-      }
-      // Fetch from Notion
+      // Try cache first for instant display
+      try {
+        const cached = localStorage.getItem('schipfie-profile-' + name);
+        if (cached) profileData[name] = JSON.parse(cached);
+      } catch(e) {}
+      // Fetch fresh from Notion
       try {
         const res = await fetch('/api/profile?name=' + name);
         if (res.ok) {
@@ -1560,8 +1560,10 @@
           profileData[name] = {};
           PROFILE_FIELDS.forEach(f => { profileData[name][f] = data[f] || ''; });
           localStorage.setItem('schipfie-profile-' + name, JSON.stringify(profileData[name]));
+        } else {
+          console.warn('Profile API returned', res.status, 'for', name);
         }
-      } catch (e) { console.warn('Profile load failed:', e); }
+      } catch (e) { console.warn('Profile load failed for', name, ':', e); }
     }
 
     async function openProfileOverlay() {

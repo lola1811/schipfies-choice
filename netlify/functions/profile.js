@@ -4,10 +4,10 @@
 // Lola ID: 31b0c858-3747-81a1-a093-dd126fae8f90
 
 const NOTION_TOKEN = process.env.NOTION_TOKEN;
-const PROFILE_DB = "a07911f3a6b946b28551b1d3480ef61d";
+const PROFILE_DB = "a07911f3-a6b9-46b2-8551-b1d3480ef61d";
 const PROFILE_IDS = {
-  Luki: "31b0c858374781f0a4a5f68b3fa1da3d",
-  Lola: "31b0c858374781a1a093dd126fae8f90"
+  Luki: "31b0c858-3747-81f0-a4a5-f68b3fa1da3d",
+  Lola: "31b0c858-3747-81a1-a093-dd126fae8f90"
 };
 const FIELDS = ["Health", "Isst Nicht", "Liebt", "Braucht", "Mehr Von"];
 

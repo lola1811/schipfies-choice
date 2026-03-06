@@ -1,7 +1,7 @@
 const NOTION_TOKEN = process.env.NOTION_TOKEN;
 const PROFILE_IDS = {
-  Luki: "31b0c858374781f0a4a5f68b3fa1da3d",
-  Lola: "31b0c858374781a1a093dd126fae8f90"
+  Luki: "31b0c858-3747-81f0-a4a5-f68b3fa1da3d",
+  Lola: "31b0c858-3747-81a1-a093-dd126fae8f90"
 };
 
 async function fetchProfile(name) {
