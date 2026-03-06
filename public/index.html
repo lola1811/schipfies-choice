@@ -622,7 +622,7 @@
       const kiCount = notionFavorites.filter(f => f.source === 'KI-generiert').length;
       const manualCount = notionFavorites.length - favCount - kiCount;
       document.getElementById('favScreenCount').textContent = notionFavorites.length ? 
-        `${notionFavorites.length} Rezept${notionFavorites.length>1?'e':''} (${favCount} Favoriten${kiCount?' · '+kiCount+' KI':''}${manualCount?' · '+manualCount+' Manuell':''})` : '';
+        `${notionFavorites.length} Rezept${notionFavorites.length>1?'e':''} (${favCount} Eigene${kiCount?' · '+kiCount+' KI':''}${manualCount?' · '+manualCount+' Manuell':''})` : '';
 
       if(!favoritesLoaded){
         el.innerHTML='<div class="fav-empty"><div class="emoji">⏳</div><p>Lade Favoriten...</p></div>';
