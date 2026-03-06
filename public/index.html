@@ -336,6 +336,7 @@
     .profile-avatar-opt{padding:0.5rem 1.2rem;border-radius:50px;border:2px solid var(--sand);background:white;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s}
     .profile-avatar-opt.active{border-color:var(--terra);background:linear-gradient(135deg,rgba(196,94,58,0.1),rgba(196,94,58,0.03))}
     .profile-overlay-header h2{font-family:'DM Serif Display',serif;font-size:1.2rem;font-weight:400}
+    .profile-static{font-family:'DM Sans',sans-serif;font-size:0.75rem;color:var(--stone);font-weight:400;margin-top:0.3rem;letter-spacing:0.02em}
     .profile-overlay-body{padding:1rem 1.5rem 6rem;max-width:480px;margin:0 auto}
     .profile-field{margin-bottom:1.5rem}
     .profile-label{font-size:0.85rem;font-weight:600;display:block;margin-bottom:0.2rem}
@@ -1495,7 +1496,40 @@
     // ── Profile Management ──
     const PROFILE_FIELDS = ['Health', 'Isst Nicht', 'Liebt', 'Braucht', 'Mehr Von'];
     let currentProfileUser = localStorage.getItem('schipfie-current-user') || 'Luki';
-    let profileData = {}; // { Luki: { Health: "...", ... }, Lola: { ... } }
+
+    // Static info (not editable)
+    const PROFILE_STATIC = {
+      Luki: { emoji: '🦖', gender: 'männlich', dob: '16.08.1991', age: 34, height: '1,93m' },
+      Lola: { emoji: '🍭', gender: 'weiblich', dob: '18.11.1992', age: 33, height: '1,63m' }
+    };
+
+    // Default profile data (used as fallback if Notion not reachable)
+    const PROFILE_DEFAULTS = {
+      Luki: {
+        'Health': 'Erhöhter Cholesterin, sehr aktiv',
+        'Isst Nicht': 'Käse (jede Art), Oliven, Kapern, Joghurt-Saucen, Mayonnaise, Innereien, Wurst, Schweinefleisch, Fast Food, Hausmannskost (deftig), hochverarbeitete Lebensmittel, Pilze (wenn mit Lola)',
+        'Liebt': 'Gemüse (jede Art), Fisch (Lachs), Porridge, Quark, Spinat, Bolognese, Nudeln, Reis, Asiatisch, Ottolenghi-Style, Ausgefallenes, Mediterran, Sushi, Curry, Suppe, Gnocchi, Koriander',
+        'Braucht': 'Große Portionen, viel Eiweiß, cholesterinbewusst (wenig gesättigte Fette), folsäurereich, Omega-3-reich (Leinsamen, Walnüsse, Chiasamen, Lachs)',
+        'Mehr Von': ''
+      },
+      Lola: {
+        'Health': 'Schilddrüsenunterfunktion, Eisenmangel, niedriger Blutdruck, aktiv',
+        'Isst Nicht': 'Pilze, frittierte Lebensmittel, Fleisch, Fisch, Fast Food, hochverarbeitete Lebensmittel',
+        'Liebt': 'Frische Kräuter, Koriander, Auberginen, Nüsse, rote Linsen, Gemüse, Oliven, Feta, Halloumi, Mozzarella, Kürbiskernöl, Knödel, Spinat, Strudel, Pesto, Reis, indische Gewürze, Curry, Ratatouille, Ofengerichte, Radicchio, Körnerbrot, Hummus, Österreichische Küche',
+        'Braucht': 'Eisenreich (Hülsenfrüchte, Spinat, Kerne), jodhaltige Lebensmittel, Eiweiß, folsäurereich, Omega-3-reich (Leinsamen, Walnüsse, Chiasamen, Hanfsamen)',
+        'Mehr Von': ''
+      }
+    };
+
+    let profileData = { Luki: {...PROFILE_DEFAULTS.Luki}, Lola: {...PROFILE_DEFAULTS.Lola} };
+
+    // Load from cache immediately
+    ['Luki','Lola'].forEach(name => {
+      try {
+        const cached = localStorage.getItem('schipfie-profile-' + name);
+        if (cached) profileData[name] = JSON.parse(cached);
+      } catch(e) {}
+    });
 
     // Set avatar on load
     document.getElementById('avatarBtn').textContent = currentProfileUser === 'Lola' ? '🍭' : '🦖';
@@ -1547,23 +1581,21 @@
     }
 
     async function loadProfile(name) {
-      // Try cache first for instant display
-      try {
-        const cached = localStorage.getItem('schipfie-profile-' + name);
-        if (cached) profileData[name] = JSON.parse(cached);
-      } catch(e) {}
-      // Fetch fresh from Notion
+      // Fetch fresh from Notion (if reachable)
       try {
         const res = await fetch('/api/profile?name=' + name);
         if (res.ok) {
           const data = await res.json();
-          profileData[name] = {};
-          PROFILE_FIELDS.forEach(f => { profileData[name][f] = data[f] || ''; });
-          localStorage.setItem('schipfie-profile-' + name, JSON.stringify(profileData[name]));
-        } else {
-          console.warn('Profile API returned', res.status, 'for', name);
+          if (data && data.name) {
+            profileData[name] = {};
+            PROFILE_FIELDS.forEach(f => { profileData[name][f] = data[f] || ''; });
+            localStorage.setItem('schipfie-profile-' + name, JSON.stringify(profileData[name]));
+            return;
+          }
         }
-      } catch (e) { console.warn('Profile load failed for', name, ':', e); }
+        console.warn('Profile API returned', res.status, 'for', name, '— using fallback');
+      } catch (e) { console.warn('Profile fetch failed for', name, '— using fallback:', e.message); }
+      // Fallback: use cached or defaults (already loaded)
     }
 
     async function openProfileOverlay() {
@@ -1586,14 +1618,15 @@
     function switchProfileView(name) {
       currentProfileUser = name;
       localStorage.setItem('schipfie-current-user', name);
-      document.getElementById('avatarBtn').textContent = name === 'Lola' ? '🍭' : '🦖';
-      document.getElementById('profileTitle').textContent = name + '\'s Profil';
+      const s = PROFILE_STATIC[name];
+      document.getElementById('avatarBtn').textContent = s.emoji;
+      document.getElementById('profileTitle').innerHTML = `${name}'s Profil<div class="profile-static">${s.emoji} ${s.gender} · ${s.age} Jahre · ${s.height}</div>`;
       // Highlight active tab
       document.querySelectorAll('.profile-avatar-opt').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.who === name);
       });
       // Ensure data exists
-      if (!profileData[name]) profileData[name] = {};
+      if (!profileData[name]) profileData[name] = {...PROFILE_DEFAULTS[name]};
       // Render all fields
       PROFILE_FIELDS.forEach(f => renderTags(f));
       // Reset save button
