@@ -161,6 +161,8 @@
     .back-btn:hover{border-color:var(--stone);color:var(--charcoal)}
     .add-plan-btn{width:100%;padding:0.7rem;background:white;color:var(--amber);border:2px solid var(--amber);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:0.5rem}
     .add-plan-btn:hover{background:var(--amber);color:white}
+    .add-plan-btn-sm{display:block;width:100%;padding:0.55rem;margin-top:0.7rem;background:white;color:var(--amber);border:1.5px solid var(--amber);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.2s}
+    .add-plan-btn-sm:hover{background:var(--amber);color:white}
 
     .fav-list{display:flex;flex-direction:column;gap:0.6rem}
     .fav-item{background:white;border-radius:var(--radius-sm);padding:0.9rem 1rem;box-shadow:var(--shadow);cursor:pointer;transition:all 0.2s;border-left:3px solid var(--olive)}
@@ -504,6 +506,13 @@
       if(total>0){badge.style.display='inline-block';badge.textContent=total}else{badge.style.display='none'}
     }
 
+    function addFavToPlan(recipeId){
+      const r=notionFavorites.find(f=>f.id===recipeId);
+      if(!r){showToast('❌ Rezept nicht gefunden');return}
+      state.currentRecipe={...r,source:r.source||'Favorit',profiles:Array.from(state.profiles)};
+      showDayPicker();
+    }
+
     function toggleFavDetail(id){
       const el=document.getElementById(id);const btn=document.querySelector(`[data-toggle="${id}"]`);
       if(el){el.classList.toggle('open');if(btn)btn.classList.toggle('open')}
@@ -614,6 +623,7 @@
         if(r.tipps)h+=`<div class="recipe-tip"><strong>💡</strong> ${r.tipps}</div>`;
         if(r.healthNote)h+=`<div class="health-note"><strong>🌿</strong> ${r.healthNote}</div>`;
         if(r.link)h+=`<a class="link-btn" href="${r.link}" target="_blank" onclick="event.stopPropagation()">📖 Originalrezept</a>`;
+        h+=`<button class="add-plan-btn-sm" onclick="event.stopPropagation();addFavToPlan('${r.id}')">📅 Zum Wochenplan</button>`;
         h+=`</div>`;
       }
       h+=`</div>`;
@@ -1342,7 +1352,23 @@
       const btn=document.getElementById('generateBtn');const result=document.getElementById('result');
       btn.disabled=true;btn.textContent='Wird gekocht…';
       result.innerHTML=`<div class="loading"><span class="loading-spoon">🥄</span><p>Claude kocht etwas Feines<span class="loading-dots"></span></p></div>`;
-      try{const mealType=Array.from(state.mealTypes)[0]||'hauptgericht';const res=await fetch('/api/generate-recipe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({profiles:Array.from(state.profiles),filters:state.filters,cuisine:state.cuisine,mealType:mealType,maxMinutes:30,ingredient:state.ingredient||null})});if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.details||e.error||`HTTP ${res.status}`)}const recipe=await res.json();recipe.source='KI-generiert';recipe.profiles=Array.from(state.profiles);recipe.cuisine=state.cuisine;recipe.mealType=mealType;state.currentRecipe=recipe;renderAIRecipe(recipe)}
+      try{const mealType=Array.from(state.mealTypes)[0]||'hauptgericht';
+        // Track recent recipes for variation
+        const recentTitles=JSON.parse(localStorage.getItem('schipfie-recent-ai')||'[]');
+        // Rotate surprise through cuisine styles
+        let actualCuisine=state.cuisine;
+        if(actualCuisine==='surprise'){
+          const styles=['asiatisch','mediterran','orientalisch','oesterreichisch','comfort'];
+          const lastSurpriseIdx=parseInt(localStorage.getItem('schipfie-surprise-idx')||'-1');
+          const nextIdx=(lastSurpriseIdx+1)%styles.length;
+          actualCuisine=styles[nextIdx];
+          localStorage.setItem('schipfie-surprise-idx',String(nextIdx));
+        }
+        const res=await fetch('/api/generate-recipe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({profiles:Array.from(state.profiles),filters:state.filters,cuisine:actualCuisine,mealType:mealType,maxMinutes:30,ingredient:state.ingredient||null,recentRecipes:recentTitles})});if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.details||e.error||`HTTP ${res.status}`)}const recipe=await res.json();recipe.source='KI-generiert';recipe.profiles=Array.from(state.profiles);recipe.cuisine=state.cuisine;recipe.mealType=mealType;state.currentRecipe=recipe;
+        // Save to recent list (keep last 10)
+        recentTitles.unshift(recipe.title);
+        localStorage.setItem('schipfie-recent-ai',JSON.stringify(recentTitles.slice(0,10)));
+        renderAIRecipe(recipe)}
       catch(error){result.innerHTML=`<div class="error-card"><div class="emoji">😢</div><p>Da ist leider etwas schiefgegangen.</p><div class="error-detail">${error.message}</div><button class="new-recipe-btn" onclick="generateRecipe()">Nochmal versuchen</button></div>`}
       finally{btn.disabled=false;btn.textContent='Was kochen wir heute?'}
     }

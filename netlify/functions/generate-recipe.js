@@ -4,17 +4,17 @@ export default async (req) => {
   }
 
   try {
-    const { profiles, filters, cuisine, mealType, maxMinutes, ingredient } = await req.json();
+    const { profiles, filters, cuisine, mealType, maxMinutes, ingredient, recentRecipes } = await req.json();
 
     const profileDescriptions = {
-      lucas: `Lucas (34, männlich, 1.93m, sehr aktiv, erhöhter Cholesterin, braucht viel Eiweiß, aktiv in Familienplanung):
+      lucas: `Luki (34, männlich, 1.93m, sehr aktiv, erhöhter Cholesterin, braucht viel Eiweiß, aktiv in Familienplanung):
 ISST NICHT: jegliche Art von Käse, Oliven, Kapern, Joghurt-Saucen, Mayonnaise, Innereien, Wurst, Schweinefleisch, Fast Food, deftige Hausmannskost, hochverarbeitete Lebensmittel, Pilze (wenn zusammen mit Lola)
-LIEBT: jegliche Art von Gemüse, Fisch (Lachs), Porridge, Quark, Spinat, Bolognese, Nudeln, Reis, Asiatisch, Ottolenghi-Style, ausgefallene Gerichte, Mediterran, Sushi, Curry, Suppe, Gnocchi
+LIEBT: jegliche Art von Gemüse, Fisch (Lachs, aber nicht zu oft!), Porridge, Quark, Spinat, Bolognese, Nudeln, Reis, Asiatisch, Ottolenghi-Style, ausgefallene Gerichte, Mediterran, Sushi, Curry, Suppe, Gnocchi, Koriander
 BRAUCHT: Große Portionen, viel Eiweiß, cholesterinbewusst (wenig gesättigte Fette), folsäurereich, Omega-3-reich (Leinsamen, Walnüsse, Chiasamen, Lachs — am besten mit einer Fettquelle kombinieren für bessere Aufnahme)`,
 
       lola: `Lola (33, weiblich, 1.63m, aktiv, Schilddrüsenunterfunktion, Eisenmangel, niedriger Blutdruck, braucht Eiweiß, aktiv in Familienplanung):
 ISST NICHT: Pilze, frittierte Lebensmittel, Fleisch & Fisch, Fast Food, hochverarbeitete Lebensmittel
-LIEBT: frische Kräuter, Auberginen, Nüsse, rote Linsen, Gemüse, Oliven, Feta, Halloumi, Mozzarella, Kürbiskernöl, Knödel, Spinat, Strudel, Pesto, Reis, indische Gewürze, Curry, Ratatouille, Ofengerichte, Radicchio, Körnerbrot, Hummus, österreichische Küche (Knödel, Nockerl, Strudel, Palatschinken, Erdäpfelgerichte — gerne in gesunder Variante)
+LIEBT: frische Kräuter, Koriander, Auberginen, Nüsse, rote Linsen, Gemüse, Oliven, Feta, Halloumi, Mozzarella, Kürbiskernöl, Knödel, Spinat, Strudel, Pesto, Reis, indische Gewürze, Curry, Ratatouille, Ofengerichte, Radicchio, Körnerbrot, Hummus, österreichische Küche (Knödel, Nockerl, Strudel, Palatschinken, Erdäpfelgerichte — gerne in gesunder Variante)
 BRAUCHT: Eisenreich (Hülsenfrüchte, Spinat, Kerne), jodhaltige Lebensmittel, Eiweiß, folsäurereich, Omega-3-reich (Leinsamen, Walnüsse, Chiasamen, Hanfsamen — am besten mit einer Fettquelle kombinieren für bessere Aufnahme)`
     };
 
@@ -29,16 +29,16 @@ ${profileDescriptions.lola}
 
 WICHTIG - Schnittmenge bedeutet:
 - Vegetarisch (wegen Lola)
-- KEIN Käse, KEINE Oliven, KEINE Kapern (wegen Lucas)
+- KEIN Käse, KEINE Oliven, KEINE Kapern (wegen Luki)
 - KEINE Pilze (wegen Lola)
-- KEINE Joghurt-Saucen, Mayo (wegen Lucas)
+- KEINE Joghurt-Saucen, Mayo (wegen Luki)
 - Viel Eiweiß für beide
-- Eisenreich für Lola, cholesterinbewusst für Lucas
+- Eisenreich für Lola, cholesterinbewusst für Luki
 - Folsäurereich für beide (Familienplanung)
 - Omega-3-reich für beide (Leinsamen, Walnüsse, Chiasamen, Hanfsamen — mit gesundem Fett kombinieren für bessere Aufnahme, z.B. Olivenöl, Avocado, Nüsse)
-- Große Portionen (Lucas hat viel Hunger)`;
+- Große Portionen (Luki hat viel Hunger)`;
     } else if (activeProfiles.includes("lucas")) {
-      profileText = `Koche NUR für Lucas:\n${profileDescriptions.lucas}\nLucas darf auch Fisch essen wenn er allein isst.`;
+      profileText = `Koche NUR für Luki:\n${profileDescriptions.lucas}\nLuki darf auch Fisch essen wenn er allein isst.`;
     } else if (activeProfiles.includes("lola")) {
       profileText = `Koche NUR für Lola:\n${profileDescriptions.lola}\nLola liebt Käse (Feta, Halloumi, Mozzarella) und Oliven wenn sie allein isst.`;
     }
@@ -55,11 +55,11 @@ WICHTIG - Schnittmenge bedeutet:
     if (filters?.kohlenhydratarm) filterTexts.push("KOHLENHYDRATARM / LOW CARB (keine Nudeln, kein Reis, kein Brot, wenig Kartoffeln)");
 
     const cuisineMap = {
-      asiatisch: "Asiatische Küche (Thai, Japanisch, Vietnamesisch, Koreanisch, Indisch)",
-      mediterran: "Mediterrane Küche (Italienisch, Griechisch, Levantinisch)",
-      orientalisch: "Orientalische Küche (Nahöstlich, Nordafrikanisch, Persisch)",
-      oesterreichisch: "Österreichische Küche / Hausmannskost (aber gerne in einer gesunden, leichteren Variante — Knödel, Strudel, Eintöpfe, Aufläufe, Palatschinken, Nockerl, Gemüselaibchen, Erdäpfelgerichte)",
-      comfort: "Comfort Food (aber gesund und frisch, nicht deftig)",
+      asiatisch: "Asiatische Küche (Thai, Japanisch, Vietnamesisch, Koreanisch, Indonesisch, Chinesisch — wähle eine SPEZIFISCHE Subküche, nicht generisch 'asiatisch')",
+      mediterran: "Mediterrane Küche (Italienisch, Griechisch, Levantinisch, Spanisch — wähle eine SPEZIFISCHE Subküche)",
+      orientalisch: "Orientalische Küche (Nahöstlich, Nordafrikanisch, Persisch, Türkisch, Libanesisch — wähle eine SPEZIFISCHE Subküche)",
+      oesterreichisch: "Österreichische Küche / Hausmannskost (aber in einer gesunden, leichteren Variante — Knödel, Strudel, Eintöpfe, Aufläufe, Palatschinken, Nockerl, Gemüselaibchen, Erdäpfelgerichte)",
+      comfort: "Comfort Food (aber gesund und frisch, nicht deftig — z.B. Bowls, Eintöpfe, Gratins, Ofengerichte)",
       surprise: "Überrasche mich mit einer kreativen, unerwarteten Küche!"
     };
 
@@ -73,6 +73,13 @@ WICHTIG - Schnittmenge bedeutet:
       snack: "Ein gesunder Snack (sättigend, proteinreich, für zwischendurch)"
     };
 
+    // Variation: recent recipes to avoid
+    const recentList = (recentRecipes || []).slice(0, 10);
+    const avoidText = recentList.length > 0
+      ? `\nVERMEIDE WIEDERHOLUNGEN — diese Rezepte wurden kürzlich vorgeschlagen, schlage etwas ANDERES vor (andere Hauptzutat, andere Zubereitungsart, anderer Charakter):
+${recentList.map(t => `- ${t}`).join("\n")}`
+      : "";
+
     const prompt = `Du bist ein kreativer, gesundheitsbewusster Koch-Assistent für ein Paar in Berlin Mitte.
 
 ${profileText}
@@ -82,17 +89,20 @@ ${filterTexts.length > 0 ? `ZUSÄTZLICHE EINSCHRÄNKUNGEN:\n${filterTexts.join("
 KÜCHENSTIL: ${cuisineMap[cuisine] || "Überrasche mich!"}
 MEAL-TYPE: ${mealTypeMap[mealType] || mealTypeMap.hauptgericht}
 MAX. ZUBEREITUNGSZEIT: ${maxMinutes || 30} Minuten${ingredientText}
+${avoidText}
 
-ANFORDERUNGEN AN DAS REZEPT:
-- Einfach und schnell zuzubereiten
-- Zutaten müssen in Berlin Mitte leicht erhältlich sein (Supermarkt, Biomarkt, asiatischer Laden)
-- Ausgewogen und gesund
-- Viele Ballaststoffe, Kerne und Nüsse (wenn erlaubt)
-- Weniger einfache Kohlenhydrate, weniger Salz
-- Eiweißreich
-- Frisch, nicht hochverarbeitet
-- Saisonales Gemüse bevorzugen (aktueller Monat: ${new Date().toLocaleString('de-DE', { month: 'long' })})
-- Sei KREATIV und ABWECHSLUNGSREICH — keine Standardgerichte
+REGELN FÜR DAS REZEPT:
+1. MAXIMAL 8–10 Hauptzutaten (Salz, Pfeffer, Öl zählen nicht). Halte es EINFACH.
+2. Kerne und Nüsse (Sonnenblumenkerne, Kürbiskerne, Walnüsse, Pinienkerne, Sesam etc.) als OPTIONALES TOPPING in den Tipps erwähnen — nicht als Hauptzutat auflisten, es sei denn sie sind zentral fürs Gericht.
+3. HALTE DICH STRIKT an den gewählten Küchenstil. Kein Tahini bei italienischen Gerichten, kein Sojasauce bei österreichischen.
+4. Moderate Schärfe — nicht zu scharf, aber gerne aromatisch gewürzt.
+5. VARIIERE die Hauptzutaten: nicht immer Süßkartoffel, nicht immer Tahini, nicht immer Kichererbsen. Nutze die ganze Bandbreite an Gemüse, Hülsenfrüchten und Getreiden.
+6. Einfach und schnell zuzubereiten.
+7. Zutaten müssen in Berlin Mitte leicht erhältlich sein (Supermarkt, Biomarkt, asiatischer Laden).
+8. Ausgewogen, eiweißreich, ballaststoffreich.
+9. Weniger einfache Kohlenhydrate, weniger Salz, frisch und nicht hochverarbeitet.
+10. Saisonales Gemüse bevorzugen (aktueller Monat: ${new Date().toLocaleString('de-DE', { month: 'long' })}).
+11. Sei KREATIV — schlage Gerichte vor, die man nicht sofort auf Google findet. Überrasche uns!
 
 Antworte AUSSCHLIESSLICH im folgenden JSON-Format (kein anderer Text):
 {
@@ -113,7 +123,7 @@ Antworte AUSSCHLIESSLICH im folgenden JSON-Format (kein anderer Text):
     "Schritt 1",
     "Schritt 2"
   ],
-  "tips": "Optionaler Tipp oder Variation",
+  "tips": "Optionaler Tipp oder Variation (Kerne/Nüsse als Topping hier erwähnen)",
   "healthNote": "Kurzer Hinweis warum das Gericht gut für euer Profil ist"
 }`;
 
