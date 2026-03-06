@@ -4,7 +4,11 @@ export default async (req) => {
     const dbId = process.env.NOTION_DATABASE_ID;
 
     if (!notionKey || !dbId) {
-      return new Response(JSON.stringify({ error: "Notion nicht konfiguriert" }), {
+      return new Response(JSON.stringify({
+        error: "Notion nicht konfiguriert",
+        hasToken: !!notionKey,
+        hasDbId: !!dbId
+      }), {
         status: 500, headers: { "Content-Type": "application/json" }
       });
     }
@@ -30,7 +34,12 @@ export default async (req) => {
 
       if (!response.ok) {
         const err = await response.text();
-        return new Response(JSON.stringify({ error: "Notion Fehler", details: err }), {
+        console.error("Notion API error:", response.status, err);
+        return new Response(JSON.stringify({
+          error: "Notion Fehler",
+          status: response.status,
+          details: err
+        }), {
           status: 500, headers: { "Content-Type": "application/json" }
         });
       }

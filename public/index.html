@@ -546,7 +546,11 @@
     async function loadFavoritesFromNotion() {
       try {
         const res = await fetch('/api/get-favorites');
-        if (!res.ok) throw new Error('API Fehler');
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          console.error('Notion API error:', res.status, errData);
+          throw new Error(errData.details || errData.error || `API Fehler ${res.status}`);
+        }
         notionFavorites = await res.json();
         favoritesLoaded = true;
         // Cache locally for offline/fast access
@@ -554,7 +558,7 @@
         updateFavBadge();
         return notionFavorites;
       } catch(e) {
-        console.warn('Notion fetch failed, using cache:', e);
+        console.warn('Notion fetch failed, using cache:', e.message);
         try {
           notionFavorites = JSON.parse(localStorage.getItem('schipfie-notion-cache')) || [];
         } catch(e2) { notionFavorites = []; }

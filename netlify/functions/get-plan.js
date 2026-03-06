@@ -1,7 +1,14 @@
 export default async (req) => {
   try {
-    const url = new URL(req.url);
-    const weekStart = url.searchParams.get('weekStart'); // ISO date of Monday, e.g. "2026-02-24"
+    // Parse query params robustly (same fix as profile.js)
+    let weekStart = null;
+    try {
+      const url = new URL(req.url, "https://localhost");
+      weekStart = url.searchParams.get('weekStart');
+    } catch(e) {
+      const match = req.url && req.url.match(/[?&]weekStart=([^&]+)/);
+      if (match) weekStart = decodeURIComponent(match[1]);
+    }
     const notionKey = process.env.NOTION_TOKEN;
     const planDbId = process.env.NOTION_PLAN_DATABASE_ID;
 
