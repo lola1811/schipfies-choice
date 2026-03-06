@@ -20,6 +20,8 @@
 
     .header{text-align:center;padding:2rem 1.5rem 1.2rem;position:relative}
     .header::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:60px;height:3px;background:var(--terra);border-radius:2px}
+    .avatar-btn{position:absolute;top:1.5rem;right:1.2rem;width:2.5rem;height:2.5rem;border-radius:50%;border:2px solid var(--sand);background:white;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);transition:all 0.2s;z-index:10}
+    .avatar-btn:hover{transform:scale(1.1);box-shadow:var(--shadow-lg)}
     .logo{font-size:2rem;margin-bottom:0.1rem;display:block}
     .header h1{font-family:'DM Serif Display',serif;font-size:1.5rem;font-weight:400;letter-spacing:-0.01em}
     .header p{color:var(--stone);font-size:0.8rem;margin-top:0.3rem}
@@ -326,11 +328,37 @@
     .footer{text-align:center;padding:2rem 1.5rem;color:var(--sand);font-size:0.7rem}
     .hidden{display:none !important}
     @media(min-width:520px){.container{padding:2rem}.header{padding:2.5rem 2rem 1.5rem}}
+    /* Profile Overlay */
+    .profile-overlay{position:fixed;inset:0;background:var(--warm);z-index:200;transform:translateY(100%);transition:transform 0.35s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
+    .profile-overlay.open{transform:translateY(0)}
+    .profile-overlay-header{text-align:center;padding:1.5rem;position:sticky;top:0;background:var(--warm);z-index:1;border-bottom:1px solid var(--sand)}
+    .profile-close-btn{position:absolute;top:1rem;right:1rem;border:none;background:none;font-size:1.3rem;cursor:pointer;color:var(--stone);padding:0.3rem}
+    .profile-avatar-switch{display:flex;gap:0.5rem;justify-content:center;margin-bottom:0.8rem}
+    .profile-avatar-opt{padding:0.5rem 1.2rem;border-radius:50px;border:2px solid var(--sand);background:white;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s}
+    .profile-avatar-opt.active{border-color:var(--terra);background:linear-gradient(135deg,rgba(196,94,58,0.1),rgba(196,94,58,0.03))}
+    .profile-overlay-header h2{font-family:'DM Serif Display',serif;font-size:1.2rem;font-weight:400}
+    .profile-overlay-body{padding:1rem 1.5rem 6rem;max-width:480px;margin:0 auto}
+    .profile-field{margin-bottom:1.5rem}
+    .profile-label{font-size:0.85rem;font-weight:600;display:block;margin-bottom:0.2rem}
+    .profile-hint{font-size:0.7rem;color:var(--stone);margin-bottom:0.5rem}
+    .tag-container{display:flex;flex-wrap:wrap;gap:0.35rem;min-height:1.8rem;margin-bottom:0.4rem}
+    .tag-pill{display:inline-flex;align-items:center;gap:0.3rem;padding:0.3rem 0.7rem;background:white;border:1.5px solid var(--sand);border-radius:50px;font-size:0.78rem;cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif}
+    .tag-pill:hover{border-color:var(--terra-light);background:rgba(196,94,58,0.05)}
+    .tag-pill .tag-x{font-size:0.65rem;color:var(--stone);font-weight:700}
+    .tag-input-row{display:flex;gap:0.4rem}
+    .tag-input{flex:1;padding:0.5rem 0.8rem;border:1.5px solid var(--sand);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:0.82rem;background:white;transition:border-color 0.2s}
+    .tag-input:focus{outline:none;border-color:var(--terra)}
+    .tag-add-btn{width:2.2rem;height:2.2rem;border-radius:var(--radius-sm);border:1.5px solid var(--terra);background:white;color:var(--terra);font-size:1.1rem;font-weight:700;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center}
+    .tag-add-btn:hover{background:var(--terra);color:white}
+    .profile-save-btn{width:100%;padding:0.85rem;background:linear-gradient(135deg,var(--terra),var(--amber));color:white;border:none;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:600;cursor:pointer;margin-top:1rem;transition:opacity 0.2s}
+    .profile-save-btn:disabled{opacity:0.5;cursor:not-allowed}
+    .profile-save-btn.saved{background:var(--olive)}
   </style>
 </head>
 <body>
 
   <header class="header">
+    <button class="avatar-btn" id="avatarBtn" onclick="openProfileOverlay()" title="Profil bearbeiten">🦖</button>
     <span class="logo">🥄</span>
     <h1>Schipfie's Choice</h1>
     <p>Gesund kochen — einfach gemacht</p>
@@ -439,6 +467,51 @@
 
   <div class="save-toast" id="saveToast"></div>
   <div id="modalContainer"></div>
+
+  <!-- ═══ PROFILE OVERLAY ═══ -->
+  <div class="profile-overlay" id="profileOverlay">
+    <div class="profile-overlay-header">
+      <button class="profile-close-btn" onclick="closeProfileOverlay()">✕</button>
+      <div class="profile-avatar-switch">
+        <button class="profile-avatar-opt" data-who="Luki" onclick="switchProfileView('Luki')">🦖 Luki</button>
+        <button class="profile-avatar-opt" data-who="Lola" onclick="switchProfileView('Lola')">🍭 Lola</button>
+      </div>
+      <h2 id="profileTitle">Profil bearbeiten</h2>
+    </div>
+    <div class="profile-overlay-body" id="profileBody">
+      <div class="profile-field">
+        <label class="profile-label">🏥 Health Details</label>
+        <p class="profile-hint">Gesundheitliche Voraussetzungen</p>
+        <div class="tag-container" id="tags-Health"></div>
+        <div class="tag-input-row"><input type="text" class="tag-input" id="input-Health" placeholder="z.B. Eisenmangel…" onkeydown="handleTagKey(event,'Health')"><button class="tag-add-btn" onclick="addTagFromInput('Health')">+</button></div>
+      </div>
+      <div class="profile-field">
+        <label class="profile-label">🚫 Isst Nicht</label>
+        <p class="profile-hint">Lebensmittel-Ausschlüsse</p>
+        <div class="tag-container" id="tags-Isst Nicht"></div>
+        <div class="tag-input-row"><input type="text" class="tag-input" id="input-Isst Nicht" placeholder="z.B. Pilze…" onkeydown="handleTagKey(event,'Isst Nicht')"><button class="tag-add-btn" onclick="addTagFromInput('Isst Nicht')">+</button></div>
+      </div>
+      <div class="profile-field">
+        <label class="profile-label">💚 Liebt</label>
+        <p class="profile-hint">Geschmackspräferenzen</p>
+        <div class="tag-container" id="tags-Liebt"></div>
+        <div class="tag-input-row"><input type="text" class="tag-input" id="input-Liebt" placeholder="z.B. Curry, Auberginen…" onkeydown="handleTagKey(event,'Liebt')"><button class="tag-add-btn" onclick="addTagFromInput('Liebt')">+</button></div>
+      </div>
+      <div class="profile-field">
+        <label class="profile-label">💪 Braucht</label>
+        <p class="profile-hint">Ernährungs-Bedürfnisse</p>
+        <div class="tag-container" id="tags-Braucht"></div>
+        <div class="tag-input-row"><input type="text" class="tag-input" id="input-Braucht" placeholder="z.B. viel Eiweiß…" onkeydown="handleTagKey(event,'Braucht')"><button class="tag-add-btn" onclick="addTagFromInput('Braucht')">+</button></div>
+      </div>
+      <div class="profile-field">
+        <label class="profile-label">✨ KI — Mehr von</label>
+        <p class="profile-hint">Wünsche an KI-Rezepte</p>
+        <div class="tag-container" id="tags-Mehr Von"></div>
+        <div class="tag-input-row"><input type="text" class="tag-input" id="input-Mehr Von" placeholder="z.B. Ofengerichte…" onkeydown="handleTagKey(event,'Mehr Von')"><button class="tag-add-btn" onclick="addTagFromInput('Mehr Von')">+</button></div>
+      </div>
+      <button class="profile-save-btn" id="profileSaveBtn" onclick="saveProfile()">💾 Speichern</button>
+    </div>
+  </div>
 
   <!-- Favorites now loaded from Notion API -->
   <script>
@@ -1419,6 +1492,139 @@
         showToast('❌ '+e.message);
       }
     }
+
+    // ── Profile Management ──
+    const PROFILE_FIELDS = ['Health', 'Isst Nicht', 'Liebt', 'Braucht', 'Mehr Von'];
+    let currentProfileUser = localStorage.getItem('schipfie-current-user') || 'Luki';
+    let profileData = {}; // { Luki: { Health: "...", ... }, Lola: { ... } }
+
+    // Set avatar on load
+    document.getElementById('avatarBtn').textContent = currentProfileUser === 'Lola' ? '🍭' : '🦖';
+
+    function tagsToArray(str) {
+      return (str || '').split(',').map(s => s.trim()).filter(Boolean);
+    }
+    function arrayToTags(arr) {
+      return (arr || []).join(', ');
+    }
+
+    function renderTags(field) {
+      const container = document.getElementById('tags-' + field);
+      const data = profileData[currentProfileUser] || {};
+      const tags = tagsToArray(data[field]);
+      container.innerHTML = tags.map((t, i) =>
+        `<span class="tag-pill" onclick="removeTag('${field}',${i})">${t} <span class="tag-x">✕</span></span>`
+      ).join('');
+    }
+
+    function removeTag(field, idx) {
+      const data = profileData[currentProfileUser] || {};
+      const tags = tagsToArray(data[field]);
+      tags.splice(idx, 1);
+      data[field] = arrayToTags(tags);
+      renderTags(field);
+    }
+
+    function addTagFromInput(field) {
+      const input = document.getElementById('input-' + field);
+      const val = input.value.trim();
+      if (!val) return;
+      const data = profileData[currentProfileUser] || {};
+      const tags = tagsToArray(data[field]);
+      // Support comma-separated input
+      val.split(',').map(s => s.trim()).filter(Boolean).forEach(t => {
+        if (!tags.includes(t)) tags.push(t);
+      });
+      data[field] = arrayToTags(tags);
+      input.value = '';
+      renderTags(field);
+    }
+
+    function handleTagKey(e, field) {
+      if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        addTagFromInput(field);
+      }
+    }
+
+    async function loadProfile(name) {
+      // Try cache first
+      const cached = localStorage.getItem('schipfie-profile-' + name);
+      if (cached) {
+        profileData[name] = JSON.parse(cached);
+      }
+      // Fetch from Notion
+      try {
+        const res = await fetch('/api/profile?name=' + name);
+        if (res.ok) {
+          const data = await res.json();
+          profileData[name] = {};
+          PROFILE_FIELDS.forEach(f => { profileData[name][f] = data[f] || ''; });
+          localStorage.setItem('schipfie-profile-' + name, JSON.stringify(profileData[name]));
+        }
+      } catch (e) { console.warn('Profile load failed:', e); }
+    }
+
+    async function openProfileOverlay() {
+      const overlay = document.getElementById('profileOverlay');
+      // Load both profiles if not loaded
+      if (!profileData.Luki) await loadProfile('Luki');
+      if (!profileData.Lola) await loadProfile('Lola');
+      switchProfileView(currentProfileUser);
+      overlay.classList.add('open');
+    }
+
+    function closeProfileOverlay() {
+      document.getElementById('profileOverlay').classList.remove('open');
+    }
+
+    function switchProfileView(name) {
+      currentProfileUser = name;
+      localStorage.setItem('schipfie-current-user', name);
+      document.getElementById('avatarBtn').textContent = name === 'Lola' ? '🍭' : '🦖';
+      document.getElementById('profileTitle').textContent = name + '\'s Profil';
+      // Highlight active tab
+      document.querySelectorAll('.profile-avatar-opt').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.who === name);
+      });
+      // Ensure data exists
+      if (!profileData[name]) profileData[name] = {};
+      // Render all fields
+      PROFILE_FIELDS.forEach(f => renderTags(f));
+      // Reset save button
+      const btn = document.getElementById('profileSaveBtn');
+      btn.textContent = '💾 Speichern';
+      btn.classList.remove('saved');
+      btn.disabled = false;
+    }
+
+    async function saveProfile() {
+      const btn = document.getElementById('profileSaveBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Speichert…';
+      try {
+        const data = { name: currentProfileUser, ...profileData[currentProfileUser] };
+        const res = await fetch('/api/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error('Save failed');
+        localStorage.setItem('schipfie-profile-' + currentProfileUser, JSON.stringify(profileData[currentProfileUser]));
+        btn.textContent = '✅ Gespeichert!';
+        btn.classList.add('saved');
+        setTimeout(() => { btn.textContent = '💾 Speichern'; btn.classList.remove('saved'); btn.disabled = false; }, 2000);
+        showToast(`${currentProfileUser === 'Lola' ? '🍭' : '🦖'} ${currentProfileUser}'s Profil gespeichert!`);
+      } catch (e) {
+        btn.textContent = '❌ Fehler';
+        btn.disabled = false;
+        showToast('❌ Profil konnte nicht gespeichert werden');
+      }
+    }
+
+    // Load profiles in background on startup
+    loadProfile('Luki');
+    loadProfile('Lola');
 
     // Init
     // Load cached favorites immediately for fast UI

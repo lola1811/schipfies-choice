@@ -1,3 +1,26 @@
+const NOTION_TOKEN = process.env.NOTION_TOKEN;
+const PROFILE_IDS = {
+  Luki: "31b0c858374781f0a4a5f68b3fa1da3d",
+  Lola: "31b0c858374781a1a093dd126fae8f90"
+};
+
+async function fetchProfile(name) {
+  const res = await fetch(`https://api.notion.com/v1/pages/${PROFILE_IDS[name]}`, {
+    headers: { "Authorization": `Bearer ${NOTION_TOKEN}`, "Notion-Version": "2022-06-28" }
+  });
+  if (!res.ok) return null;
+  const page = await res.json();
+  const get = (f) => (page.properties[f]?.rich_text || []).map(t => t.plain_text).join("") || "";
+  return { name, health: get("Health"), isstNicht: get("Isst Nicht"), liebt: get("Liebt"), braucht: get("Braucht"), mehrVon: get("Mehr Von") };
+}
+
+function buildProfileText(p) {
+  return `${p.name} (${p.health}):
+ISST NICHT: ${p.isstNicht}
+LIEBT: ${p.liebt}
+BRAUCHT: ${p.braucht}${p.mehrVon ? `\nMEHR DAVON BEI KI-REZEPTEN: ${p.mehrVon}` : ""}`;
+}
+
 export default async (req) => {
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
@@ -6,41 +29,29 @@ export default async (req) => {
   try {
     const { profiles, filters, cuisine, mealType, maxMinutes, ingredient, recentRecipes } = await req.json();
 
-    const profileDescriptions = {
-      lucas: `Luki (34, männlich, 1.93m, sehr aktiv, erhöhter Cholesterin, braucht viel Eiweiß, aktiv in Familienplanung):
-ISST NICHT: jegliche Art von Käse, Oliven, Kapern, Joghurt-Saucen, Mayonnaise, Innereien, Wurst, Schweinefleisch, Fast Food, deftige Hausmannskost, hochverarbeitete Lebensmittel, Pilze (wenn zusammen mit Lola)
-LIEBT: jegliche Art von Gemüse, Fisch (Lachs, aber nicht zu oft!), Porridge, Quark, Spinat, Bolognese, Nudeln, Reis, Asiatisch, Ottolenghi-Style, ausgefallene Gerichte, Mediterran, Sushi, Curry, Suppe, Gnocchi, Koriander
-BRAUCHT: Große Portionen, viel Eiweiß, cholesterinbewusst (wenig gesättigte Fette), folsäurereich, Omega-3-reich (Leinsamen, Walnüsse, Chiasamen, Lachs — am besten mit einer Fettquelle kombinieren für bessere Aufnahme)`,
-
-      lola: `Lola (33, weiblich, 1.63m, aktiv, Schilddrüsenunterfunktion, Eisenmangel, niedriger Blutdruck, braucht Eiweiß, aktiv in Familienplanung):
-ISST NICHT: Pilze, frittierte Lebensmittel, Fleisch & Fisch, Fast Food, hochverarbeitete Lebensmittel
-LIEBT: frische Kräuter, Koriander, Auberginen, Nüsse, rote Linsen, Gemüse, Oliven, Feta, Halloumi, Mozzarella, Kürbiskernöl, Knödel, Spinat, Strudel, Pesto, Reis, indische Gewürze, Curry, Ratatouille, Ofengerichte, Radicchio, Körnerbrot, Hummus, österreichische Küche (Knödel, Nockerl, Strudel, Palatschinken, Erdäpfelgerichte — gerne in gesunder Variante)
-BRAUCHT: Eisenreich (Hülsenfrüchte, Spinat, Kerne), jodhaltige Lebensmittel, Eiweiß, folsäurereich, Omega-3-reich (Leinsamen, Walnüsse, Chiasamen, Hanfsamen — am besten mit einer Fettquelle kombinieren für bessere Aufnahme)`
-    };
+    // Fetch profiles from Notion
+    const [luki, lola] = await Promise.all([fetchProfile("Luki"), fetchProfile("Lola")]);
 
     let profileText = "";
     const activeProfiles = profiles || ["lucas", "lola"];
 
-    if (activeProfiles.includes("lucas") && activeProfiles.includes("lola")) {
+    if (activeProfiles.includes("lucas") && activeProfiles.includes("lola") && luki && lola) {
       profileText = `Koche für BEIDE zusammen (Schnittmenge):
-${profileDescriptions.lucas}
+${buildProfileText(luki)}
 
-${profileDescriptions.lola}
+${buildProfileText(lola)}
 
 WICHTIG - Schnittmenge bedeutet:
 - Vegetarisch (wegen Lola)
-- KEIN Käse, KEINE Oliven, KEINE Kapern (wegen Luki)
-- KEINE Pilze (wegen Lola)
-- KEINE Joghurt-Saucen, Mayo (wegen Luki)
+- Kombiniere die ISST NICHT Listen beider Profile
 - Viel Eiweiß für beide
 - Eisenreich für Lola, cholesterinbewusst für Luki
-- Folsäurereich für beide (Familienplanung)
-- Omega-3-reich für beide (Leinsamen, Walnüsse, Chiasamen, Hanfsamen — mit gesundem Fett kombinieren für bessere Aufnahme, z.B. Olivenöl, Avocado, Nüsse)
+- Omega-3-reich für beide (Kerne, Nüsse, Samen — mit gesundem Fett kombinieren)
 - Große Portionen (Luki hat viel Hunger)`;
-    } else if (activeProfiles.includes("lucas")) {
-      profileText = `Koche NUR für Luki:\n${profileDescriptions.lucas}\nLuki darf auch Fisch essen wenn er allein isst.`;
-    } else if (activeProfiles.includes("lola")) {
-      profileText = `Koche NUR für Lola:\n${profileDescriptions.lola}\nLola liebt Käse (Feta, Halloumi, Mozzarella) und Oliven wenn sie allein isst.`;
+    } else if (activeProfiles.includes("lucas") && luki) {
+      profileText = `Koche NUR für Luki:\n${buildProfileText(luki)}\nLuki darf auch Fisch essen wenn er allein isst.`;
+    } else if (activeProfiles.includes("lola") && lola) {
+      profileText = `Koche NUR für Lola:\n${buildProfileText(lola)}\nLola liebt Käse (Feta, Halloumi, Mozzarella) und Oliven wenn sie allein isst.`;
     }
 
     // Ingredient wish

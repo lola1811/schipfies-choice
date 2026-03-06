@@ -58,8 +58,8 @@ export default async (req) => {
 WICHTIG: Übersetze ALLES ins Deutsche — auch den Titel! Wenn das Originalrezept "Thai Green Curry" heißt, wird daraus "Thailändisches Grünes Curry". Wenn es "Roasted Cauliflower Salad" heißt, wird daraus "Gerösteter Blumenkohl-Salat".
 
 PROFIL der Nutzer (wichtig für tipps, gesundheitshinweis und passtFuer):
-- Lola (33, vegetarisch, Schilddrüsenunterfunktion, Eisenmangel, niedriger Blutdruck, Familienplanung, liebt Käse/Oliven/Kürbiskernöl/Kräuter)
-- Lucas (34, isst Fisch aber kein Käse/keine Oliven/keine Pilze, erhöhtes Cholesterin, Familienplanung)
+- Lola (33, vegetarisch, Schilddrüsenunterfunktion, Eisenmangel, niedriger Blutdruck, liebt Käse/Oliven/Kürbiskernöl/Kräuter)
+- Lucas (34, isst Fisch aber kein Käse/keine Oliven/keine Pilze, erhöhtes Cholesterin)
 - Beide brauchen: viel Eiweiß, Folsäure, Omega-3, Eisen (Lola), Jod (Lola), cholesterinbewusst (Lucas)
 
 Antworte NUR mit einem JSON-Objekt (kein Markdown, keine Erklärung), mit genau diesen Feldern:
