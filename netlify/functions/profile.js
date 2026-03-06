@@ -46,13 +46,21 @@ function toRichText(text) {
 }
 
 export default async (req) => {
-  const url = new URL(req.url);
+  // Parse query params robustly
+  let name = null;
+  try {
+    const url = new URL(req.url, "https://localhost");
+    name = url.searchParams.get("name");
+  } catch(e) {
+    // Fallback: parse from raw URL
+    const match = req.url && req.url.match(/[?&]name=([^&]+)/);
+    if (match) name = decodeURIComponent(match[1]);
+  }
 
   // GET /api/profile?name=Luki
   if (req.method === "GET") {
-    const name = url.searchParams.get("name");
     if (!name || !PROFILE_IDS[name]) {
-      return new Response(JSON.stringify({ error: "Name must be Luki or Lola" }), {
+      return new Response(JSON.stringify({ error: "Name must be Luki or Lola", receivedName: name, url: req.url }), {
         status: 400, headers: { "Content-Type": "application/json" }
       });
     }
@@ -67,6 +75,7 @@ export default async (req) => {
         status: 200, headers: { "Content-Type": "application/json" }
       });
     } catch (e) {
+      console.error("Profile GET error:", e);
       return new Response(JSON.stringify({ error: e.message }), {
         status: 500, headers: { "Content-Type": "application/json" }
       });
@@ -77,8 +86,8 @@ export default async (req) => {
   if (req.method === "POST") {
     try {
       const body = await req.json();
-      const name = body.name;
-      if (!name || !PROFILE_IDS[name]) {
+      const postName = body.name;
+      if (!postName || !PROFILE_IDS[postName]) {
         return new Response(JSON.stringify({ error: "Name must be Luki or Lola" }), {
           status: 400, headers: { "Content-Type": "application/json" }
         });
@@ -91,20 +100,16 @@ export default async (req) => {
         }
       });
 
-      await notionPatch(PROFILE_IDS[name], properties);
+      await notionPatch(PROFILE_IDS[postName], properties);
       return new Response(JSON.stringify({ success: true }), {
         status: 200, headers: { "Content-Type": "application/json" }
       });
     } catch (e) {
+      console.error("Profile POST error:", e);
       return new Response(JSON.stringify({ error: e.message }), {
         status: 500, headers: { "Content-Type": "application/json" }
       });
     }
-  }
-
-  // GET both profiles (for generate-recipe)
-  if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204 });
   }
 
   return new Response("Method not allowed", { status: 405 });

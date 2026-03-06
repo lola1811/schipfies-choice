@@ -1568,10 +1568,15 @@
 
     async function openProfileOverlay() {
       const overlay = document.getElementById('profileOverlay');
+      overlay.classList.add('open');
+      // Show loading
+      PROFILE_FIELDS.forEach(f => {
+        const c = document.getElementById('tags-' + f);
+        if (c) c.innerHTML = '<span style="color:var(--stone);font-size:0.75rem">Lade…</span>';
+      });
       // Always reload fresh from Notion
       await Promise.all([loadProfile('Luki'), loadProfile('Lola')]);
       switchProfileView(currentProfileUser);
-      overlay.classList.add('open');
     }
 
     function closeProfileOverlay() {
