@@ -27,10 +27,16 @@ export default async (req) => {
   }
 
   try {
-    const { profiles, filters, cuisine, mealType, maxMinutes, ingredient, recentRecipes } = await req.json();
+    const { profiles, filters, cuisine, mealType, maxMinutes, ingredient, recentRecipes, profileData } = await req.json();
 
-    // Fetch profiles from Notion
-    const [luki, lola] = await Promise.all([fetchProfile("Luki"), fetchProfile("Lola")]);
+    // Use profiles from frontend (fast) or fetch from Notion (fallback)
+    let luki, lola;
+    if (profileData?.Luki && profileData?.Lola) {
+      luki = { name: 'Luki', health: profileData.Luki.Health || '', isstNicht: profileData.Luki['Isst Nicht'] || '', liebt: profileData.Luki.Liebt || '', braucht: profileData.Luki.Braucht || '', mehrVon: profileData.Luki['Mehr Von'] || '' };
+      lola = { name: 'Lola', health: profileData.Lola.Health || '', isstNicht: profileData.Lola['Isst Nicht'] || '', liebt: profileData.Lola.Liebt || '', braucht: profileData.Lola.Braucht || '', mehrVon: profileData.Lola['Mehr Von'] || '' };
+    } else {
+      [luki, lola] = await Promise.all([fetchProfile("Luki"), fetchProfile("Lola")]);
+    }
 
     let profileText = "";
     const activeProfiles = profiles || ["lucas", "lola"];

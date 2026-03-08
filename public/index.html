@@ -1438,7 +1438,7 @@
           actualCuisine=styles[nextIdx];
           localStorage.setItem('schipfie-surprise-idx',String(nextIdx));
         }
-        const res=await fetch('/api/generate-recipe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({profiles:Array.from(state.profiles),filters:state.filters,cuisine:actualCuisine,mealType:mealType,maxMinutes:30,ingredient:state.ingredient||null,recentRecipes:recentTitles})});if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.details||e.error||`HTTP ${res.status}`)}const recipe=await res.json();recipe.source='KI-generiert';recipe.profiles=Array.from(state.profiles);recipe.cuisine=state.cuisine;recipe.mealType=mealType;state.currentRecipe=recipe;
+        const res=await fetch('/api/generate-recipe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({profiles:Array.from(state.profiles),filters:state.filters,cuisine:actualCuisine,mealType:mealType,maxMinutes:30,ingredient:state.ingredient||null,recentRecipes:recentTitles,profileData:profileData})});if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.details||e.error||`HTTP ${res.status}`)}const recipe=await res.json();recipe.source='KI-generiert';recipe.profiles=Array.from(state.profiles);recipe.cuisine=state.cuisine;recipe.mealType=mealType;state.currentRecipe=recipe;
         // Save to recent list (keep last 10)
         recentTitles.unshift(recipe.title);
         localStorage.setItem('schipfie-recent-ai',JSON.stringify(recentTitles.slice(0,10)));
@@ -1661,19 +1661,18 @@
       }
     }
 
-    // Load profiles in background on startup
-    loadProfile('Luki');
-    loadProfile('Lola');
+    // Profiles load from cache/defaults instantly, Notion fetch only on profile open
 
     // Init
-    // Load cached favorites immediately for fast UI
+    // Show cached favorites immediately (instant UI)
     try { notionFavorites = JSON.parse(localStorage.getItem('schipfie-notion-cache')) || []; } catch(e) {}
-    updateFavBadge();
-    // Then refresh from Notion in background
-    loadFavoritesFromNotion().then(() => {
-      updateFavBadge();
-      if(document.getElementById('screenFavorites').classList.contains('active')) renderSavedFavorites();
-    });
+    if(notionFavorites.length) { favoritesLoaded = true; }
+    // Refresh from Notion in background (non-blocking)
+    setTimeout(() => {
+      loadFavoritesFromNotion().then(() => {
+        if(document.getElementById('screenFavorites').classList.contains('active')) renderSavedFavorites();
+      });
+    }, 100);
     if('serviceWorker' in navigator){
       navigator.serviceWorker.register('/sw.js').then(reg=>{
         // Check for updates on every app start
