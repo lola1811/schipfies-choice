@@ -121,6 +121,23 @@ REGELN FÜR DAS REZEPT:
 10. Saisonales Gemüse bevorzugen (aktueller Monat: ${new Date().toLocaleString('de-DE', { month: 'long' })}).
 11. Sei KREATIV — schlage Gerichte vor, die man nicht sofort auf Google findet. Überrasche uns!
 
+WICHTIGE KOCH-REGELN (NIEMALS VERLETZEN):
+- Kürbiskernöl ist ein KALTGEPRESSTES ÖL und darf NIEMALS erhitzt werden. Es wird immer erst NACH dem Kochen über das fertige Gericht geträufelt, als Finishing.
+- Olivenöl extra vergine nur bei moderater Hitze verwenden. Zum scharfen Anbraten: neutrales Öl (Rapsöl, Sonnenblumenöl).
+- Leinöl NIEMALS erhitzen — nur kalt verwenden.
+- Frische Kräuter (Basilikum, Koriander, Petersilie, Dill) ERST am Ende dazugeben, nicht mitkochen.
+- Nüsse und Kerne erst NACH dem Kochen als Topping drüberstreuen, außer sie werden bewusst geröstet.
+- Hülsenfrüchte (Linsen, Bohnen, Kichererbsen) brauchen ausreichend Garzeit — Zeiten realistisch angeben.
+- Knoblauch brennt schnell an — nie als erstes in heißes Öl geben, immer nach der Zwiebel.
+
+QUALITÄTSCHECK — Prüfe dein Rezept bevor du antwortest:
+- Ist jeder Zubereitungsschritt REALISTISCH und KORREKT?
+- Stimmen die Garzeiten? (Reis: 15-20 Min, Nudeln: 8-12 Min, Linsen: 15-25 Min, Kartoffeln: 20-25 Min)
+- Werden kaltgepresste Öle korrekt verwendet (nur kalt/als Finishing)?
+- Passt die Zutatenmenge zu der angegebenen Portionszahl?
+- Schlage NUR Rezepte vor, bei denen du dir SICHER bist, dass sie funktionieren und gut schmecken.
+- Im Zweifel: lieber ein einfacheres, bewährtes Rezept als ein experimentelles, das nicht funktioniert.
+
 Antworte AUSSCHLIESSLICH im folgenden JSON-Format (kein anderer Text):
 {
   "title": "Name des Gerichts",
