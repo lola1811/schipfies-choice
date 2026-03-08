@@ -5,15 +5,14 @@
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 // Model config by task type
-// openrouter/free auto-selects from all available free models on OpenRouter
-// This is future-proof — no manual model updates needed when models change
+// Claude Haiku for reliable quality, free model as fallback
 const MODELS = {
   parse: {
-    primary: "openrouter/free",
+    primary: "anthropic/claude-haiku-4-5",
     fallback: "openrouter/free"
   },
   creative: {
-    primary: "openrouter/free",
+    primary: "anthropic/claude-haiku-4-5",
     fallback: "openrouter/free"
   }
 };
