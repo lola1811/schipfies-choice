@@ -4,16 +4,17 @@
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
-// Model config by task type — all free models
-// openrouter/free auto-selects the best available free model
+// Model config by task type
+// openrouter/free auto-selects from all available free models on OpenRouter
+// This is future-proof — no manual model updates needed when models change
 const MODELS = {
   parse: {
-    primary: "meta-llama/llama-3.3-70b-instruct:free",
-    fallback: "meta-llama/llama-4-scout:free"
+    primary: "openrouter/free",
+    fallback: "openrouter/free"
   },
   creative: {
-    primary: "meta-llama/llama-4-scout:free",
-    fallback: "mistralai/mistral-small-3.1-24b-instruct:free"
+    primary: "openrouter/free",
+    fallback: "openrouter/free"
   }
 };
 
