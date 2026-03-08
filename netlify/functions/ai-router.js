@@ -4,15 +4,15 @@
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
-// Model config by task type
+// Model config by task type — all free models
 const MODELS = {
   parse: {
     primary: "meta-llama/llama-3.3-70b-instruct:free",
-    fallback: "anthropic/claude-haiku-4-5"
+    fallback: "google/gemini-2.0-flash-exp:free"
   },
   creative: {
-    primary: "anthropic/claude-haiku-4-5",
-    fallback: null
+    primary: "meta-llama/llama-3.3-70b-instruct:free",
+    fallback: "google/gemini-2.0-flash-exp:free"
   }
 };
 
