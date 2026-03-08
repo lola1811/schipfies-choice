@@ -5,14 +5,15 @@
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 // Model config by task type — all free models
+// openrouter/free auto-selects the best available free model
 const MODELS = {
   parse: {
     primary: "meta-llama/llama-3.3-70b-instruct:free",
-    fallback: "google/gemini-2.0-flash-exp:free"
+    fallback: "meta-llama/llama-4-scout:free"
   },
   creative: {
-    primary: "meta-llama/llama-3.3-70b-instruct:free",
-    fallback: "google/gemini-2.0-flash-exp:free"
+    primary: "meta-llama/llama-4-scout:free",
+    fallback: "mistralai/mistral-small-3.1-24b-instruct:free"
   }
 };
 
@@ -22,29 +23,37 @@ const REQUIRED_FIELDS = {
   creative: ["title", "ingredients", "steps"]
 };
 
-async function callOpenRouter(apiKey, model, prompt, maxTokens = 2000) {
-  const res = await fetch(OPENROUTER_URL, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": "https://schipfies-choice.netlify.app",
-      "X-Title": "Schipfies Choice"
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: maxTokens,
-      messages: [{ role: "user", content: prompt }]
-    })
-  });
+async function callOpenRouter(apiKey, model, prompt, maxTokens = 2000, retries = 2) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const res = await fetch(OPENROUTER_URL, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://schipfies-choice.netlify.app",
+        "X-Title": "Schipfies Choice"
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: maxTokens,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`OpenRouter ${res.status}: ${err}`);
+    if (res.status === 429 && attempt < retries) {
+      // Rate limited — wait and retry
+      await new Promise(r => setTimeout(r, 2000 * (attempt + 1)));
+      continue;
+    }
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`OpenRouter ${res.status}: ${err}`);
+    }
+
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content?.trim() || "";
   }
-
-  const data = await res.json();
-  return data.choices?.[0]?.message?.content?.trim() || "";
 }
 
 function parseJSON(raw) {
